@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OFFICE TRAINER - add-in manifest
+  This file tells Word: "there's an add-in called Office Trainer, it lives at
+  this web address, and here's the button to put on the Home tab."
+  Word reads this file once when the add-in is installed. The add-in itself is
+  taskpane.html, hosted at the addresses below.
+
+  If you move the add-in to a different web address, find-and-replace
+  https://corydave.github.io/office-trainer/ everywhere in this file.
+-->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+
+  <!-- A unique ID for this add-in. Never reuse it for a different add-in. -->
+  <Id>ecc40387-d2c3-4656-8408-4f89bd934eb4</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Finger Lakes Community College</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Office Trainer"/>
+  <Description DefaultValue="Practice Word skills on a real document and check your work. Your document never leaves your device."/>
+  <IconUrl DefaultValue="https://corydave.github.io/office-trainer/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://corydave.github.io/office-trainer/assets/icon-64.png"/>
+  <SupportUrl DefaultValue="https://corydave.github.io/office-trainer/"/>
+
+  <!-- "Document" = Word. -->
+  <Hosts>
+    <Host Name="Document"/>
+  </Hosts>
+
+  <!-- WordApi 1.3 is supported by Word on the web, Windows, Mac and iPad. -->
+  <Requirements>
+    <Sets DefaultMinVersion="1.1">
+      <Set Name="WordApi" MinVersion="1.3"/>
+    </Sets>
+  </Requirements>
+
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://corydave.github.io/office-trainer/taskpane.html"/>
+  </DefaultSettings>
+
+  <!--
+    ReadWriteDocument: needed to (1) read a copy of the document for checking and
+    (2) insert the practice document. The add-in cannot see any other files.
+  -->
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <!-- Everything below adds the "Office Trainer" button to Word's Home tab. -->
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Document">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title"/>
+            <Description resid="GetStarted.Description"/>
+            <LearnMoreUrl resid="GetStarted.LearnMoreUrl"/>
+          </GetStarted>
+          <FunctionFile resid="Commands.Url"/>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="OfficeTrainer.Group">
+                <Label resid="Group.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16"/>
+                  <bt:Image size="32" resid="Icon.32"/>
+                  <bt:Image size="80" resid="Icon.80"/>
+                </Icon>
+                <Control xsi:type="Button" id="OfficeTrainer.OpenButton">
+                  <Label resid="OpenButton.Label"/>
+                  <Supertip>
+                    <Title resid="OpenButton.Label"/>
+                    <Description resid="OpenButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16"/>
+                    <bt:Image size="32" resid="Icon.32"/>
+                    <bt:Image size="80" resid="Icon.80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>OfficeTrainerPane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="https://corydave.github.io/office-trainer/assets/icon-16.png"/>
+        <bt:Image id="Icon.32" DefaultValue="https://corydave.github.io/office-trainer/assets/icon-32.png"/>
+        <bt:Image id="Icon.80" DefaultValue="https://corydave.github.io/office-trainer/assets/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://corydave.github.io/office-trainer/"/>
+        <bt:Url id="Commands.Url" DefaultValue="https://corydave.github.io/office-trainer/commands.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://corydave.github.io/office-trainer/taskpane.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title" DefaultValue="Office Trainer is ready"/>
+        <bt:String id="Group.Label" DefaultValue="Trainer"/>
+        <bt:String id="OpenButton.Label" DefaultValue="Office Trainer"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="Click Office Trainer on the Home tab to open your practice tasks."/>
+        <bt:String id="OpenButton.Tooltip" DefaultValue="Open your practice tasks and check your work."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
