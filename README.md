@@ -10,16 +10,19 @@ used to get there (ribbon, Ctrl+B, or a style all count).
 | --- | --- |
 | `taskpane.html` | The whole app: sidebar, lesson, checker. One file. |
 | `manifest.xml` | Tells Word the add-in exists and adds a button to the Home tab. |
-| `starter.docx` | The practice flyer students start from. |
+| `word/` | Everything for the Word course: lessons in Trainer Markdown, starter documents, the course map, the editor and specs. See `word/README.md`. |
+| `word/starters/poc/` | The proof-of-concept practice documents (`word-1.docx`, `word-2.docx`...) that `taskpane.html` loads today. |
+| `excel/`, `powerpoint/` | Placeholders for the other two courses (same layout as `word/`). |
+| `.htaccess` | HostGator/Apache only: makes updates show up right away while testing. |
 | `commands.html` | Empty page the manifest format requires. Leave it alone. |
 | `index.html` | Forwards the site's home page to `taskpane.html`. |
 | `assets/` | Icons for the ribbon button. |
-| `fixtures/` | Test files (unsolved, solved, partly solved...). Not needed for students. |
+| `word/fixtures/` | Test files for the proof-of-concept checks (unsolved, solved, partly solved...). Not needed for students. |
 
 ## 1. Put it on GitHub Pages
 
 1. Create a new **public** repository named `office-trainer` under `corydave`.
-2. Upload everything in this folder (you can skip `fixtures/`).
+2. Upload everything in this folder (you can skip `word/fixtures/`, `word/_build/` and `word/tools/`).
 3. Go to **Settings > Pages**. Under "Build and deployment," choose **Deploy from a branch**, then **main** and **/ (root)**. Save.
 4. After a minute or two, open https://corydave.github.io/office-trainer/ - you should see the trainer in upload mode.
 
@@ -47,9 +50,32 @@ Send them to https://corydave.github.io/office-trainer/. They download the pract
 do the work in any version of Word (even the phone app), save, and upload the file to check it.
 Same checker, same results.
 
+## Updating it (two kinds of updates)
+
+**Website update** - anything in `taskpane.html`, the lessons, or `word/starters/`:
+
+1. Bump `APP_VERSION` near the top of PART 1 in `taskpane.html`.
+2. Upload the changed files to the server.
+3. In Word, close the Office Trainer pane and open it again. Check the version number at the
+   bottom of the pane. If it still shows the old number, reload the Word tab.
+
+No manifest changes and nothing for students to reinstall.
+
+**Add-in update** - only when `manifest.xml` itself changes (button text, icons, web addresses):
+
+1. Bump `<Version>` in `manifest.xml`.
+2. Upload the new manifest again (Home > Add-ins > My Add-ins > Upload My Add-in), or update it
+   in the Microsoft 365 admin center once it's deployed there.
+
+## Lessons and links
+
+Each lesson can be opened directly, which is handy for Brightspace links:
+`taskpane.html?lesson=word-1`, `?lesson=word-2`, `?lesson=word-3`.
+With no `?lesson=`, the lesson menu opens.
+
 ## How to add a task
 
-1. In `taskpane.html`, find **PART 1: THE LESSON** and copy one of the task blocks.
+1. In `taskpane.html`, find **PART 1: THE LESSONS** and copy one of the task blocks.
 2. Change its `id`, `title`, `instructions`, and `steps`.
 3. Point `check` at a check function. Copy one from **PART 4: THE CHECKS** as a starting point.
 4. To add a video, paste the YouTube video ID (the part after `v=`) into `video.youtubeId`.

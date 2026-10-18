@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Course Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Five-week Microsoft Word course map for FLCC with MOS MO-110 crosswalk, outcome evidence and standards alignment.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Comfortaa:wght@500;700&display=swap">
+<style>
+/* =====================================================================
+   DESIGN TOKENS
+   Layout concept: a Word-style ruler across the top doubles as the week
+   navigator; below it, tabbed panels (overview, map, matrix, crosswalk,
+   evidence, standards, sources). Every color lives here as a token so
+   light and dark themes both work. Small text meets 7:1 contrast (AAA).
+   ===================================================================== */
+:root {
+  --bg: #f5f7fb;          /* page background - a cool, blue-leaning neutral */
+  --surface: #ffffff;     /* cards and tables */
+  --surface-2: #eef2f9;   /* table headers, quiet fills */
+  --ink: #111a2e;         /* main text */
+  --muted: #424a57;       /* secondary text (7:1 on every surface) */
+  --line: #d3dae8;        /* borders and rules */
+  --blue: #0046ad;        /* FLCC / FLX primary - links, active states */
+  --blue-soft: #e3ecfa;
+  --green: #305305;       /* "assessed" and "covered" */
+  --green-soft: #e8f0df;
+  --orange: #8a2905;      /* flags (darkened brand orange so small text clears 7:1) */
+  --orange-fill: #a23108; /* brand orange for borders and marks */
+  --orange-soft: #f8e6df;
+  --ruler: #fbfcfe;
+  --tick: #8d99b0;
+  --focus: #0046ad;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Comfortaa", "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius: 10px;
+  --step--1: 0.875rem; --step-0: 1rem; --step-1: 1.2rem; --step-2: 1.5rem; --step-3: 2.1rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1220; --surface: #131b2c; --surface-2: #1a2438; --ink: #e9eef8; --muted: #b4bfd3;
+    --line: #2b3852; --blue: #9cbcff; --blue-soft: #1b2c4f; --green: #a6d585; --green-soft: #1d2e1a;
+    --orange: #ffab8a; --orange-fill: #ff8f63; --orange-soft: #3a2018; --ruler: #151e31; --tick: #5d6b86;
+    --focus: #9cbcff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1220; --surface: #131b2c; --surface-2: #1a2438; --ink: #e9eef8; --muted: #b4bfd3;
+  --line: #2b3852; --blue: #9cbcff; --blue-soft: #1b2c4f; --green: #a6d585; --green-soft: #1d2e1a;
+  --orange: #ffab8a; --orange-fill: #ff8f63; --orange-soft: #3a2018; --ruler: #151e31; --tick: #5d6b86;
+  --focus: #9cbcff; color-scheme: dark;
+}
+
+/* ---------- base ---------- */
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55;
+}
+.wrap {
+  max-width: 1180px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: var(--step-3); font-weight: 700; }
+h2 { font-size: var(--step-2); font-weight: 700; }
+h3 { font-size: var(--step-1); font-weight: 700; }
+p { margin: 0; max-width: 70ch; }
+a { color: var(--blue); }
+code, .code { font-family: var(--font-mono); font-size: 0.9em; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.skip { position: absolute; left: -9999px; top: 0; }
+.skip:focus { left: 16px; top: 8px; z-index: 50; background: var(--surface); padding: 8px 12px; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: var(--step--1); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.stack-lg { display: flex; flex-direction: column; gap: 28px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- masthead ---------- */
+.masthead { padding-block: 28px 18px; }
+.masthead .wrap { display: flex; flex-direction: column; gap: 14px; }
+.masthead-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.lede { font-size: var(--step-1); color: var(--muted); max-width: 62ch; }
+.theme-btn {
+  font: inherit; font-size: var(--step--1); padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+.stat b { display: block; font-family: var(--font-display); font-size: var(--step-2); font-variant-numeric: tabular-nums; }
+.stat span { font-size: var(--step--1); color: var(--muted); }
+@media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---------- ruler (week navigator) ---------- */
+.ruler-band { padding-block: 6px 0; }
+.ruler {
+  position: relative; border: 1px solid var(--line); border-radius: 6px; background-color: var(--ruler);
+  /* inch ticks: tall every 20%, small every 2.5% - like Word's horizontal ruler */
+  background-image:
+    repeating-linear-gradient(to right, var(--tick) 0 1px, transparent 1px 20%),
+    repeating-linear-gradient(to right, var(--tick) 0 1px, transparent 1px 2.5%);
+  background-size: 100% 12px, 100% 6px; background-repeat: no-repeat; background-position: 0 0, 0 0;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.ruler button {
+  font: inherit; text-align: left; background: transparent; border: 0; color: var(--ink); cursor: pointer;
+  padding: 18px 10px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0;
+}
+.ruler button .n { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+.ruler button .t { font-weight: 700; font-size: var(--step--1); overflow-wrap: anywhere; }
+.ruler button[aria-current="true"] { background: var(--blue-soft); }
+.ruler button[aria-current="true"] .n { color: var(--blue); font-weight: 700; }
+/* the little tab-stop marker under the active week */
+.ruler button[aria-current="true"]::after {
+  content: ""; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent;
+  border-bottom: 8px solid var(--blue); margin-top: 4px;
+}
+@media (max-width: 560px) { .ruler button .t { display: none; } .ruler button { padding-inline: 6px; } }
+
+/* ---------- tabs ---------- */
+.tabs-band { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.tablist { display: flex; gap: 4px; overflow-x: auto; padding-block: 10px 0; scrollbar-width: thin; }
+.tab {
+  font: inherit; font-weight: 700; font-size: var(--step--1); white-space: nowrap; cursor: pointer;
+  padding: 9px 14px; border: 1px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0;
+  background: transparent; color: var(--muted);
+}
+.tab[aria-selected="true"] { background: var(--surface); color: var(--blue); border-color: var(--line); margin-bottom: -1px; }
+main { padding-block: 24px 56px; }
+[role="tabpanel"] { outline: none; }
+
+/* ---------- generic pieces ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+.grid-weeks { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+.week-card { display: flex; flex-direction: column; gap: 10px; }
+.week-card .num { font-family: var(--font-mono); color: var(--muted); font-size: var(--step--1); }
+.week-card .proj { font-size: var(--step--1); }
+.btn {
+  font: inherit; font-size: var(--step--1); font-weight: 700; cursor: pointer; align-self: flex-start;
+  padding: 7px 12px; border-radius: 8px; border: 1px solid var(--blue); background: transparent; color: var(--blue);
+}
+.btn:hover { background: var(--blue-soft); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px; font-size: var(--step--1); line-height: 1.3;
+  padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink);
+}
+button.chip { font: inherit; font-size: var(--step--1); cursor: pointer; }
+button.chip:hover { border-color: var(--blue); color: var(--blue); }
+/* Standards chips that link out to the official framework pages */
+a.chip { text-decoration: none; color: var(--blue); }
+a.chip:hover { border-color: var(--blue); text-decoration: underline; }
+a.chip .ext { font-size: 0.85em; }
+.chip.code { font-family: var(--font-mono); }
+.pill { display: inline-block; font-size: var(--step--1); font-weight: 700; padding: 1px 9px; border-radius: 999px; white-space: nowrap; }
+.pill.web { background: var(--blue-soft); color: var(--blue); }
+.pill.desktop { background: var(--orange-soft); color: var(--orange); }
+.pill.both { background: var(--surface-2); color: var(--muted); }
+.pill.full { background: var(--green-soft); color: var(--green); }
+.pill.partial { background: var(--blue-soft); color: var(--blue); }
+.pill.none { background: var(--surface-2); color: var(--muted); }
+.pill.flag { background: var(--orange-soft); color: var(--orange); }
+.pill.info { background: var(--blue-soft); color: var(--blue); }
+
+/* I / R / A marks: shape AND letter carry meaning, not color alone */
+.mark {
+  display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%;
+  font-weight: 700; font-size: 0.8rem; border: 2px solid var(--blue); color: var(--blue); background: var(--surface);
+}
+.mark.R { background: linear-gradient(90deg, var(--blue-soft) 50%, var(--surface) 50%); }
+.mark.A { background: var(--green); border-color: var(--green); color: var(--surface); }
+.marks { display: inline-flex; gap: 3px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: var(--step--1); color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+
+/* ---------- tables ---------- */
+/* position: relative keeps hidden screen-reader labels inside the scroll box (no page-wide overflow) */
+.table-wrap { position: relative; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+thead th { background: var(--surface-2); font-weight: 700; position: sticky; top: 0; }
+tbody tr:last-child > * { border-bottom: 0; }
+td.center, th.center { text-align: center; }
+td.num { font-family: var(--font-mono); white-space: nowrap; }
+tr.group td { background: var(--surface-2); font-weight: 700; }
+.matrix td.center { min-width: 64px; }
+.matrix th[scope="row"] { font-weight: 400; min-width: 240px; }
+
+/* ---------- week detail ---------- */
+.week-select { display: flex; flex-wrap: wrap; gap: 8px; }
+.week-select button {
+  font: inherit; font-weight: 700; font-size: var(--step--1); cursor: pointer; padding: 7px 14px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.week-select button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--surface); }
+.week-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .week-layout { grid-template-columns: minmax(0, 1fr); } }
+.objectives { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.objectives li { display: grid; grid-template-columns: 4.2em minmax(0, 1fr); gap: 8px; }
+.objectives .oid { font-family: var(--font-mono); font-weight: 700; color: var(--blue); }
+.aside-block { display: flex; flex-direction: column; gap: 6px; }
+.aside-block + .aside-block { border-top: 1px solid var(--line); padding-top: 12px; }
+dl.why { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px; }
+dl.why dt { font-weight: 700; }
+dl.why dd { margin: 0; }
+/* Callout box: the accent is a thin, fully rounded "pill" bar drawn with ::before,
+   instead of a square left border. It is the same 4px width as the old border. */
+.callout { position: relative; background: var(--blue-soft); padding: 10px 14px 10px 24px; border-radius: 8px; }
+.callout::before {
+  content: ""; position: absolute; left: 9px; top: 10px; bottom: 10px;
+  width: 4px; border-radius: 999px;   /* 999px = ends fully rounded at any height */
+  background: var(--blue);
+}
+.callout.warn { background: var(--orange-soft); }
+.callout.warn::before { background: var(--orange-fill); }
+
+/* ---------- coverage bars (MOS domains) ---------- */
+.bars { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr) 6.5em; gap: 12px; align-items: center; font-size: var(--step--1); }
+.bar { height: 14px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; display: flex; }
+.bar .checked { background: var(--green); }
+.bar .drilled { background: repeating-linear-gradient(45deg, var(--blue) 0 3px, var(--blue-soft) 3px 6px); }
+.bar-row .val { font-variant-numeric: tabular-nums; text-align: right; }
+@media (max-width: 640px) { .bar-row { grid-template-columns: minmax(0, 1fr) 5.5em; } .bar-row .bar { grid-column: 1 / -1; } }
+.swatch { display: inline-block; width: 14px; height: 10px; border-radius: 3px; border: 1px solid var(--line); }
+.swatch.checked { background: var(--green); }
+.swatch.drilled { background: repeating-linear-gradient(45deg, var(--blue) 0 3px, var(--blue-soft) 3px 6px); }
+
+/* grading bar */
+.grade-bar { display: flex; height: 26px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+.grade-bar div { display: grid; place-items: center; font-size: 0.78rem; font-weight: 700; color: var(--surface); min-width: 0; }
+.g0 { background: var(--muted); } .g1 { background: var(--blue); } .g2 { background: var(--green); } .g3 { background: var(--orange-fill); } .g4 { background: var(--ink); }
+
+/* filters */
+.filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.filters label { display: flex; flex-direction: column; gap: 4px; font-size: var(--step--1); font-weight: 700; }
+.filters input, .filters select {
+  font: inherit; font-weight: 400; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); min-width: 0;
+}
+.filters input { width: min(280px, 100%); }
+.filters select { max-width: 100%; }
+/* on phones, wide tables keep readable columns and scroll sideways inside their box */
+@media (max-width: 640px) { .table-wrap table { min-width: 600px; } }
+.result-count { font-size: var(--step--1); color: var(--muted); }
+
+/* evidence cards */
+.evidence-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+@media (max-width: 400px) { .evidence-grid { grid-template-columns: minmax(0, 1fr); } }
+dl.ev { margin: 0; display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 6px 10px; font-size: var(--step--1); }
+dl.ev dt { font-weight: 700; color: var(--muted); }
+dl.ev dd { margin: 0; }
+.subnav { display: flex; flex-wrap: wrap; gap: 8px; }
+.subnav a { font-size: var(--step--1); font-weight: 700; }
+
+footer { border-top: 1px solid var(--line); padding-block: 18px 32px; font-size: var(--step--1); color: var(--muted); }
+
+@media (prefers-reduced-motion: no-preference) { .tab, .btn, .chip { transition: background-color .15s, color .15s; } }
+/* Printing the local file (Ctrl/Cmd+P) shows every panel */
+@media print {
+  .tabs-band, .ruler-band, .theme-btn, .filters, .week-select { display: none !important; }
+  [role="tabpanel"][hidden] { display: block !important; }
+  .card, .table-wrap { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="masthead-top">
+      <div class="stack">
+        <span class="eyebrow" id="meta-line"></span>
+        <h1 id="page-title"></h1>
+        <p class="lede" id="lede"></p>
+      </div>
+      <!-- Theme toggle: cycles system -> light -> dark. Remembered per browser when storage is allowed. -->
+      <button type="button" class="theme-btn" id="theme-btn" aria-live="polite">Theme: system</button>
+    </div>
+    <div class="stats" id="stats" aria-label="Coverage summary"></div>
+  </div>
+</header>
+
+<nav class="ruler-band" aria-label="Weeks">
+  <div class="wrap"><div class="ruler" id="ruler"></div></div>
+</nav>
+
+<div class="tabs-band">
+  <div class="wrap">
+    <div class="tablist" role="tablist" aria-label="Course map views" id="tablist"></div>
+  </div>
+</div>
+
+<main id="main" tabindex="-1">
+  <div class="wrap" id="panels"></div>
+</main>
+
+<footer>
+  <div class="wrap" id="footer"></div>
+</footer>
+
+<!-- All course data, generated from the same source as the Markdown course map. -->
+<script type="application/json" id="course-data">{"course": {"title": "Microsoft Word - 5-Week Course Map", "short": "Word Course Map", "college": "Finger Lakes Community College (FLCC)", "version": "Draft 1", "date": "October 17, 2026", "author": "Dave Ghidiu (with Claude)", "format": "5 weeks, online or hybrid, about 9 hours of learner work per week (assumes 1 credit - see Decisions)", "cert": "Microsoft Office Specialist (MOS): Word Associate (Microsoft 365 Apps), exam MO-110"}, "clos": [{"id": "CLO1", "text": "Create, save, format and print documents", "bloom": "Apply"}, {"id": "CLO2", "text": "Demonstrate features offered by the application", "bloom": "Apply"}, {"id": "CLO3", "text": "Insert and modify graphics", "bloom": "Apply"}, {"id": "CLO4", "text": "Create and format tables", "bloom": "Apply"}, {"id": "CLO5", "text": "Apply desktop publishing features to a document", "bloom": "Apply"}, {"id": "CLO6", "text": "Create and preview the document as a Web page", "bloom": "Apply"}, {"id": "CLO7", "text": "use mail merge to create form letters, directories, and envelopes", "bloom": "Apply"}, {"id": "CLO8", "text": "Collaborate on documents, Compare and Combine documents, Manage comments, Track document changes", "bloom": "Apply / Evaluate"}], "topics": [{"id": "T1", "text": "Introduction to Microsoft Word application features", "weeks": ["W1"]}, {"id": "T2", "text": "Creating Documents with Microsoft Word", "weeks": ["W1"]}, {"id": "T3", "text": "Formatting and Organizing Text", "weeks": ["W1", "W2"]}, {"id": "T4", "text": "Using Graphics and Tables", "weeks": ["W3"]}, {"id": "T5", "text": "Special Document Formats, Columns and Mail Merge", "weeks": ["W3", "W4"]}, {"id": "T6", "text": "Working with Templates, Styles and Charts", "weeks": ["W2", "W3", "W4"]}, {"id": "T7", "text": "Creating Form Letters and Working in Groups (Collaboration)", "weeks": ["W4", "W5"]}], "topicHow": {"T1": "Week 1 tour of the Ribbon, Backstage view, status bar, Quick Access Toolbar and views (Print Layout, Read Mode, Web Layout).", "T2": "Week 1 create, name, save, reopen and export documents; Project 1 business letter and memo.", "T3": "Week 1 character and paragraph formatting; Week 2 styles, lists, headers and footers, breaks and the Navigation pane.", "T4": "Week 3 pictures, shapes, icons, SmartArt, text boxes and tables; Project 3 newsletter.", "T5": "Week 3 columns and section-level layout; Week 4 envelopes, labels, directories, web page output and mail merge.", "T6": "Week 2 styles, style sets and a reusable paper template; Week 3 charts and captions; Week 4 resume template.", "T7": "Week 4 merged cover letters (form letters); Week 5 comments, Track Changes, Compare and Combine, co-authoring."}, "mo110": [{"id": "1", "name": "Manage documents", "weight": "20-25%", "objectives": [{"id": "1.1", "name": "Navigate within documents", "skills": [["1.1.1", "Search for text"], ["1.1.2", "Link to locations within documents"], ["1.1.3", "Move to specific locations and objects in documents"], ["1.1.4", "Show and hide formatting symbols and hidden text"]]}, {"id": "1.2", "name": "Format documents", "skills": [["1.2.1", "Set up document pages"], ["1.2.2", "Apply style sets"], ["1.2.3", "Insert and modify headers and footers"], ["1.2.4", "Configure page background elements"]]}, {"id": "1.3", "name": "Save and share documents", "skills": [["1.3.1", "Save documents in alternative file formats"], ["1.3.2", "Modify basic document properties"], ["1.3.3", "Modify print settings"], ["1.3.4", "Share documents electronically"]]}, {"id": "1.4", "name": "Inspect documents for issues", "skills": [["1.4.1", "Locate and remove hidden properties and personal information"], ["1.4.2", "Locate and correct accessibility issues"], ["1.4.3", "Locate and correct compatibility issues"]]}]}, {"id": "2", "name": "Insert and format text, paragraphs, and sections", "weight": "20-25%", "objectives": [{"id": "2.1", "name": "Insert text and paragraphs", "skills": [["2.1.1", "Find and replace text"], ["2.1.2", "Insert symbols and special characters"]]}, {"id": "2.2", "name": "Format text and paragraphs", "skills": [["2.2.1", "Apply text effects"], ["2.2.2", "Apply formatting by using Format Painter"], ["2.2.3", "Set line and paragraph spacing and indentation"], ["2.2.4", "Apply built-in styles to text"], ["2.2.5", "Clear formatting"]]}, {"id": "2.3", "name": "Create and configure document sections", "skills": [["2.3.1", "Format text in multiple columns"], ["2.3.2", "Insert page, section, and column breaks"], ["2.3.3", "Change page setup options for a section"]]}]}, {"id": "3", "name": "Manage tables and lists", "weight": "20-25%", "objectives": [{"id": "3.1", "name": "Create tables", "skills": [["3.1.1", "Convert text to tables"], ["3.1.2", "Convert tables to text"], ["3.1.3", "Create tables by specifying rows and columns"]]}, {"id": "3.2", "name": "Modify tables", "skills": [["3.2.1", "Sort table data"], ["3.2.2", "Configure cell margins and spacing"], ["3.2.3", "Merge and split cells"], ["3.2.4", "Resize tables, rows, and columns"], ["3.2.5", "Split tables"], ["3.2.6", "Configure a repeating row header"]]}, {"id": "3.3", "name": "Create and modify lists", "skills": [["3.3.1", "Format paragraphs as numbered and bulleted lists"], ["3.3.2", "Change bullet characters and number formats"], ["3.3.3", "Define custom bullet characters and number formats"], ["3.3.4", "Increase and decrease list levels"], ["3.3.5", "Restart and continue list numbering"], ["3.3.6", "Set starting number values"]]}]}, {"id": "4", "name": "Create and manage references", "weight": "5-10%", "objectives": [{"id": "4.1", "name": "Create and manage reference elements", "skills": [["4.1.1", "Insert footnotes and endnotes"], ["4.1.2", "Modify footnote and endnote properties"]]}, {"id": "4.2", "name": "Create and manage reference tables", "skills": [["4.2.1", "Insert tables of contents"], ["4.2.2", "Customize tables of contents"]]}]}, {"id": "5", "name": "Insert and format graphic elements", "weight": "15-20%", "objectives": [{"id": "5.1", "name": "Insert illustrations and text boxes", "skills": [["5.1.1", "Insert shapes"], ["5.1.2", "Insert pictures"], ["5.1.3", "Insert 3D models"], ["5.1.4", "Insert SmartArt graphics"], ["5.1.5", "Insert screenshots and screen clippings"], ["5.1.6", "Insert text boxes"], ["5.1.7", "Insert icons"]]}, {"id": "5.2", "name": "Format illustrations and text boxes", "skills": [["5.2.1", "Apply artistic effects"], ["5.2.2", "Apply picture effects and picture styles"], ["5.2.3", "Remove picture backgrounds"], ["5.2.4", "Format graphic elements"], ["5.2.5", "Format SmartArt graphics"], ["5.2.6", "Format 3D models"]]}, {"id": "5.3", "name": "Add text to graphic elements", "skills": [["5.3.1", "Add and modify text in text boxes"], ["5.3.2", "Add and modify text in shapes"], ["5.3.3", "Add and modify SmartArt graphic content"]]}, {"id": "5.4", "name": "Modify graphic elements", "skills": [["5.4.1", "Position objects"], ["5.4.2", "Wrap text around objects"], ["5.4.3", "Add alternative text to objects for accessibility"]]}]}, {"id": "6", "name": "Manage document collaboration", "weight": "5-10%", "objectives": [{"id": "6.1", "name": "Add and manage comments", "skills": [["6.1.1", "Add comments"], ["6.1.2", "Review and reply to comments"], ["6.1.3", "Resolve comments"], ["6.1.4", "Delete comments"]]}, {"id": "6.2", "name": "Manage change tracking", "skills": [["6.2.1", "Track changes"], ["6.2.2", "Review tracked changes"], ["6.2.3", "Accept and reject tracked changes"], ["6.2.4", "Lock and unlock change tracking"]]}]}], "skills": {"1.1.1": {"code": "1.1.1", "name": "Search for text", "obj": "1.1", "objName": "Navigate within documents", "domain": "1", "domainName": "Manage documents", "drills": ["D1.04"], "weeks": ["W1"], "checks": ["SC1"]}, "1.1.2": {"code": "1.1.2", "name": "Link to locations within documents", "obj": "1.1", "objName": "Navigate within documents", "domain": "1", "domainName": "Manage documents", "drills": ["D2.04"], "weeks": ["W2"], "checks": ["SC2"]}, "1.1.3": {"code": "1.1.3", "name": "Move to specific locations and objects in documents", "obj": "1.1", "objName": "Navigate within documents", "domain": "1", "domainName": "Manage documents", "drills": ["D2.03"], "weeks": ["W2"], "checks": ["SC2"]}, "1.1.4": {"code": "1.1.4", "name": "Show and hide formatting symbols and hidden text", "obj": "1.1", "objName": "Navigate within documents", "domain": "1", "domainName": "Manage documents", "drills": ["D1.03"], "weeks": ["W1"], "checks": ["SC1"]}, "1.2.1": {"code": "1.2.1", "name": "Set up document pages", "obj": "1.2", "objName": "Format documents", "domain": "1", "domainName": "Manage documents", "drills": ["D1.09"], "weeks": ["W1"], "checks": ["SC1"]}, "1.2.2": {"code": "1.2.2", "name": "Apply style sets", "obj": "1.2", "objName": "Format documents", "domain": "1", "domainName": "Manage documents", "drills": ["D2.02"], "weeks": ["W2"], "checks": ["SC2"]}, "1.2.3": {"code": "1.2.3", "name": "Insert and modify headers and footers", "obj": "1.2", "objName": "Format documents", "domain": "1", "domainName": "Manage documents", "drills": ["D2.07"], "weeks": ["W2"], "checks": ["SC2"]}, "1.2.4": {"code": "1.2.4", "name": "Configure page background elements", "obj": "1.2", "objName": "Format documents", "domain": "1", "domainName": "Manage documents", "drills": ["D3.12"], "weeks": ["W3"], "checks": ["SC3"]}, "1.3.1": {"code": "1.3.1", "name": "Save documents in alternative file formats", "obj": "1.3", "objName": "Save and share documents", "domain": "1", "domainName": "Manage documents", "drills": ["D1.11", "D4.10", "D4.11"], "weeks": ["W1", "W4"], "checks": ["SC4"]}, "1.3.2": {"code": "1.3.2", "name": "Modify basic document properties", "obj": "1.3", "objName": "Save and share documents", "domain": "1", "domainName": "Manage documents", "drills": ["D1.10"], "weeks": ["W1"], "checks": ["SC1"]}, "1.3.3": {"code": "1.3.3", "name": "Modify print settings", "obj": "1.3", "objName": "Save and share documents", "domain": "1", "domainName": "Manage documents", "drills": ["D1.11"], "weeks": ["W1"], "checks": []}, "1.3.4": {"code": "1.3.4", "name": "Share documents electronically", "obj": "1.3", "objName": "Save and share documents", "domain": "1", "domainName": "Manage documents", "drills": ["D5.05"], "weeks": ["W5"], "checks": ["SC5"]}, "1.4.1": {"code": "1.4.1", "name": "Locate and remove hidden properties and personal information", "obj": "1.4", "objName": "Inspect documents for issues", "domain": "1", "domainName": "Manage documents", "drills": ["D5.06"], "weeks": ["W5"], "checks": ["SC5"]}, "1.4.2": {"code": "1.4.2", "name": "Locate and correct accessibility issues", "obj": "1.4", "objName": "Inspect documents for issues", "domain": "1", "domainName": "Manage documents", "drills": ["D5.07"], "weeks": ["W5"], "checks": ["SC5"]}, "1.4.3": {"code": "1.4.3", "name": "Locate and correct compatibility issues", "obj": "1.4", "objName": "Inspect documents for issues", "domain": "1", "domainName": "Manage documents", "drills": ["D5.06"], "weeks": ["W5"], "checks": ["SC5"]}, "2.1.1": {"code": "2.1.1", "name": "Find and replace text", "obj": "2.1", "objName": "Insert text and paragraphs", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D1.03", "D1.04"], "weeks": ["W1"], "checks": ["SC1"]}, "2.1.2": {"code": "2.1.2", "name": "Insert symbols and special characters", "obj": "2.1", "objName": "Insert text and paragraphs", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D1.05"], "weeks": ["W1"], "checks": ["SC1"]}, "2.2.1": {"code": "2.2.1", "name": "Apply text effects", "obj": "2.2", "objName": "Format text and paragraphs", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D1.06"], "weeks": ["W1"], "checks": ["SC1"]}, "2.2.2": {"code": "2.2.2", "name": "Apply formatting by using Format Painter", "obj": "2.2", "objName": "Format text and paragraphs", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D1.06"], "weeks": ["W1"], "checks": ["SC1"]}, "2.2.3": {"code": "2.2.3", "name": "Set line and paragraph spacing and indentation", "obj": "2.2", "objName": "Format text and paragraphs", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D1.07"], "weeks": ["W1"], "checks": ["SC1"]}, "2.2.4": {"code": "2.2.4", "name": "Apply built-in styles to text", "obj": "2.2", "objName": "Format text and paragraphs", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D2.01"], "weeks": ["W2"], "checks": ["SC2"]}, "2.2.5": {"code": "2.2.5", "name": "Clear formatting", "obj": "2.2", "objName": "Format text and paragraphs", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D1.07"], "weeks": ["W1"], "checks": ["SC1"]}, "2.3.1": {"code": "2.3.1", "name": "Format text in multiple columns", "obj": "2.3", "objName": "Create and configure document sections", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D3.11"], "weeks": ["W3"], "checks": ["SC3"]}, "2.3.2": {"code": "2.3.2", "name": "Insert page, section, and column breaks", "obj": "2.3", "objName": "Create and configure document sections", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D2.08", "D3.11"], "weeks": ["W2", "W3"], "checks": ["SC2"]}, "2.3.3": {"code": "2.3.3", "name": "Change page setup options for a section", "obj": "2.3", "objName": "Create and configure document sections", "domain": "2", "domainName": "Insert and format text, paragraphs, and sections", "drills": ["D2.08", "D3.11"], "weeks": ["W2", "W3"], "checks": ["SC2"]}, "3.1.1": {"code": "3.1.1", "name": "Convert text to tables", "obj": "3.1", "objName": "Create tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.08"], "weeks": ["W3"], "checks": ["SC3"]}, "3.1.2": {"code": "3.1.2", "name": "Convert tables to text", "obj": "3.1", "objName": "Create tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.08"], "weeks": ["W3"], "checks": []}, "3.1.3": {"code": "3.1.3", "name": "Create tables by specifying rows and columns", "obj": "3.1", "objName": "Create tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.09"], "weeks": ["W3"], "checks": ["SC3"]}, "3.2.1": {"code": "3.2.1", "name": "Sort table data", "obj": "3.2", "objName": "Modify tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.09"], "weeks": ["W3"], "checks": ["SC3"]}, "3.2.2": {"code": "3.2.2", "name": "Configure cell margins and spacing", "obj": "3.2", "objName": "Modify tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.09"], "weeks": ["W3"], "checks": []}, "3.2.3": {"code": "3.2.3", "name": "Merge and split cells", "obj": "3.2", "objName": "Modify tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.09"], "weeks": ["W3"], "checks": ["SC3"]}, "3.2.4": {"code": "3.2.4", "name": "Resize tables, rows, and columns", "obj": "3.2", "objName": "Modify tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.09"], "weeks": ["W3"], "checks": []}, "3.2.5": {"code": "3.2.5", "name": "Split tables", "obj": "3.2", "objName": "Modify tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.09"], "weeks": ["W3"], "checks": []}, "3.2.6": {"code": "3.2.6", "name": "Configure a repeating row header", "obj": "3.2", "objName": "Modify tables", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D3.09"], "weeks": ["W3"], "checks": ["SC3"]}, "3.3.1": {"code": "3.3.1", "name": "Format paragraphs as numbered and bulleted lists", "obj": "3.3", "objName": "Create and modify lists", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D2.05"], "weeks": ["W2"], "checks": ["SC2"]}, "3.3.2": {"code": "3.3.2", "name": "Change bullet characters and number formats", "obj": "3.3", "objName": "Create and modify lists", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D2.05"], "weeks": ["W2"], "checks": ["SC2"]}, "3.3.3": {"code": "3.3.3", "name": "Define custom bullet characters and number formats", "obj": "3.3", "objName": "Create and modify lists", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D2.06"], "weeks": ["W2"], "checks": []}, "3.3.4": {"code": "3.3.4", "name": "Increase and decrease list levels", "obj": "3.3", "objName": "Create and modify lists", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D2.05"], "weeks": ["W2"], "checks": ["SC2"]}, "3.3.5": {"code": "3.3.5", "name": "Restart and continue list numbering", "obj": "3.3", "objName": "Create and modify lists", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D2.06"], "weeks": ["W2"], "checks": ["SC2"]}, "3.3.6": {"code": "3.3.6", "name": "Set starting number values", "obj": "3.3", "objName": "Create and modify lists", "domain": "3", "domainName": "Manage tables and lists", "drills": ["D2.06"], "weeks": ["W2"], "checks": []}, "4.1.1": {"code": "4.1.1", "name": "Insert footnotes and endnotes", "obj": "4.1", "objName": "Create and manage reference elements", "domain": "4", "domainName": "Create and manage references", "drills": ["D2.09"], "weeks": ["W2"], "checks": ["SC2"]}, "4.1.2": {"code": "4.1.2", "name": "Modify footnote and endnote properties", "obj": "4.1", "objName": "Create and manage reference elements", "domain": "4", "domainName": "Create and manage references", "drills": ["D2.09"], "weeks": ["W2"], "checks": ["SC2"]}, "4.2.1": {"code": "4.2.1", "name": "Insert tables of contents", "obj": "4.2", "objName": "Create and manage reference tables", "domain": "4", "domainName": "Create and manage references", "drills": ["D2.10"], "weeks": ["W2"], "checks": ["SC2"]}, "4.2.2": {"code": "4.2.2", "name": "Customize tables of contents", "obj": "4.2", "objName": "Create and manage reference tables", "domain": "4", "domainName": "Create and manage references", "drills": ["D2.10"], "weeks": ["W2"], "checks": ["SC2"]}, "5.1.1": {"code": "5.1.1", "name": "Insert shapes", "obj": "5.1", "objName": "Insert illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.03"], "weeks": ["W3"], "checks": []}, "5.1.2": {"code": "5.1.2", "name": "Insert pictures", "obj": "5.1", "objName": "Insert illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.01"], "weeks": ["W3"], "checks": ["SC3"]}, "5.1.3": {"code": "5.1.3", "name": "Insert 3D models", "obj": "5.1", "objName": "Insert illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.06"], "weeks": ["W3"], "checks": []}, "5.1.4": {"code": "5.1.4", "name": "Insert SmartArt graphics", "obj": "5.1", "objName": "Insert illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.04"], "weeks": ["W3"], "checks": ["SC3"]}, "5.1.5": {"code": "5.1.5", "name": "Insert screenshots and screen clippings", "obj": "5.1", "objName": "Insert illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.06"], "weeks": ["W3"], "checks": []}, "5.1.6": {"code": "5.1.6", "name": "Insert text boxes", "obj": "5.1", "objName": "Insert illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.05"], "weeks": ["W3"], "checks": ["SC3"]}, "5.1.7": {"code": "5.1.7", "name": "Insert icons", "obj": "5.1", "objName": "Insert illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.03"], "weeks": ["W3"], "checks": []}, "5.2.1": {"code": "5.2.1", "name": "Apply artistic effects", "obj": "5.2", "objName": "Format illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.02"], "weeks": ["W3"], "checks": []}, "5.2.2": {"code": "5.2.2", "name": "Apply picture effects and picture styles", "obj": "5.2", "objName": "Format illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.01"], "weeks": ["W3"], "checks": ["SC3"]}, "5.2.3": {"code": "5.2.3", "name": "Remove picture backgrounds", "obj": "5.2", "objName": "Format illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.01"], "weeks": ["W3"], "checks": []}, "5.2.4": {"code": "5.2.4", "name": "Format graphic elements", "obj": "5.2", "objName": "Format illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.03"], "weeks": ["W3"], "checks": []}, "5.2.5": {"code": "5.2.5", "name": "Format SmartArt graphics", "obj": "5.2", "objName": "Format illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.04"], "weeks": ["W3"], "checks": []}, "5.2.6": {"code": "5.2.6", "name": "Format 3D models", "obj": "5.2", "objName": "Format illustrations and text boxes", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.06"], "weeks": ["W3"], "checks": []}, "5.3.1": {"code": "5.3.1", "name": "Add and modify text in text boxes", "obj": "5.3", "objName": "Add text to graphic elements", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.05"], "weeks": ["W3"], "checks": []}, "5.3.2": {"code": "5.3.2", "name": "Add and modify text in shapes", "obj": "5.3", "objName": "Add text to graphic elements", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.03"], "weeks": ["W3"], "checks": ["SC3"]}, "5.3.3": {"code": "5.3.3", "name": "Add and modify SmartArt graphic content", "obj": "5.3", "objName": "Add text to graphic elements", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.04"], "weeks": ["W3"], "checks": []}, "5.4.1": {"code": "5.4.1", "name": "Position objects", "obj": "5.4", "objName": "Modify graphic elements", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.05"], "weeks": ["W3"], "checks": ["SC3"]}, "5.4.2": {"code": "5.4.2", "name": "Wrap text around objects", "obj": "5.4", "objName": "Modify graphic elements", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.05"], "weeks": ["W3"], "checks": ["SC3"]}, "5.4.3": {"code": "5.4.3", "name": "Add alternative text to objects for accessibility", "obj": "5.4", "objName": "Modify graphic elements", "domain": "5", "domainName": "Insert and format graphic elements", "drills": ["D3.07"], "weeks": ["W3"], "checks": ["SC3"]}, "6.1.1": {"code": "6.1.1", "name": "Add comments", "obj": "6.1", "objName": "Add and manage comments", "domain": "6", "domainName": "Manage document collaboration", "drills": ["D5.01"], "weeks": ["W5"], "checks": ["SC5"]}, "6.1.2": {"code": "6.1.2", "name": "Review and reply to comments", "obj": "6.1", "objName": "Add and manage comments", "domain": "6", "domainName": "Manage document collaboration", "drills": ["D5.01"], "weeks": ["W5"], "checks": ["SC5"]}, "6.1.3": {"code": "6.1.3", "name": "Resolve comments", "obj": "6.1", "objName": "Add and manage comments", "domain": "6", "domainName": "Manage document collaboration", "drills": ["D5.01"], "weeks": ["W5"], "checks": ["SC5"]}, "6.1.4": {"code": "6.1.4", "name": "Delete comments", "obj": "6.1", "objName": "Add and manage comments", "domain": "6", "domainName": "Manage document collaboration", "drills": ["D5.01"], "weeks": ["W5"], "checks": ["SC5"]}, "6.2.1": {"code": "6.2.1", "name": "Track changes", "obj": "6.2", "objName": "Manage change tracking", "domain": "6", "domainName": "Manage document collaboration", "drills": ["D5.02"], "weeks": ["W5"], "checks": ["SC5"]}, "6.2.2": {"code": "6.2.2", "name": "Review tracked changes", "obj": "6.2", "objName": "Manage change tracking", "domain": "6", "domainName": "Manage document collaboration", "drills": ["D5.03"], "weeks": ["W5"], "checks": ["SC5"]}, "6.2.3": {"code": "6.2.3", "name": "Accept and reject tracked changes", "obj": "6.2", "objName": "Manage change tracking", "domain": "6", "domainName": "Manage document collaboration", "drills": ["D5.03"], "weeks": ["W5"], "checks": ["SC5"]}, "6.2.4": {"code": "6.2.4", "name": "Lock and unlock change tracking", "obj": "6.2", "objName": "Manage change tracking", "domain": "6", "domainName": "Manage document collaboration", "drills": ["D5.02"], "weeks": ["W5"], "checks": ["SC5"]}}, "mo111": [{"id": "1.1", "domain": "Manage document options and settings", "name": "Manage documents and templates", "skills": "Modify templates, manage versions, compare and combine, link to external content, enable macros, customize the Quick Access Toolbar, show hidden ribbon tabs, change the Normal template default font", "status": "partial", "weeks": ["W1", "W4", "W5"], "how": "Templates (W4), Quick Access Toolbar (W1), compare and combine plus version history (W5). Macros, external links and Normal template defaults are not taught."}, {"id": "1.2", "domain": "Manage document options and settings", "name": "Prepare documents for collaboration", "skills": "Restrict editing, protect documents with passwords", "status": "full", "weeks": ["W5"], "how": "Restrict editing and password protection in the W5 clean-and-ship checklist."}, {"id": "1.3", "domain": "Manage document options and settings", "name": "Use and configure language options", "skills": "Editing and display languages, language-specific features", "status": "partial", "weeks": ["W1"], "how": "Set the document proofing language (also an accessibility requirement). Display language is not taught."}, {"id": "2.1", "domain": "Use advanced editing and formatting features", "name": "Find, replace, and paste document content", "skills": "Wildcards and special characters, find and replace formatting and styles, paste options", "status": "partial", "weeks": ["W1"], "how": "Paste options and special-character search (W1). Wildcards are optional enrichment."}, {"id": "2.2", "domain": "Use advanced editing and formatting features", "name": "Configure paragraph layout options", "skills": "Hyphenation, line numbers, pagination options", "status": "partial", "weeks": ["W2"], "how": "Keep with next and widow/orphan control for headings (W2). Hyphenation and line numbers are not taught."}, {"id": "2.3", "domain": "Use advanced editing and formatting features", "name": "Create and manage styles", "skills": "Create, modify and copy paragraph, character and table styles", "status": "full", "weeks": ["W2"], "how": "Modify and create styles for the paper template (W2)."}, {"id": "3.1", "domain": "Create custom document elements", "name": "Create and modify building blocks", "skills": "Quick Parts, manage building blocks", "status": "full", "weeks": ["W4"], "how": "Save the contact heading as a Quick Part and reuse it (W4)."}, {"id": "3.2", "domain": "Create custom document elements", "name": "Create custom design elements", "skills": "Custom color sets, font sets, themes, style sets", "status": "partial", "weeks": ["W3"], "how": "Custom theme colors for a club brand (W3). Custom font sets and saved themes are optional."}, {"id": "3.3", "domain": "Create custom document elements", "name": "Create and manage indexes", "skills": "Mark entries, create and update indexes", "status": "none", "weeks": [], "how": "Not taught. Low value for most learners; optional enrichment."}, {"id": "3.4", "domain": "Create custom document elements", "name": "Create and manage tables of figures", "skills": "Captions, caption properties, tables of figures", "status": "partial", "weeks": ["W3"], "how": "Captions on the chart and table (W3). Table of figures is optional."}, {"id": "3.5", "domain": "Create custom document elements", "name": "Create and manage bibliographies", "skills": "Citation sources, citations, bibliographies", "status": "full", "weeks": ["W2"], "how": "Citation manager and generated references list in Project 2 (W2)."}, {"id": "4.1", "domain": "Use advanced Word features", "name": "Manage forms, fields, and controls", "skills": "Custom fields, field properties, content controls", "status": "partial", "weeks": ["W4"], "how": "Template content controls and the If...Then...Else merge field (W4)."}, {"id": "4.2", "domain": "Use advanced Word features", "name": "Create and modify macros", "skills": "Record, name, edit and copy macros", "status": "none", "weeks": [], "how": "Not taught. Macros are a security risk to explain, not a beginner skill to build."}, {"id": "4.3", "domain": "Use advanced Word features", "name": "Perform mail merges", "skills": "Recipient lists, merge fields, preview, merged documents, labels, envelopes", "status": "full", "weeks": ["W4"], "how": "All of Project 4's merge work (W4)."}], "weeks": [{"id": "W1", "n": 1, "title": "The Professional Document", "tagline": "Create, format, save and print documents people take seriously.", "clos": {"CLO1": "IA", "CLO2": "IA", "CLO6": "I"}, "topics": ["T1", "T2", "T3"], "why": {"college": "Every course expects clean, correctly formatted submissions saved where you can find them.", "work": "Letters and memos are still how organizations make requests and keep records.", "life": "Landlord letters, appeals, complaints and requests get better results when they look professional."}, "objectives": [["W1.1", "Identify and use the parts of the Word window (Ribbon, Backstage view, status bar, Quick Access Toolbar) and switch among Print Layout, Read Mode and Web Layout views.", ["CLO2", "CLO6"]], ["W1.2", "Create, name, save and reopen documents in a deliberate location (OneDrive or local), and save copies as .docx and .pdf.", ["CLO1"]], ["W1.3", "Format characters and paragraphs: font, size, color, effects, alignment, line and paragraph spacing, indentation, Format Painter and Clear Formatting.", ["CLO1", "CLO2"]], ["W1.4", "Use Find and Replace, symbols and special characters, cut/copy/paste options, Undo and Editor (spelling and grammar) to produce error-free text.", ["CLO2"]], ["W1.5", "Set up pages (margins, orientation, paper size), set document properties and language, and use Print Preview and print settings.", ["CLO1"]], ["W1.6", "Show formatting marks to diagnose and fix spacing and layout problems.", ["CLO2"]]], "drills": [["D1.01", "Open the starter file and save it to your course folder as Lastname_W1_Letter.docx.", [], ["N1", "N3", "N4"], "web"], ["D1.02", "Add Print Preview and Save As to the Quick Access Toolbar, then name three parts of the window in the drill quiz.", [], ["E1.1", "N2"], "desktop"], ["D1.03", "Show formatting marks; remove the extra blank paragraphs and double spaces in the letter.", ["1.1.4", "2.1.1"], [], "web"], ["D1.04", "Use Find to count every mention of the deadline, then replace every Acme Outdoor Supply with Lakeshore Paddle Company.", ["1.1.1", "2.1.1"], [], "web"], ["D1.05", "Insert a copyright symbol in the footer and type cafe with an accented e.", ["2.1.2"], [], "web"], ["D1.06", "Set body text to 11 pt Aptos; bold the subject line and apply a text effect to the letterhead; copy the letterhead format to the memo heading with Format Painter.", ["2.2.1", "2.2.2"], ["N6"], "web"], ["D1.07", "Set single line spacing with 8 pt after; give the memo body a 0.5 in first-line indent; left-align the letter; clear formatting from the pasted paragraph.", ["2.2.3", "2.2.5"], ["N7"], "web"], ["D1.08", "Move the closing paragraph above the signature block with cut and paste (Keep Text Only); undo an accidental deletion.", [], ["E2.1", "N9", "N10"], "web"], ["D1.09", "Set 1 in margins, Letter size and portrait orientation; run Editor and fix every flagged issue.", ["1.2.1"], ["N5", "N11"], "web"], ["D1.10", "Fill in the Title, Author and Tags properties and set the proofing language to English (United States).", ["1.3.2"], ["E1.3"], "desktop"], ["D1.11", "Export the letter to PDF; set print to 2 copies of page 1 only and capture the print preview.", ["1.3.1", "1.3.3"], ["N12", "N13"], "both-check"], ["D1.12", "Switch to Web Layout and Read Mode and describe in one sentence what changes (Word for the web has no Web Layout; compare Reading view instead).", [], [], "desktop"]], "skillcheck": {"id": "SC1", "covers": ["1.1.1", "1.1.4", "1.2.1", "1.3.2", "2.1.1", "2.1.2", "2.2.1", "2.2.2", "2.2.3", "2.2.5"], "desc": "Timed, MOS-style: 10 tasks in a fresh starter file, auto-checked by the Office Trainer, 2 attempts. MO-110 1.3.1 is assessed through the Project 1 PDF instead, because a check cannot see files outside the document."}, "project": {"id": "P1", "title": "Business Correspondence Set", "desc": "A block-format business letter (for example, a request to a financial aid office or an informational-interview request to a local employer) and a one-page memo. Submit .docx and .pdf.", "criteria": [["P1-a", "Block-letter structure is complete and correct (date, inside address, salutation, body, closing, signature block); memo heading is correct.", ["CLO1"], 25], ["P1-b", "Formatting is done with Word tools, not workarounds (no spaces for indents, no extra returns for spacing).", ["CLO1", "CLO2"], 25], ["P1-c", "Text is error-free (Editor run, Find and Replace used where needed).", ["CLO2"], 25], ["P1-d", "Page setup, properties and language are set; PDF opens and matches the .docx.", ["CLO1"], 25]]}, "ai": "Optional: ask an AI tool to draft the letter's body. You make every formatting decision, check every fact, and add a one-line note on what you kept, changed or cut. There is no wrong way to try this.", "platform": "Everything this week works in Word for the web and desktop Word. Quick Access Toolbar customizing and the proofing-language setting are easier in desktop Word. Print dialogs vary by browser.", "nace": ["Communication", "Professionalism", "Technology"], "digcomp": ["Content creation", "Information search, evaluation and management"], "wcag": ["2.4.2", "3.1.1"], "life": "A formal letter and memo you can send with confidence.", "hours": "About 9 hours: 2 h lessons and videos, 3 h drills, 1 h skill check, 3 h project"}, {"id": "W2", "n": 2, "title": "Structure and the College Paper", "tagline": "Let styles do the work: long documents, citations and a reusable paper template.", "clos": {"CLO1": "R", "CLO2": "RA", "CLO6": "R"}, "topics": ["T3", "T6"], "why": {"college": "A correct APA or MLA template saves time in every writing-heavy course you take.", "work": "Reports, manuals and proposals depend on styles, navigation and automatic tables of contents.", "life": "Long documents (a family history, a club handbook) stay manageable when the structure is real."}, "objectives": [["W2.1", "Apply and modify built-in heading and body styles and switch style sets, so structure comes from styles rather than manual formatting.", ["CLO2"]], ["W2.2", "Navigate long documents with the Navigation pane, Go To, bookmarks and internal hyperlinks.", ["CLO2", "CLO6"]], ["W2.3", "Create and control bulleted, numbered and multilevel lists (custom bullets, number formats, levels, restart and continue, start value).", ["CLO1", "CLO2"]], ["W2.4", "Insert headers, footers and page numbers (including a different first page) and control layout with page and section breaks.", ["CLO1", "CLO2"]], ["W2.5", "Insert and modify footnotes and endnotes, and generate and customize an automatic table of contents.", ["CLO2"]], ["W2.6", "Manage citation sources and generate a reference list in APA 7th or MLA 9th style, and save the setup as a reusable template.", ["CLO2"]]], "drills": [["D2.01", "Apply Heading 1 and Heading 2 to the report's section titles.", ["2.2.4"], [], "web"], ["D2.02", "Modify the Normal and Heading 1 styles (font, spacing, keep with next) and apply a different style set.", ["1.2.2"], ["E2.3", "E2.2"], "desktop"], ["D2.03", "Use the Navigation pane to move the Methods section above Results by dragging its heading; use Go To to jump to page 4.", ["1.1.3"], [], "web"], ["D2.04", "Add a bookmark at the Methods heading and a hyperlink to it from the introduction.", ["1.1.2"], [], "web"], ["D2.05", "Turn the plain list into a numbered list; demote two items to level 2; change the bullet character in the second list.", ["3.3.1", "3.3.2", "3.3.4"], ["N8"], "web"], ["D2.06", "Define a custom number format (Step 1, Step 2); restart numbering in the third list and set it to start at 5.", ["3.3.3", "3.3.5", "3.3.6"], [], "desktop"], ["D2.07", "Insert a header with your last name and page number, using a different first page.", ["1.2.3"], [], "web"], ["D2.08", "Insert a Next Page section break and make only the appendix section landscape.", ["2.3.2", "2.3.3"], [], "desktop"], ["D2.09", "Insert two footnotes and change the number format to i, ii, iii.", ["4.1.1", "4.1.2"], [], "desktop"], ["D2.10", "Insert an automatic table of contents, add a new heading, then update the table and limit it to two levels.", ["4.2.1", "4.2.2"], [], "web"], ["D2.11", "Add three sources in the citation manager, insert in-text citations, and generate the references list in APA 7th.", [], ["E3.5"], "desktop"]], "skillcheck": {"id": "SC2", "covers": ["1.1.2", "1.1.3", "1.2.2", "1.2.3", "2.2.4", "2.3.2", "2.3.3", "3.3.1", "3.3.2", "3.3.4", "3.3.5", "4.1.1", "4.1.2", "4.2.1", "4.2.2"], "desc": "Timed, MOS-style: 10 tasks on a 6-page starter report, auto-checked, 2 attempts."}, "project": {"id": "P2", "title": "Research Paper Template and Paper", "desc": "Build a reusable APA 7th or MLA 9th template (.dotx) with modified styles, header and page numbers, then use it for a 3 to 5 page paper with at least three verified sources. Learners may reuse a paper from another course, which ties this skill to their real coursework.", "criteria": [["P2-a", "Headings use real heading styles; the Navigation pane shows the outline.", ["CLO2"], 20], ["P2-b", "Style-guide layout is correct (margins, spacing, header, page numbers, title page or heading).", ["CLO1"], 20], ["P2-c", "Citations and references are generated by Word and every source is real and checked.", ["CLO2"], 25], ["P2-d", "Lists, breaks and notes are used correctly.", ["CLO2"], 15], ["P2-e", "The .dotx template opens a new, correctly formatted document.", ["CLO2"], 20]]}, "ai": "Optional: AI tools sometimes invent sources that look real. If an AI tool suggests a source, find it in the library database before it goes into the citation manager. That habit protects your grade.", "platform": "Styles, the Navigation pane, footnotes and tables of contents work in Word for the web. Section breaks, custom number formats and the citation manager need desktop Word, per Microsoft's feature comparison.", "nace": ["Communication", "Critical Thinking", "Technology"], "digcomp": ["Information search, evaluation and management", "Content creation"], "wcag": ["1.3.1", "2.4.4", "2.4.6"], "life": "A paper template reused every semester, plus long-document skills for reports at work.", "hours": "About 9 hours: 2 h lessons, 3 h drills, 1 h skill check, 3 h project"}, {"id": "W3", "n": 3, "title": "Visual Communication", "tagline": "Graphics, tables, charts and desktop publishing that stay accessible.", "clos": {"CLO3": "IA", "CLO4": "IA", "CLO5": "IA", "CLO2": "R", "CLO1": "R"}, "topics": ["T4", "T5", "T6"], "why": {"college": "Lab reports, posters and club flyers mix text, tables and images.", "work": "Schedules, price lists, one-pagers and newsletters are everyday workplace documents.", "life": "Event flyers, small-business menus and community newsletters - and making them readable for everyone."}, "objectives": [["W3.1", "Insert and format pictures, shapes, icons, screenshots, 3D models and SmartArt, including picture styles, artistic effects and background removal.", ["CLO3"]], ["W3.2", "Position graphics with text wrapping and alignment, add text to shapes and text boxes, and write meaningful alternative text.", ["CLO3"]], ["W3.3", "Create tables from scratch and from text; merge and split cells, resize, sort, set cell margins, split tables and repeat header rows.", ["CLO4"]], ["W3.4", "Insert and format a chart, and add captions to figures and tables.", ["CLO3"]], ["W3.5", "Apply desktop publishing features: multiple columns, column breaks, themes and custom theme colors, page color, borders, watermark and drop caps.", ["CLO5"]]], "drills": [["D3.01", "Insert the provided photo, apply a picture style and remove its background.", ["5.1.2", "5.2.2", "5.2.3"], ["N14"], "desktop"], ["D3.02", "Apply an artistic effect to the second photo.", ["5.2.1"], [], "desktop"], ["D3.03", "Insert an icon and a shape; type a label in the shape; change its fill and outline.", ["5.1.1", "5.1.7", "5.3.2", "5.2.4"], ["N14"], "web"], ["D3.04", "Insert a four-step SmartArt process, enter the steps, and change its colors and style.", ["5.1.4", "5.3.3", "5.2.5"], [], "desktop"], ["D3.05", "Insert a text box pull quote; set Square wrapping and position it top right.", ["5.1.6", "5.3.1", "5.4.1", "5.4.2"], [], "web"], ["D3.06", "Insert a screen clipping of the course page and a 3D model; rotate the model.", ["5.1.5", "5.1.3", "5.2.6"], [], "desktop"], ["D3.07", "Write alt text for every image and mark the divider line as decorative.", ["5.4.3"], [], "web"], ["D3.08", "Convert the tab-separated schedule to a table; convert the old price table back to text.", ["3.1.1", "3.1.2"], [], "desktop"], ["D3.09", "Create a 4 x 6 table; merge the title row; resize columns; sort by date; set cell margins; repeat the header row; split the table after row 10.", ["3.1.3", "3.2.1", "3.2.2", "3.2.3", "3.2.4", "3.2.5", "3.2.6"], ["N14"], "desktop"], ["D3.10", "Insert a column chart from the survey data and add the caption Figure 1.", [], ["E3.4"], "desktop"], ["D3.11", "Put the newsletter body in two columns with a column break; use a Continuous section break so the masthead stays one column.", ["2.3.1", "2.3.2", "2.3.3"], [], "desktop"], ["D3.12", "Create custom theme colors for the club; add a page border, a DRAFT watermark and a drop cap.", ["1.2.4"], ["E3.2"], "desktop"]], "skillcheck": {"id": "SC3", "covers": ["1.2.4", "2.3.1", "3.1.1", "3.1.3", "3.2.1", "3.2.3", "3.2.6", "5.1.2", "5.1.4", "5.1.6", "5.2.2", "5.3.2", "5.4.1", "5.4.2", "5.4.3"], "desc": "Timed, MOS-style: 10 tasks on a starter flyer, auto-checked, 2 attempts."}, "project": {"id": "P3", "title": "Newsletter or Event Flyer", "desc": "A two-page newsletter or event flyer for a real campus club, small business or community group: masthead, two-column body, at least three graphics with alt text, a SmartArt graphic, a schedule table with a header row, a captioned chart and a consistent theme. It must pass the Accessibility Checker with zero errors.", "criteria": [["P3-a", "Graphics are inserted, formatted and positioned on purpose, not by accident.", ["CLO3"], 20], ["P3-b", "The table has a real header row that repeats, is sorted and formatted, and does not use merged cells in ways that confuse reading order.", ["CLO4"], 20], ["P3-c", "Columns, sections, theme and page elements create a clear visual hierarchy.", ["CLO5"], 25], ["P3-d", "Accessibility: meaningful alt text, sufficient contrast, logical reading order, Accessibility Checker clean.", ["CLO3", "CLO5"], 20], ["P3-e", "The chart supports the message and has a caption.", ["CLO3"], 15]]}, "ai": "Optional: AI image tools and automatic alt text are quick but not always right. If you use an AI image, say so, check the tool's terms, and rewrite any automatic alt text so it says what matters in context.", "platform": "Pictures, shapes, icons, text boxes, simple tables, columns, page color, alt text and the Accessibility Checker work in Word for the web. SmartArt, charts, 3D models, watermarks and WordArt need desktop Word, per Microsoft's feature comparison.", "nace": ["Communication", "Equity & Inclusion", "Technology"], "digcomp": ["Content creation"], "wcag": ["1.1.1", "1.3.1", "1.3.2", "1.4.1", "1.4.3"], "life": "A flyer or newsletter for any event or group, built so everyone can read it.", "hours": "About 9 hours: 2 h lessons, 3.5 h drills, 1 h skill check, 2.5 h project"}, {"id": "W4", "n": 4, "title": "The Job Application Packet", "tagline": "Templates, mail merge and web output, built around getting hired.", "clos": {"CLO7": "IA", "CLO6": "A", "CLO1": "RA", "CLO2": "R", "CLO4": "R", "CLO5": "R"}, "topics": ["T5", "T6", "T7"], "why": {"college": "Internship, scholarship and transfer applications need a resume and tailored letters.", "work": "Mail merge powers customer letters, certificates, name badges and mailing labels in every office.", "life": "Job searches, holiday card labels and organization mailings - done once, reused for years."}, "objectives": [["W4.1", "Customize a built-in or online template, save your own reusable template (.dotx) and store reusable content as a Quick Part.", ["CLO2"]], ["W4.2", "Build a resume in two versions: a designed version and a plain, applicant tracking system (ATS) friendly version.", ["CLO1", "CLO4", "CLO5"]], ["W4.3", "Create a recipient data source and run a mail merge for personalized form letters, with preview and an If...Then...Else rule.", ["CLO7"]], ["W4.4", "Use mail merge to produce envelopes, mailing labels and a directory.", ["CLO7"]], ["W4.5", "Save a document as a web page, preview it in Web Layout and a browser, and compare web page, PDF and share link as ways to publish online.", ["CLO6"]]], "drills": [["D4.01", "Open a resume template; replace every placeholder content control; save as Lastname_Resume.dotx.", [], ["E1.1", "E4.1"], "desktop"], ["D4.02", "In the ATS version, align dates at the right margin with a right tab stop and dot leader.", [], [], "desktop"], ["D4.03", "Save your name and contact line as a Quick Part and insert it into the cover letter.", [], ["E3.1"], "desktop"], ["D4.04", "Create a recipient list of five employers (Company, Contact, Title, Address, City, State, ZIP, Position).", [], ["E4.3"], "desktop"], ["D4.05", "Insert an Address Block, a Greeting Line and the Position field in the letter body.", [], ["E4.3"], "desktop"], ["D4.06", "Add an If...Then...Else rule that changes one sentence for remote jobs; preview every record and fix any blank lines.", [], ["E4.3", "E4.1"], "desktop"], ["D4.07", "Finish the merge to a new document with one letter per recipient.", [], ["E4.3"], "desktop"], ["D4.08", "Create envelopes and a sheet of Avery 5160 labels from the same list.", [], ["E4.3"], "desktop"], ["D4.09", "Create a directory merge that lists every employer and contact on one page.", [], ["E4.3"], "desktop"], ["D4.10", "Add a hyperlink to your portfolio or LinkedIn with descriptive link text; export the resume to PDF.", ["1.3.1"], ["N14"], "web"], ["D4.11", "Save the resume as Web Page, Filtered (.htm); view it in Web Layout and in a browser; note two things that changed.", ["1.3.1"], [], "desktop"]], "skillcheck": {"id": "SC4", "covers": ["1.3.1"], "desc": "Timed merge check: given a data source and letter, produce merged letters, labels and a directory. Mostly MO-111 (Expert) skills."}, "project": {"id": "P4", "title": "Job Application Packet", "desc": "A designed resume and an ATS-friendly resume (.docx and .pdf), cover letters merged to at least three employers (real postings or a fictional persona), envelopes or labels, a directory of contacts, and a web page version of the resume with a short reflection comparing web page, PDF and share link.", "criteria": [["P4-a", "Resume content and layout are professional; a personal template is saved and reused.", ["CLO1", "CLO2", "CLO5"], 20], ["P4-b", "The ATS version uses simple structure (no text boxes or layout tables; key details not hidden in headers).", ["CLO1", "CLO4"], 15], ["P4-c", "Mail merge is correct: data source, fields, rule, preview, no merge errors.", ["CLO7"], 25], ["P4-d", "Envelopes or labels and a directory are produced from the same data source.", ["CLO7"], 20], ["P4-e", "Web page version is created and previewed, and the reflection compares output formats.", ["CLO6"], 20]]}, "ai": "Optional: AI can tailor a cover letter to a job post quickly. Your judgment decides what is true about you - never claim a skill you do not have. Keep other people's personal data out of AI prompts.", "privacy": "Learners may use a fictional persona instead of their own details. Recipient lists hold personal data: store them in the course folder only and delete them when the project is graded.", "platform": "Mail merge, envelopes, labels, Quick Parts and Save as Web Page need desktop Word. Word for the web can export PDF and create share links.", "nace": ["Career & Self-Development", "Professionalism", "Technology"], "digcomp": ["Content creation", "Safety, wellbeing and responsible use"], "wcag": ["2.4.4"], "life": "A complete job application packet, plus mail merge for any mailing.", "hours": "About 9 hours: 2 h lessons, 3 h drills, 1 h skill check, 3 h project"}, {"id": "W5", "n": 5, "title": "Working Together and Shipping Clean", "tagline": "Review, collaborate, then share safely. Capstone and certification practice.", "clos": {"CLO8": "IA", "CLO1": "RA", "CLO2": "RA", "CLO3": "A", "CLO4": "A", "CLO5": "A", "CLO6": "R", "CLO7": "R"}, "topics": ["T7"], "why": {"college": "Group projects and instructor feedback arrive as comments and tracked changes.", "work": "Contracts, policies and reports go through review cycles with several people editing at once.", "life": "Sharing a document safely - without hidden comments or personal data - protects you."}, "objectives": [["W5.1", "Add, reply to, resolve and delete comments, including @mentions in shared documents.", ["CLO8"]], ["W5.2", "Track changes, review them, accept or reject them, and lock tracking with a password.", ["CLO8"]], ["W5.3", "Compare two versions of a document and combine edits from multiple reviewers.", ["CLO8"]], ["W5.4", "Share documents with appropriate permissions, co-author in real time and restore an earlier version from version history.", ["CLO8"]], ["W5.5", "Inspect a document before sharing: remove hidden data and personal information, fix accessibility and compatibility issues, and restrict editing.", ["CLO1", "CLO8"]], ["W5.6", "Show exam readiness on a timed MO-110 style practice test and assemble a course portfolio.", ["CLO1", "CLO2", "CLO3", "CLO4", "CLO5", "CLO8"]]], "drills": [["D5.01", "Add three comments; reply to one, resolve one and delete one.", ["6.1.1", "6.1.2", "6.1.3", "6.1.4"], [], "web"], ["D5.02", "Turn on Track Changes, make four edits, then lock tracking with a password.", ["6.2.1", "6.2.4"], [], "desktop"], ["D5.03", "Review all tracked changes; accept the formatting changes and reject one deletion.", ["6.2.2", "6.2.3"], [], "web"], ["D5.04", "Compare the original and revised cover letter; combine two reviewers' copies into one.", [], ["E1.1"], "desktop"], ["D5.05", "Share a copy as view-only with an expiration date; co-edit with a partner; restore a previous version.", ["1.3.4"], ["E1.1"], "both-check"], ["D5.06", "Run Inspect Document and remove comments, personal information and hidden text; run Check Compatibility.", ["1.4.1", "1.4.3"], [], "desktop"], ["D5.07", "Run the Accessibility Checker and fix every error and warning.", ["1.4.2"], [], "web"], ["D5.08", "Restrict editing to comments only, protected with a password.", [], ["E1.2"], "desktop"]], "skillcheck": {"id": "SC5", "covers": ["1.3.4", "1.4.1", "1.4.2", "1.4.3", "6.1.1", "6.1.2", "6.1.3", "6.1.4", "6.2.1", "6.2.2", "6.2.3", "6.2.4"], "desc": "Timed, MOS-style: 8 tasks on a reviewed document, auto-checked, 2 attempts."}, "project": {"id": "P5", "title": "Peer Review Exchange and Clean-and-Ship", "desc": "Swap the cover letter or newsletter with a partner (or use the provided persona documents). Review with Track Changes and comments, respond to every comment, accept or reject each change, compare and combine two reviewers' copies, then run the clean-and-ship checklist: inspect, accessibility, compatibility, PDF export and a view-only share link. Finish with a short reflection memo.", "criteria": [["P5-a", "Feedback to the partner is specific and constructive, using comments and tracked edits.", ["CLO8"], 25], ["P5-b", "Every comment received gets a reply or resolution; every change is accepted or rejected on purpose.", ["CLO8"], 25], ["P5-c", "Compare and Combine are done correctly.", ["CLO8"], 20], ["P5-d", "Clean-and-ship checklist is complete: Document Inspector, Accessibility Checker, compatibility, permissions.", ["CLO8", "CLO1"], 30]]}, "capstone": {"id": "CAP", "title": "Capstone: Practice Exam and Portfolio", "desc": "A timed, 50-minute MO-110 style practice exam covering all six domains (Certiport practice tests if FLCC has access; otherwise the Office Trainer capstone set), plus a portfolio of the five projects with a short reflection on which skills you will use next and where.", "clos": ["CLO1", "CLO2", "CLO3", "CLO4", "CLO5", "CLO6", "CLO7", "CLO8"]}, "ai": "Optional: Copilot and similar tools can summarize comments or suggest edits. Weigh those suggestions the way you would a human reviewer's, and keep Track Changes on so the history stays honest.", "privacy": "Peer review shares real work. Learners choose which document to share and may use the persona documents instead. The Document Inspector step teaches what hidden data travels with a file.", "platform": "Comments, Track Changes review, sharing, version history and the Accessibility Checker work in Word for the web. Compare and Combine, Document Inspector and password-protected tracking and restrictions need desktop Word (the web shows restricted documents read-only).", "nace": ["Teamwork", "Communication", "Leadership", "Professionalism", "Technology"], "digcomp": ["Communication and collaboration", "Safety, wellbeing and responsible use"], "wcag": ["1.1.1", "1.3.1", "1.3.2", "1.4.3", "2.4.2", "3.1.1"], "life": "Safe sharing and feedback habits for any group document - plus a certification attempt if wanted.", "hours": "About 9 hours: 1.5 h lessons, 2 h drills, 1 h skill check, 2.5 h project, 2 h capstone"}], "grading": [["Practice drills (completion, unlimited tries)", 15], ["Weekly skill checks SC1-SC5 (4% each)", 20], ["Projects P1-P4 (10% each)", 40], ["Project P5 Peer Review Exchange", 10], ["Capstone practice exam and portfolio", 15]], "northstar": [["N1", "Open a new or existing document.", "W1", "D1.01"], ["N2", "Identify the parts of the Word window, including the Ribbon, Status Bar and Quick Access Toolbar.", "W1", "D1.02"], ["N3", "Save a document, being intentional about name and location.", "W1", "D1.01"], ["N4", "Identify file extensions that can be opened by Microsoft Word.", "W1", "D1.01"], ["N5", "Use Spelling and Grammar check.", "W1", "D1.09"], ["N6", "Format text: size, color and font type.", "W1", "D1.06"], ["N7", "Set text spacing and alignment.", "W1", "D1.07"], ["N8", "Apply bullets and automatic numbering.", "W2", "D2.05"], ["N9", "Undo the previous action.", "W1", "D1.08"], ["N10", "Cut, copy and paste.", "W1", "D1.08"], ["N11", "Modify page layout, including margins and orientation.", "W1", "D1.09"], ["N12", "Print.", "W1", "D1.11"], ["N13", "Close a document.", "W1", "D1.11"], ["N14", "Insert objects into a document, including images, shapes, hyperlinks, and tables.", "W3", "D3.01, D3.03, D3.09, D4.10"]], "nace": [["Career & Self-Development", ["W4", "W5"], "Resume, cover letters and a portfolio reflection on next steps."], ["Communication", ["W1", "W2", "W3", "W5"], "Letters, memos, papers, newsletters and written peer feedback."], ["Critical Thinking", ["W2", "W5"], "Checking sources (including AI-suggested ones) and deciding which review edits to accept."], ["Equity & Inclusion", ["W3", "W5"], "Accessible documents: alt text, contrast, reading order and the Accessibility Checker. NACE lists this competency as under review; some campuses now label it Access & Opportunity."], ["Leadership", ["W5"], "Giving constructive feedback and resolving a review cycle."], ["Professionalism", ["W1", "W4", "W5"], "Business conventions, error-free work and safe sharing habits."], ["Teamwork", ["W5"], "Co-authoring, comments, Track Changes and combining reviewers' work."], ["Technology", ["W1", "W2", "W3", "W4", "W5"], "Every week: choosing the right Word feature and using it responsibly."]], "digcomp": [["Information search, evaluation and management", ["W1", "W2"], "Saving and organizing files; finding and verifying sources for citations."], ["Communication and collaboration", ["W5"], "Sharing, co-authoring, comments and Track Changes."], ["Content creation", ["W1", "W2", "W3", "W4"], "Creating and formatting letters, papers, newsletters, resumes and web output."], ["Safety, wellbeing and responsible use", ["W4", "W5"], "Protecting personal data in merge lists and AI prompts; Document Inspector; permissions."], ["Problem identification and solving", ["W1", "W3", "W5"], "Using formatting marks, the Accessibility Checker and Compatibility Checker to find and fix problems."]], "wcag": [["1.1.1", "Non-text Content", "A", "Alt text on pictures, charts and SmartArt; decorative items marked decorative.", ["W3", "W5"]], ["1.3.1", "Info and Relationships", "A", "Real heading styles, real lists and table header rows instead of visual formatting only.", ["W2", "W3", "W5"]], ["1.3.2", "Meaningful Sequence", "A", "Reading order stays logical when graphics float or text runs in columns.", ["W3", "W5"]], ["1.4.1", "Use of Color", "A", "Color is never the only way information is shown.", ["W3"]], ["1.4.3", "Contrast (Minimum)", "AA", "Text contrast at least 4.5:1 (3:1 for large text) on flyers and newsletters.", ["W3", "W5"]], ["2.4.2", "Page Titled", "A", "The document Title property is set (it becomes the PDF title).", ["W1", "W5"]], ["2.4.4", "Link Purpose (In Context)", "A", "Hyperlinks use descriptive text, not raw URLs or 'click here'.", ["W2", "W4"]], ["2.4.6", "Headings and Labels", "AA", "Headings describe the content that follows.", ["W2"]], ["3.1.1", "Language of Page", "A", "Document proofing language is set correctly.", ["W1", "W5"]]], "platform": [["Mail merge", "No", "Yes", "W4"], ["Envelopes and labels", "No", "Yes", "W4"], ["Compare and combine revisions", "No", "Yes", "W5"], ["Citations and bibliography", "No", "Yes", "W2"], ["Section breaks", "No", "Yes", "W2, W3"], ["SmartArt, charts and 3D models", "No", "Yes", "W3"], ["Macros", "No", "Yes", "Not taught"], ["Watermark", "No (page color only)", "Yes", "W3"], ["WordArt", "No (shapes and text boxes only)", "Yes", "W3"], ["Restricted editing", "Read only", "Yes", "W5"], ["Track Changes", "Yes", "Yes", "W5"], ["Styles", "Yes", "Yes", "W2"], ["Table of contents", "Yes", "Yes", "W2"], ["Footnotes and endnotes", "Yes", "Yes", "W2"], ["Columns", "Yes", "Yes", "W3"], ["Templates", "Yes", "Yes", "W2, W4"], ["Export as PDF", "Yes", "Yes", "W1, W4, W5"], ["Accessibility Checker", "Yes", "Yes", "W3, W5"]], "conventions": [["APA 7th edition / MLA 9th edition", "Published style guide", "Current editions for student papers; confirm with the FLCC Library before each term.", ["W2"]], ["Block-format business letter", "Industry convention", "The most common US business letter layout: everything flush left, single spaced, a blank line between parts.", ["W1"]], ["ATS-friendly resume", "Industry convention", "Applicant tracking systems parse simple layouts most reliably; keep a plain version alongside the designed one.", ["W4"]], ["Avery 5160 labels", "Industry convention", "The most common US address label size, built into Word's label options.", ["W4"]], ["Bloom's revised taxonomy", "Assumption", "Course outcome verbs sit mostly at Apply; peer review reaches Evaluate.", ["All"]], ["Credit hour (about 45 hours per credit)", "Assumption", "The 9 hours per week figure assumes 1 credit over 5 weeks. Scale if the course carries more credit.", ["All"]], ["I / R / A curriculum mapping", "Common practice", "Introduced, Reinforced, Assessed - the standard way to show where an outcome is taught and measured.", ["All"]]], "decisions": [["Reword CLO 6", "flag", "\"Create and preview the document as a Web page\" reflects an older workflow. The plan meets it as written (Web Layout view plus Save as Web Page in Week 4), then spends most of the time on what people do now: PDF export and share links. Consider rewording to \"Publish documents for screen and web audiences (web page, PDF, share link).\""], ["Make CLO 2 measurable", "flag", "\"Demonstrate features offered by the application\" is hard to assess on its own. It is mapped to every week here. Consider rewording to \"Use Word's structure and productivity features (styles, navigation, references, templates) to produce documents efficiently.\""], ["Some course outcomes go beyond MO-110", "info", "Mail merge, templates, compare and combine, citations and restrict editing are MO-111 (Expert) skills. They stay because the course outcomes require them, and they are labeled as beyond-the-certification content."], ["Plan for desktop Word", "flag", "Weeks 2 to 5 include features that need desktop Word (mail merge, compare and combine, SmartArt, section breaks, citations). Chromebook users will need campus labs or a virtual desktop for those tasks. Each drill is tagged web or desktop so the Office Trainer can show the right path."], ["Accessibility is built in, not bolted on", "info", "The ADA Title II web rule (WCAG 2.1 AA) covers documents public colleges post. A DOJ interim final rule (April 20, 2026) moved compliance to April 26, 2027 for entities of 50,000 or more and April 26, 2028 for smaller ones. Confirm FLCC's date with the college's accessibility office."], ["Certification access", "flag", "Check whether FLCC is a Certiport testing center and has practice-test licenses. If not, the capstone uses the Office Trainer's own MOS-style set and the exam is an optional add-on."], ["Privacy by design", "info", "Fictional persona option for resumes, letters and peer review; merge lists deleted after grading; Document Inspector taught before any sharing; no personal data in AI prompts."], ["Northstar as a diagnostic", "info", "Twelve of Northstar's 14 Word skills are covered in Week 1, lists in Week 2, and inserting images, shapes, hyperlinks and tables in Week 3. If FLCC has a Northstar site license, use it as a Day 1 pre-assessment and a Week 1 post-check."]], "sources": [["MO-110: Microsoft Word (Microsoft 365 Apps) - Microsoft Learn", "https://learn.microsoft.com/en-us/credentials/exams/mo-110/"], ["MO-110 study guide (skills measured) - Microsoft", "https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE5dvir"], ["MO-111 Word Expert study guide - Microsoft", "https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RW16Vea"], ["Northstar Digital Literacy: Microsoft Word standards", "https://www.digitalliteracyassessment.org/badges/ms-word/v2/proctored/"], ["NACE Career Readiness: Competencies Defined - NACE", "https://www.naceweb.org/career-readiness/competencies/career-readiness-defined"], ["NACE Career Readiness Competencies - Rutgers-Newark summary", "https://careers.newark.rutgers.edu/resources/nace-career-readiness-competencies/"], ["Equity & Inclusion competency under review - Inside Higher Ed", "https://www.insidehighered.com/index%2Ephp/node/196261"], ["DigComp 3.0 launches (December 2025) - CEPIS", "https://cepis.org/digcomp-3-0-launches/"], ["DigComp framework - European Commission Joint Research Centre", "https://joint-research-centre.ec.europa.eu/digcomp/digcomp-framework_en"], ["Understanding WCAG 2.1 success criteria - W3C", "https://www.w3.org/WAI/WCAG21/Understanding/"], ["ADA Title II compliance deadline extension (2026) - Kwall", "https://www.kwallcompany.com/2026/06/04/ada-title-ii-website-compliance-deadline/"], ["ADA Title II 2026 update - Aberdeen", "https://aberdeen.io/blog/2026/04/07/ada-title-iis-2026-update-what-changed-and-what-didnt/"], ["Word features comparison: web vs desktop - Microsoft Support", "https://support.microsoft.com/en-us/Word/word-features-comparison-word-for-the-web-vs-desktop"]], "evidence": [{"id": "CLO1", "text": "Create, save, format and print documents", "bloom": "Apply", "I": ["W1"], "R": ["W2", "W3", "W4", "W5"], "A": ["W1", "W4", "W5"], "objectives": ["W1.2", "W1.3", "W1.5", "W2.3", "W2.4", "W4.2", "W5.5", "W5.6"], "criteria": ["P1-a", "P1-b", "P1-d", "P2-b", "P4-a", "P4-b", "P5-d"], "checks": ["SC1", "SC4", "SC5", "CAP"], "artifact": "Project 1 letter and memo (.docx and .pdf); Project 2 paper layout; Project 4 resumes; clean-and-ship checklist in Project 5."}, {"id": "CLO2", "text": "Demonstrate features offered by the application", "bloom": "Apply", "I": ["W1"], "R": ["W2", "W3", "W4", "W5"], "A": ["W1", "W2", "W5"], "objectives": ["W1.1", "W1.3", "W1.4", "W1.6", "W2.1", "W2.2", "W2.3", "W2.4", "W2.5", "W2.6", "W4.1", "W5.6"], "criteria": ["P1-b", "P1-c", "P2-a", "P2-c", "P2-d", "P2-e", "P4-a"], "checks": ["SC1", "SC2", "SC5", "CAP"], "artifact": "Skill checks SC1 to SC5 (feature use under time); Project 2 styles, citations and template; capstone practice exam."}, {"id": "CLO3", "text": "Insert and modify graphics", "bloom": "Apply", "I": ["W3"], "R": [], "A": ["W3", "W5"], "objectives": ["W3.1", "W3.2", "W3.4", "W5.6"], "criteria": ["P3-a", "P3-d", "P3-e"], "checks": ["SC3", "SC5", "CAP"], "artifact": "Project 3 graphics, chart and alt text; SC3; capstone domain 5."}, {"id": "CLO4", "text": "Create and format tables", "bloom": "Apply", "I": ["W3"], "R": ["W4"], "A": ["W3", "W5"], "objectives": ["W3.3", "W4.2", "W5.6"], "criteria": ["P3-b", "P4-b"], "checks": ["SC3", "SC5", "CAP"], "artifact": "Project 3 schedule table; Project 4 ATS resume structure; SC3; capstone domain 3."}, {"id": "CLO5", "text": "Apply desktop publishing features to a document", "bloom": "Apply", "I": ["W3"], "R": ["W4"], "A": ["W3", "W5"], "objectives": ["W3.5", "W4.2", "W5.6"], "criteria": ["P3-c", "P3-d", "P4-a"], "checks": ["SC3", "SC5", "CAP"], "artifact": "Project 3 newsletter layout (columns, sections, theme, page elements); Project 4 designed resume."}, {"id": "CLO6", "text": "Create and preview the document as a Web page", "bloom": "Apply", "I": ["W1"], "R": ["W2", "W5"], "A": ["W4"], "objectives": ["W1.1", "W2.2", "W4.5"], "criteria": ["P4-e"], "checks": ["SC4", "CAP"], "artifact": "Project 4 web page version of the resume (.htm) and the format-comparison reflection."}, {"id": "CLO7", "text": "use mail merge to create form letters, directories, and envelopes", "bloom": "Apply", "I": ["W4"], "R": ["W5"], "A": ["W4"], "objectives": ["W4.3", "W4.4"], "criteria": ["P4-c", "P4-d"], "checks": ["SC4", "CAP"], "artifact": "Project 4 merged cover letters, envelopes or labels, and directory; SC4 merge check."}, {"id": "CLO8", "text": "Collaborate on documents, Compare and Combine documents, Manage comments, Track document changes", "bloom": "Apply / Evaluate", "I": ["W5"], "R": [], "A": ["W5"], "objectives": ["W5.1", "W5.2", "W5.3", "W5.4", "W5.5", "W5.6"], "criteria": ["P5-a", "P5-b", "P5-c", "P5-d"], "checks": ["SC5", "CAP"], "artifact": "Project 5 tracked review, comment responses, compare and combine, and clean-and-ship; SC5."}], "stats": {"clos": 8, "closAssessed": 8, "topics": 7, "topicsCovered": 7, "sub": 71, "subDrilled": 71, "subChecked": 53, "objectives": 18, "drills": 54, "mo111Full": 5, "mo111Partial": 7, "mo111None": 2, "webDrills": 21, "deskDrills": 31, "bothDrills": 2}}</script>
+
+<script>
+/* =========================================================================
+   Word Course Map - interactive view
+   How this script works, in plain terms:
+   1. Read the course data (JSON) that sits in the <script> tag above.
+   2. Build each tab's content with small helper functions.
+   3. Wire up keyboard-friendly tabs, the week ruler and the filters.
+   Security note: every piece of text goes in with textContent (never
+   innerHTML), so nothing in the data can inject code into the page.
+   ========================================================================= */
+(function () {
+  "use strict";
+
+  // ---- 1. Load the data ---------------------------------------------------
+  const DATA = JSON.parse(document.getElementById("course-data").textContent);
+  const WEEKS = DATA.weeks;
+
+  // ---- 2. Tiny helpers -----------------------------------------------------
+
+  /**
+   * el("p", {class: "muted"}, "Hello") makes <p class="muted">Hello</p>.
+   * attrs: plain attributes; "on" + event name (onclick) adds a listener.
+   * children: strings (added as safe text) or elements, or arrays of those.
+   */
+  function el(tag, attrs, ...children) {
+    const node = document.createElement(tag);
+    for (const [key, value] of Object.entries(attrs || {})) {
+      if (value === null || value === undefined || value === false) continue;
+      if (key.startsWith("on") && typeof value === "function") {
+        node.addEventListener(key.slice(2), value);
+      } else if (value === true) {
+        node.setAttribute(key, "");
+      } else {
+        node.setAttribute(key, String(value));
+      }
+    }
+    appendAll(node, children);
+    return node;
+  }
+  function appendAll(node, children) {
+    for (const child of children.flat(Infinity)) {
+      if (child === null || child === undefined || child === false) continue;
+      node.append(child instanceof Node ? child : document.createTextNode(String(child)));
+    }
+  }
+
+  // Look-ups we use a lot
+  const weekById = Object.fromEntries(WEEKS.map(w => [w.id, w]));
+  const cloById = Object.fromEntries(DATA.clos.map(c => [c.id, c]));
+  const topicById = Object.fromEntries(DATA.topics.map(t => [t.id, t]));
+  const LEVEL_NAMES = { I: "Introduced", R: "Reinforced", A: "Assessed" };
+  const PLATFORM_LABEL = { "web": "Web + desktop", "desktop": "Desktop only", "both-check": "Self-check" };
+  const PLATFORM_CLASS = { "web": "web", "desktop": "desktop", "both-check": "both" };
+  const STATUS_LABEL = { full: "Covered", partial: "Partly covered", none: "Not covered" };
+  const weekLabel = id => "Week " + id.slice(1);
+
+  // The MOS crosswalk filter controls. Declared up here because the panels
+  // are built (and these are filled in) before the code further down runs.
+  let mosSearch, mosDomain, mosWeek, mosCount, mosBody;
+
+  /** I/R/A marks for a level string such as "IA" */
+  function marks(level) {
+    if (!level) return el("span", { class: "visually-hidden" }, "not addressed");
+    return el("span", { class: "marks" },
+      level.split("").map(letter =>
+        el("span", { class: "mark " + letter, title: LEVEL_NAMES[letter], "aria-label": LEVEL_NAMES[letter] }, letter)));
+  }
+
+  /** A table from header labels and row arrays. Cells can be text or elements. */
+  function table(headers, rows, opts) {
+    opts = opts || {};
+    const thead = el("thead", {}, el("tr", {}, headers.map((h, i) =>
+      el("th", { scope: "col", class: (opts.centerFrom !== undefined && i >= opts.centerFrom) ? "center" : null }, h))));
+    const tbody = el("tbody", {}, rows.map(r => r));
+    return el("div", { class: "table-wrap", role: "region", "aria-label": opts.label || "Table", tabindex: "0" },
+      el("table", { class: opts.className || null }, opts.caption ? el("caption", { class: "visually-hidden" }, opts.caption) : null, thead, tbody));
+  }
+  function row(cells, opts) {
+    opts = opts || {};
+    return el("tr", { class: opts.className || null }, cells.map((c, i) => {
+      if (i === 0 && opts.rowHeader) return el("th", { scope: "row" }, c);
+      const cls = (opts.centerFrom !== undefined && i >= opts.centerFrom) ? "center" : (opts.numCols && opts.numCols.includes(i) ? "num" : null);
+      return el("td", { class: cls }, c);
+    }));
+  }
+
+  /** A clickable MO-110 code chip - jumps to the crosswalk filtered to that skill. */
+  function mosChip(code) {
+    return el("button", { type: "button", class: "chip code", title: "Show " + code + " in the MOS crosswalk",
+      onclick: () => { showTab("mos"); setMosFilter(code); } }, code);
+  }
+  function textChip(text, cls) { return el("span", { class: "chip" + (cls ? " " + cls : "") }, text); }
+
+  // Official pages for the standards chips. WCAG chips go to the W3C
+  // "Understanding" page for that exact success criterion.
+  const STANDARD_LINKS = {
+    nace: "https://www.naceweb.org/career-readiness/competencies/career-readiness-defined",
+    digcomp: "https://joint-research-centre.ec.europa.eu/digcomp/digcomp-framework_en",
+    wcagBase: "https://www.w3.org/WAI/WCAG21/Understanding/",
+    wcag: {
+      "1.1.1": "non-text-content", "1.3.1": "info-and-relationships", "1.3.2": "meaningful-sequence",
+      "1.4.1": "use-of-color", "1.4.3": "contrast-minimum", "2.4.2": "page-titled",
+      "2.4.4": "link-purpose-in-context", "2.4.6": "headings-and-labels", "3.1.1": "language-of-page",
+    },
+  };
+
+  /** A chip that is a real link, opening in a new tab (announced for screen readers). */
+  function linkChip(text, href, cls) {
+    if (!href) return textChip(text, cls);   // no known page: fall back to a plain chip
+    return el("a", { class: "chip" + (cls ? " " + cls : ""), href, target: "_blank", rel: "noopener noreferrer" },
+      text, el("span", { class: "ext", "aria-hidden": "true" }, "↗"),
+      el("span", { class: "visually-hidden" }, " (opens in a new tab)"));
+  }
+  function section(title, ...content) {
+    return el("section", { class: "stack" }, el("h2", {}, title), content);
+  }
+
+  // ---- 3. Masthead ---------------------------------------------------------
+  const S = DATA.stats;
+  document.getElementById("meta-line").textContent =
+    `${DATA.course.college} · ${DATA.course.version} · ${DATA.course.date}`;
+  document.getElementById("page-title").textContent = DATA.course.title;
+  document.getElementById("lede").textContent =
+    `Five themed weeks, each built around a real document learners keep. Mapped to ${DATA.course.cert}, with every official course outcome and topic carried through.`;
+  appendAll(document.getElementById("stats"), [
+    el("div", { class: "stat" }, el("b", {}, `${S.closAssessed}/${S.clos}`), el("span", {}, "course outcomes assessed")),
+    el("div", { class: "stat" }, el("b", {}, `${S.topicsCovered}/${S.topics}`), el("span", {}, "outline topics covered")),
+    el("div", { class: "stat" }, el("b", {}, `${S.subDrilled}/${S.sub}`), el("span", {}, "MO-110 sub-skills practiced")),
+    el("div", { class: "stat" }, el("b", {}, `${S.drills}`), el("span", {}, `outcome-checked drills (${S.webDrills} work on the web)`)),
+  ]);
+
+  // ---- 4. Tabs -------------------------------------------------------------
+  // Each tab has an id, a label and a function that builds its panel.
+  const TABS = [
+    { id: "overview", label: "Overview", build: buildOverview },
+    { id: "map", label: "Course Map", build: buildMap },
+    { id: "matrix", label: "Alignment Matrix", build: buildMatrix },
+    { id: "mos", label: "MOS Crosswalk", build: buildMos },
+    { id: "evidence", label: "Outcome Evidence", build: buildEvidence },
+    { id: "standards", label: "Other Standards", build: buildStandards },
+    { id: "sources", label: "Sources", build: buildSources },
+  ];
+  const tablist = document.getElementById("tablist");
+  const panels = document.getElementById("panels");
+
+  TABS.forEach(t => {
+    const tab = el("button", { type: "button", role: "tab", class: "tab", id: "tab-" + t.id,
+      "aria-controls": "panel-" + t.id, "aria-selected": "false", tabindex: "-1",
+      onclick: () => showTab(t.id, true) }, t.label);
+    tablist.append(tab);
+    const panel = el("section", { role: "tabpanel", id: "panel-" + t.id, "aria-labelledby": "tab-" + t.id, tabindex: "0", hidden: true });
+    panel.append(t.build());
+    panels.append(panel);
+  });
+
+  // Keyboard support for the tab row (WAI-ARIA pattern): arrows, Home, End.
+  tablist.addEventListener("keydown", e => {
+    const tabs = [...tablist.querySelectorAll('[role="tab"]')];
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    let next = null;
+    if (e.key === "ArrowRight") next = (i + 1) % tabs.length;
+    if (e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
+    if (e.key === "Home") next = 0;
+    if (e.key === "End") next = tabs.length - 1;
+    if (next !== null) { e.preventDefault(); tabs[next].focus(); showTab(TABS[next].id, false); }
+  });
+
+  /** Show one tab panel. focusPanel moves focus into it (used for clicks). */
+  function showTab(id, focusPanel) {
+    TABS.forEach(t => {
+      const on = t.id === id;
+      const tab = document.getElementById("tab-" + t.id);
+      tab.setAttribute("aria-selected", on ? "true" : "false");
+      tab.tabIndex = on ? 0 : -1;
+      document.getElementById("panel-" + t.id).hidden = !on;
+    });
+    safeSet("wcm-tab", id);
+    if (id !== "map") setHash(id);
+    if (focusPanel) document.getElementById("panel-" + id).focus({ preventScroll: true });
+  }
+
+  // ---- 5. Week ruler + week selection --------------------------------------
+  const ruler = document.getElementById("ruler");
+  WEEKS.forEach(w => {
+    ruler.append(el("button", { type: "button", "data-week": w.id, "aria-current": "false",
+      "aria-label": `Week ${w.n}: ${w.title}`, onclick: () => { selectWeek(w.id); showTab("map", true); } },
+      el("span", { class: "n" }, `Week ${w.n}`), el("span", { class: "t" }, w.title)));
+  });
+
+  let currentWeek = "W1";
+  function selectWeek(id) {
+    currentWeek = id;
+    document.querySelectorAll("#ruler button").forEach(b => b.setAttribute("aria-current", b.dataset.week === id ? "true" : "false"));
+    document.querySelectorAll(".week-select button").forEach(b => b.setAttribute("aria-pressed", b.dataset.week === id ? "true" : "false"));
+    const holder = document.getElementById("week-detail");
+    holder.replaceChildren(buildWeekDetail(weekById[id]));
+    setHash("week-" + id.slice(1));
+  }
+
+  // ======================================================================
+  // PANEL BUILDERS
+  // ======================================================================
+
+  function buildOverview() {
+    const cards = WEEKS.map(w => el("article", { class: "card week-card" },
+      el("span", { class: "num" }, `Week ${w.n}`),
+      el("h3", {}, w.title),
+      el("p", { class: "muted" }, w.tagline),
+      el("p", { class: "proj" }, el("b", {}, w.project.id + " "), w.project.title),
+      el("div", { class: "chips", "aria-label": "Course outcomes this week" },
+        Object.entries(w.clos).map(([c, lv]) => el("span", { class: "chip" }, c, marks(lv)))),
+      el("button", { type: "button", class: "btn", onclick: () => { selectWeek(w.id); showTab("map", true); } }, `Open Week ${w.n}`)));
+
+    const decisions = el("div", { class: "table-wrap", role: "region", "aria-label": "Decisions and flags", tabindex: "0" },
+      el("table", {}, el("thead", {}, el("tr", {}, el("th", { scope: "col" }, "Type"), el("th", { scope: "col" }, "Decision"), el("th", { scope: "col" }, "Details"))),
+        el("tbody", {}, DATA.decisions.map(([title, kind, text]) => el("tr", {},
+          el("td", {}, el("span", { class: "pill " + kind }, kind === "flag" ? "Needs a decision" : "Note")),
+          el("th", { scope: "row" }, title), el("td", {}, text))))));
+
+    // Grading bar: widths match the percentages; labels repeat in the list below for screen readers.
+    const g = DATA.grading;
+    const gradeBar = el("div", { class: "grade-bar", "aria-hidden": "true" },
+      g.map(([label, pct], i) => el("div", { class: "g" + i, style: `width:${pct}%`, title: `${label}: ${pct}%` }, pct + "%")));
+    const gradeList = el("ul", { class: "legend", style: "list-style:none;padding:0;margin:0" },
+      g.map(([label, pct], i) => el("li", {}, el("span", {}, el("span", { class: "swatch g" + i }), `${label} - ${pct}%`))));
+
+    return el("div", { class: "stack-lg" },
+      section("Course at a glance",
+        el("div", { class: "legend" }, el("span", {}, marks("I"), "Introduced"), el("span", {}, marks("R"), "Reinforced"), el("span", {}, marks("A"), "Assessed")),
+        el("div", { class: "grid-weeks" }, cards)),
+      section("Decisions and flags",
+        el("p", { class: "muted" }, "Items marked Needs a decision are open questions for the department. Notes explain choices already built into the plan."),
+        decisions),
+      section("Grading (suggested)", gradeBar, gradeList),
+      section("Format", el("p", {}, DATA.course.format + ". Every week follows the same rhythm: short lessons, outcome-checked drills in the Office Trainer, a timed skill check, then a project that becomes something the learner keeps."))
+    );
+  }
+
+  function buildMap() {
+    const selector = el("div", { class: "week-select", role: "group", "aria-label": "Choose a week" },
+      WEEKS.map(w => el("button", { type: "button", "data-week": w.id, "aria-pressed": "false", onclick: () => selectWeek(w.id) }, `Week ${w.n}`)));
+    return el("div", { class: "stack-lg" }, selector, el("div", { id: "week-detail" }));
+  }
+
+  /** The full detail view for one week. */
+  function buildWeekDetail(w) {
+    const objectives = el("ol", { class: "objectives" }, w.objectives.map(([id, text, clos]) =>
+      el("li", {}, el("span", { class: "oid" }, id), el("div", {}, text, " ", el("span", { class: "muted" }, "(" + clos.join(", ") + ")")))));
+
+    const drillRows = w.drills.map(([id, task, mos, extra, where]) => row([
+      id, task,
+      mos.length ? el("div", { class: "chips" }, mos.map(mosChip)) : el("span", { class: "muted" }, "-"),
+      extra.length ? el("div", { class: "chips" }, extra.map(x => textChip(x, "code"))) : el("span", { class: "muted" }, "-"),
+      el("span", { class: "pill " + PLATFORM_CLASS[where] }, PLATFORM_LABEL[where]),
+    ], { numCols: [0] }));
+
+    const p = w.project;
+    const rubricRows = p.criteria.map(([id, text, clos, pts]) => row([id, text, clos.join(", "), String(pts)], { numCols: [0, 3] }));
+    rubricRows.push(row(["", el("b", {}, "Total"), "", el("b", {}, "100")], { numCols: [3] }));
+
+    const main = el("div", { class: "stack-lg", style: "min-width:0" },
+      el("div", { class: "stack" },
+        el("span", { class: "eyebrow" }, `Week ${w.n} · ${w.hours}`),
+        el("h2", {}, w.title),
+        el("p", { class: "lede" }, w.tagline)),
+      el("section", { class: "stack" }, el("h3", {}, "Module objectives"),
+        el("p", { class: "muted" }, "By the end of the week, learners can:"), objectives),
+      el("section", { class: "stack" }, el("h3", {}, "Practice drills (Office Trainer)"),
+        el("p", { class: "muted" }, "Each drill states the outcome the trainer checks. Select a code to see it in the MOS crosswalk. E = MO-111 Expert, N = Northstar."),
+        table(["ID", "Task (checked outcome)", "MO-110", "Other", "Platform"], drillRows, { label: `Week ${w.n} drills` })),
+      el("section", { class: "stack" }, el("h3", {}, `Skill check ${w.skillcheck.id}`),
+        el("p", {}, w.skillcheck.desc),
+        el("div", { class: "chips", "aria-label": "MO-110 skills in this check" }, w.skillcheck.covers.map(mosChip))),
+      el("section", { class: "stack" }, el("h3", {}, `Project ${p.id}: ${p.title}`), el("p", {}, p.desc),
+        table(["Criterion", "Description", "CLOs", "Points"], rubricRows, { label: `${p.id} rubric` })),
+      w.capstone ? el("section", { class: "stack" }, el("h3", {}, w.capstone.title), el("p", {}, w.capstone.desc),
+        el("div", { class: "chips" }, w.capstone.clos.map(c => textChip(c)))) : null
+    );
+
+    const aside = el("aside", { class: "card stack", "aria-label": `Week ${w.n} context` },
+      el("div", { class: "aside-block" }, el("h3", {}, "Why it matters"),
+        el("dl", { class: "why" }, el("dt", {}, "College"), el("dd", {}, w.why.college),
+          el("dt", {}, "Work"), el("dd", {}, w.why.work), el("dt", {}, "Life"), el("dd", {}, w.why.life))),
+      el("div", { class: "aside-block" }, el("span", { class: "eyebrow" }, "Course outcomes"),
+        el("ul", { style: "margin:0;padding:0;list-style:none", class: "stack" },
+          Object.entries(w.clos).map(([c, lv]) => el("li", { style: "display:flex;gap:8px;align-items:flex-start" }, marks(lv),
+            el("span", {}, el("b", {}, c + " "), cloById[c].text))))),
+      el("div", { class: "aside-block" }, el("span", { class: "eyebrow" }, "Outline topics"),
+        el("ul", { style: "margin:0;padding-left:1.1em" }, w.topics.map(t => el("li", {}, el("b", {}, t + " "), topicById[t].text)))),
+      el("div", { class: "aside-block" }, el("span", { class: "eyebrow" }, "AI moment"), el("p", {}, w.ai)),
+      w.privacy ? el("div", { class: "aside-block" }, el("span", { class: "eyebrow" }, "Privacy"), el("p", {}, w.privacy)) : null,
+      el("div", { class: "aside-block" }, el("span", { class: "eyebrow" }, "Platform"), el("p", { class: "callout warn" }, w.platform)),
+      el("div", { class: "aside-block" }, el("span", { class: "eyebrow" }, "Standards"),
+        el("div", { class: "chips" }, w.nace.map(n => linkChip("NACE: " + n, STANDARD_LINKS.nace))),
+        el("div", { class: "chips" }, w.digcomp.map(n => linkChip("DigComp: " + n, STANDARD_LINKS.digcomp))),
+        el("div", { class: "chips" }, w.wcag.map(n => linkChip("WCAG " + n,
+          STANDARD_LINKS.wcag[n] ? STANDARD_LINKS.wcagBase + STANDARD_LINKS.wcag[n] : null, "code")))),
+      el("div", { class: "aside-block" }, el("span", { class: "eyebrow" }, "Learner takeaway"), el("p", {}, w.life))
+    );
+    return el("div", { class: "week-layout" }, main, aside);
+  }
+
+  function buildMatrix() {
+    const cloRows = DATA.clos.map(c => row(
+      [el("span", {}, el("b", {}, c.id + " "), c.text), ...WEEKS.map(w => marks(w.clos[c.id] || ""))],
+      { rowHeader: true, centerFrom: 1 }));
+    const topicRows = DATA.topics.map(t => row(
+      [el("span", {}, el("b", {}, t.id + " "), t.text), ...WEEKS.map(w => t.weeks.includes(w.id)
+        ? el("span", { "aria-label": "Covered", title: "Covered" }, "●") : el("span", { class: "visually-hidden" }, "not covered"))],
+      { rowHeader: true, centerFrom: 1 }));
+    const objRows = [];
+    WEEKS.forEach(w => {
+      objRows.push(row([`Week ${w.n}: ${w.title}`, ...DATA.clos.map(() => "")], { className: "group" }));
+      w.objectives.forEach(([id, text, clos]) => objRows.push(row(
+        [el("span", {}, el("b", {}, id + " "), text), ...DATA.clos.map(c => clos.includes(c.id)
+          ? el("span", { "aria-label": "Aligned", title: "Aligned" }, "●") : el("span", { class: "visually-hidden" }, "not aligned"))],
+        { rowHeader: true, centerFrom: 1 })));
+    });
+    const weekHeads = WEEKS.map(w => `Wk ${w.n}`);
+    return el("div", { class: "stack-lg" },
+      section("Course learning outcomes by week",
+        el("div", { class: "legend" }, el("span", {}, marks("I"), "Introduced"), el("span", {}, marks("R"), "Reinforced"), el("span", {}, marks("A"), "Assessed")),
+        table(["Course learning outcome (verbatim)", ...weekHeads], cloRows, { label: "CLO by week matrix", centerFrom: 1, className: "matrix" })),
+      section("Topic outline by week",
+        table(["Topic outline item (verbatim)", ...weekHeads], topicRows, { label: "Topic by week matrix", centerFrom: 1, className: "matrix" })),
+      section("Module objectives to course outcomes",
+        el("p", { class: "muted" }, "Every module objective supports at least one official outcome. A dot means aligned."),
+        table(["Module objective", ...DATA.clos.map(c => c.id)], objRows, { label: "Objective to CLO matrix", centerFrom: 1, className: "matrix" }))
+    );
+  }
+
+  // --- MOS crosswalk with filters ------------------------------------------
+  function buildMos() {
+    const skills = Object.values(DATA.skills);
+
+    // Coverage bars, one per domain
+    const bars = el("div", { class: "bars" }, DATA.mo110.map(d => {
+      const list = skills.filter(s => s.domain === d.id);
+      const checked = list.filter(s => s.checks.length).length;
+      const total = list.length;
+      return el("div", { class: "bar-row" },
+        el("span", {}, el("b", {}, d.id + " "), d.name, el("span", { class: "muted" }, ` (${d.weight})`)),
+        el("div", { class: "bar", role: "img", "aria-label": `${total} of ${total} practiced; ${checked} also in a weekly skill check` },
+          el("div", { class: "checked", style: `width:${(checked / total) * 100}%` }),
+          el("div", { class: "drilled", style: `width:${((total - checked) / total) * 100}%` })),
+        el("span", { class: "val" }, `${checked}/${total} checked`));
+    }));
+
+    // Filters
+    mosSearch = el("input", { type: "search", id: "mos-search", placeholder: "Code or words, e.g. 3.2 or alt text", oninput: renderMosRows });
+    mosDomain = el("select", { id: "mos-domain", onchange: renderMosRows },
+      el("option", { value: "" }, "All domains"), DATA.mo110.map(d => el("option", { value: d.id }, `${d.id}. ${d.name}`)));
+    mosWeek = el("select", { id: "mos-week", onchange: renderMosRows },
+      el("option", { value: "" }, "All weeks"), WEEKS.map(w => el("option", { value: w.id }, `Week ${w.n}`)));
+    mosCount = el("p", { class: "result-count", "aria-live": "polite" });
+    const clear = el("button", { type: "button", class: "btn", onclick: () => { mosSearch.value = ""; mosDomain.value = ""; mosWeek.value = ""; renderMosRows(); } }, "Clear filters");
+    mosBody = el("tbody");
+    const crosswalk = el("div", { class: "table-wrap", role: "region", "aria-label": "MO-110 crosswalk", tabindex: "0" },
+      el("table", {}, el("thead", {}, el("tr", {}, ["Code", "Skill", "Week", "Drills", "Assessed in"].map(h => el("th", { scope: "col" }, h)))), mosBody));
+    renderMosRows();
+
+    // MO-111 table
+    const m111 = DATA.mo111.map(m => row([
+      "E" + m.id,
+      el("span", {}, el("b", {}, m.name), el("br"), el("span", { class: "muted" }, m.skills)),
+      el("span", { class: "pill " + m.status }, STATUS_LABEL[m.status]),
+      m.weeks.length ? m.weeks.map(weekLabel).join(", ") : "-",
+      m.how,
+    ], { numCols: [0] }));
+
+    return el("div", { class: "stack-lg" },
+      section("MO-110 Word Associate (Microsoft 365 Apps)",
+        el("p", {}, `All ${S.sub} sub-skills across ${S.objectives} objectives are practiced in at least one drill and appear on the capstone practice exam. ${S.subChecked} are also tested in a weekly skill check.`),
+        el("div", { class: "legend" }, el("span", {}, el("span", { class: "swatch checked" }), "Practiced and in a weekly skill check"),
+          el("span", {}, el("span", { class: "swatch drilled" }), "Practiced, assessed on the capstone")),
+        bars,
+        el("div", { class: "filters" },
+          el("label", { for: "mos-search" }, "Search", mosSearch),
+          el("label", { for: "mos-domain" }, "Domain", mosDomain),
+          el("label", { for: "mos-week" }, "Week", mosWeek), clear),
+        mosCount, crosswalk,
+        el("p", { class: "muted" }, "Sub-skill wording follows Microsoft's MO-110 skills outline. Check the current study guide before publishing to learners.")),
+      section("MO-111 Word Expert (stretch content)",
+        el("p", {}, `The course does not prepare learners for MO-111, but the official outcomes pull in several Expert objectives: ${S.mo111Full} covered, ${S.mo111Partial} partly covered, ${S.mo111None} not covered.`),
+        table(["Code", "Objective", "Status", "Weeks", "How"], m111, { label: "MO-111 crosswalk" }))
+    );
+  }
+
+  /** Redraw the MO-110 rows using the current filter values. */
+  function renderMosRows() {
+    const q = mosSearch.value.trim().toLowerCase();
+    const dom = mosDomain.value, wk = mosWeek.value;
+    const rows = [];
+    let shown = 0;
+    DATA.mo110.forEach(d => {
+      if (dom && d.id !== dom) return;
+      d.objectives.forEach(o => {
+        const matches = o.skills.map(([code]) => DATA.skills[code]).filter(s =>
+          (!wk || s.weeks.includes(wk)) &&
+          (!q || s.code.startsWith(q) || s.name.toLowerCase().includes(q) || o.name.toLowerCase().includes(q)));
+        if (!matches.length) return;
+        rows.push(row([o.id, `${o.name} (domain ${d.id}: ${d.name})`, "", "", ""], { className: "group" }));
+        matches.forEach(s => {
+          shown++;
+          rows.push(row([
+            s.code, s.name, s.weeks.map(weekLabel).join(", "),
+            s.drills.join(", "),
+            el("div", { class: "chips" }, s.checks.map(c => textChip(c, "code")), textChip("Capstone")),
+          ], { numCols: [0] }));
+        });
+      });
+    });
+    if (!shown) rows.push(row(["", "No skills match these filters. Clear the filters to see all " + S.sub + ".", "", "", ""]));
+    mosBody.replaceChildren(...rows);
+    mosCount.textContent = `Showing ${shown} of ${S.sub} sub-skills`;
+  }
+  function setMosFilter(code) {
+    mosSearch.value = code; mosDomain.value = ""; mosWeek.value = "";
+    renderMosRows();
+    mosSearch.focus();
+  }
+
+  function buildEvidence() {
+    const cards = DATA.evidence.map(e => el("article", { class: "card stack" },
+      el("span", { class: "eyebrow" }, e.id + " · Bloom: " + e.bloom),
+      el("h3", {}, e.text),
+      el("dl", { class: "ev" },
+        el("dt", {}, "Introduced"), el("dd", {}, e.I.map(weekLabel).join(", ") || "-"),
+        el("dt", {}, "Reinforced"), el("dd", {}, e.R.map(weekLabel).join(", ") || "-"),
+        el("dt", {}, "Assessed"), el("dd", {}, e.A.map(weekLabel).join(", ")),
+        el("dt", {}, "Objectives"), el("dd", {}, e.objectives.join(", ")),
+        el("dt", {}, "Rubric criteria"), el("dd", {}, e.criteria.join(", ")),
+        el("dt", {}, "Checks"), el("dd", {}, e.checks.join(", ")),
+        el("dt", {}, "Evidence"), el("dd", {}, e.artifact))));
+    const topicRows = DATA.topics.map(t => row([el("span", {}, el("b", {}, t.id + " "), t.text),
+      t.weeks.map(weekLabel).join(", "), DATA.topicHow[t.id]], { rowHeader: true }));
+    return el("div", { class: "stack-lg" },
+      section("Evidence for each course learning outcome",
+        el("p", { class: "muted" }, "Where each official outcome is taught, practiced and measured, and which learner artifact proves it."),
+        el("div", { class: "evidence-grid" }, cards)),
+      section("Topic outline evidence",
+        table(["Topic (verbatim)", "Weeks", "How it is met"], topicRows, { label: "Topic evidence" })));
+  }
+
+  function buildStandards() {
+    const nav = el("nav", { class: "subnav", "aria-label": "Standards on this tab" },
+      [["std-northstar", "Northstar"], ["std-nace", "NACE"], ["std-digcomp", "DigComp 3.0"], ["std-wcag", "WCAG / ADA"], ["std-platform", "Web vs desktop"], ["std-conv", "Conventions and assumptions"]]
+        .map(([id, label]) => el("a", { href: "#" + id, onclick: (e) => { e.preventDefault(); document.getElementById(id).scrollIntoView({ block: "start" }); document.getElementById(id).focus(); } }, label)));
+    const sec = (id, title, intro, tbl) => el("section", { class: "stack", id, tabindex: "-1" }, el("h2", {}, title), intro ? el("p", { class: "muted" }, intro) : null, tbl);
+    const wl = arr => arr.map(x => x === "All" ? "All" : weekLabel(x)).join(", ");
+    return el("div", { class: "stack-lg" }, nav,
+      sec("std-northstar", "Northstar Digital Literacy: Microsoft Word",
+        "A free, widely used baseline. All 14 standards are met by Week 3, so Northstar works as a Day 1 diagnostic.",
+        table(["Code", "Standard (verbatim)", "Week", "Drill"], DATA.northstar.map(n => row([n[0], n[1], weekLabel(n[2]), n[3]], { numCols: [0] })), { label: "Northstar" })),
+      sec("std-nace", "NACE Career Readiness Competencies",
+        "Employer-validated competencies from the National Association of Colleges and Employers.",
+        table(["Competency", "Weeks", "Where it shows up"], DATA.nace.map(n => row([n[0], wl(n[1]), n[2]])), { label: "NACE" })),
+      sec("std-digcomp", "DigComp 3.0 (European Digital Competence Framework)",
+        "Released December 2025. Mapped at the level of its five competence areas.",
+        table(["Competence area", "Weeks", "Where it shows up"], DATA.digcomp.map(n => row([n[0], wl(n[1]), n[2]])), { label: "DigComp" })),
+      sec("std-wcag", "Accessibility: WCAG 2.1 AA (ADA Title II)",
+        "Success criteria learners practice in Word. The DOJ moved Title II compliance to April 26, 2027 (entities of 50,000+) and April 26, 2028 (smaller); documents are covered.",
+        table(["Criterion", "Name", "Level", "What learners do in Word", "Weeks"], DATA.wcag.map(n => row([n[0], n[1], n[2], n[3], wl(n[4])], { numCols: [0] })), { label: "WCAG" })),
+      sec("std-platform", "Word for the web vs desktop Word",
+        `From Microsoft's feature comparison table, which changes often. Drill split: ${S.webDrills} web, ${S.deskDrills} desktop only, ${S.bothDrills} self-check.`,
+        table(["Feature", "Word for the web", "Desktop Word", "Used in"], DATA.platform.map(p => row([p[0],
+          el("span", { class: "pill " + (p[1] === "Yes" ? "web" : "desktop") }, p[1]), p[2], p[3]])), { label: "Platform comparison" })),
+      sec("std-conv", "Conventions and assumptions",
+        "Labeled honestly: published guides, industry conventions and planning assumptions are not the same thing.",
+        table(["Item", "Type", "Note", "Weeks"], DATA.conventions.map(c => row([c[0], el("span", { class: "pill " + (c[1] === "Assumption" ? "flag" : "info") }, c[1]), c[2], wl(c[3])])), { label: "Conventions" }))
+    );
+  }
+
+  function buildSources() {
+    return el("div", { class: "stack-lg" },
+      section("Sources",
+        el("ul", { class: "stack", style: "padding-left:1.1em;margin:0" }, DATA.sources.map(([t, u]) =>
+          el("li", {}, el("a", { href: u, target: "_blank", rel: "noopener noreferrer" }, t))))),
+      section("About this page",
+        el("p", {}, "This page and the Markdown course map (the master copy) are generated from the same data file, so they always agree. After changing the map, regenerate both together."),
+        el("p", { class: "muted" }, "Built as a single file with plain JavaScript. No data leaves the page; the only thing stored is your last tab and theme choice, in this browser.")));
+  }
+
+  // ---- 6. Footer -----------------------------------------------------------
+  appendAll(document.getElementById("footer"),
+    [el("p", {}, `${DATA.course.title} · ${DATA.course.version} · ${DATA.course.author}`)]);
+
+  // ---- 7. Theme toggle (system -> light -> dark) ---------------------------
+  const themeBtn = document.getElementById("theme-btn");
+  const THEMES = ["system", "light", "dark"];
+  function applyTheme(t) {
+    if (t === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", t);
+    themeBtn.textContent = "Theme: " + t;
+    safeSet("wcm-theme", t);
+  }
+  themeBtn.addEventListener("click", () => {
+    const now = document.documentElement.getAttribute("data-theme") || "system";
+    applyTheme(THEMES[(THEMES.indexOf(now) + 1) % THEMES.length]);
+  });
+
+  // ---- 8. Storage and links (wrapped so they never break the page) ---------
+  function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked - fine */ } }
+  function setHash(h) { try { history.replaceState(null, "", "#" + h); } catch (e) { /* sandboxed - fine */ } }
+
+  // ---- 9. Start-up: restore theme, then open the right tab/week -------------
+  const savedTheme = safeGet("wcm-theme");
+  if (savedTheme && THEMES.includes(savedTheme)) applyTheme(savedTheme);
+  const hash = (location.hash || "").slice(1);   // read the link's #token before anything changes it
+  selectWeek("W1");
+  const weekMatch = /^week-([1-5])$/.exec(hash);
+  if (weekMatch) { selectWeek("W" + weekMatch[1]); showTab("map"); }
+  else if (TABS.some(t => t.id === hash)) showTab(hash);
+  else showTab(TABS.some(t => t.id === safeGet("wcm-tab")) ? safeGet("wcm-tab") : "overview");
+})();
+</script>
+
+</body>
+</html>

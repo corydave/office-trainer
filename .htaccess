@@ -1,0 +1,12 @@
+# Office Trainer - web server settings (Apache / HostGator only; GitHub Pages ignores this file)
+#
+# While testing, tell browsers and Word to check for a new copy every time
+# instead of reusing an old saved ("cached") one. That way an updated
+# taskpane.html or starter document shows up right away.
+# "no-cache" still allows saving a copy - it just has to be re-checked first.
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|docx)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

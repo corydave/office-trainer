@@ -186,20 +186,69 @@
     }
     [hidden] { display: none !important; }
 
+    /* ---------- Lesson menu and lesson navigation ---------- */
+    ol.lesson-list { list-style: none; padding: 0; margin: 0 0 12px; }
+    ol.lesson-list li { margin-bottom: 10px; }
+    .lesson-card {
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      gap: 2px;
+      padding: 12px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+    .lesson-card:hover { border-color: var(--blue); background: var(--surface); }
+    .lesson-name { font-weight: bold; color: var(--blue); }
+    .lesson-sub { font-size: 0.9rem; color: var(--muted); }
+    .lesson-status { font-size: 0.85rem; font-weight: bold; }
+    .lesson-status[data-state="todo"] { color: var(--muted); }
+    .lesson-status[data-state="partial"] { color: var(--orange); }
+    .lesson-status[data-state="done"] { color: var(--green); }
+
+    .top-nav, .bottom-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .bottom-nav { margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .position { color: var(--muted); font-size: 0.9rem; }
+    /* When a lesson is finished, the Next button gets filled in so it's obvious. */
+    button.ready { background: var(--blue); color: var(--on-blue); font-weight: bold; }
+    button.ready:hover { background: var(--blue); filter: brightness(1.1); }
+    /* An invisible placeholder keeps "Next" on the right when "Previous" is hidden. */
+    .bottom-nav button[hidden] { display: inline-flex !important; visibility: hidden; }
+
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
 <body>
 <main>
+  <!-- ===== SCREEN 1: THE LESSON MENU (filled in by JavaScript from LESSONS) ===== -->
+  <section id="menu-view" aria-labelledby="menu-title">
+    <!-- tabindex="-1" lets us move keyboard focus to the heading when this screen opens. -->
+    <h1 id="menu-title" tabindex="-1">Office Trainer</h1>
+    <p class="subtitle">Pick a lesson. Your progress is remembered on this device.</p>
+    <ol class="lesson-list" id="lesson-list"></ol>
+  </section>
+
+  <!-- ===== SCREEN 2: ONE LESSON ===== -->
+  <div id="lesson-view" hidden>
+  <nav class="top-nav" aria-label="Lessons">
+    <button type="button" class="small" id="back-to-menu"><span aria-hidden="true">&lsaquo;</span> All lessons</button>
+    <span class="position" id="lesson-position"></span>
+  </nav>
+
   <header>
-    <h1 id="lesson-title">Office Trainer</h1>
+    <h1 id="lesson-title" tabindex="-1">Office Trainer</h1>
     <p class="subtitle" id="lesson-subtitle">Loading...</p>
   </header>
 
   <!-- ===== SETUP: shown when running INSIDE Word ===== -->
   <section class="card" id="setup-office" hidden aria-labelledby="setup-office-heading">
     <h2 id="setup-office-heading">Start here</h2>
-    <p>Load the practice flyer into this document, then work through the tasks below.</p>
+    <p>Load this lesson's practice document, then work through the tasks below.</p>
     <button type="button" id="load-starter-btn">Load the practice document</button>
     <div class="confirm-box" id="confirm-replace" hidden>
       <p><strong>This replaces everything in the current document.</strong> Continue?</p>
@@ -214,7 +263,7 @@
   <section class="card" id="setup-browser" hidden aria-labelledby="setup-browser-heading">
     <h2 id="setup-browser-heading">Working outside of Word's sidebar?</h2>
     <ol>
-      <li><a class="button-link" id="download-starter" href="starter.docx" download>Download the practice file</a></li>
+      <li><a class="button-link" id="download-starter" href="#" download>Download the practice file</a></li>
       <li>Open it in Word on any device (the free Word phone app works), do the tasks, and save.</li>
       <li>Use the button at the bottom to upload your saved file. It gets checked right here.</li>
     </ol>
@@ -230,7 +279,7 @@
     <progress id="progress-bar" max="1" value="0"></progress>
   </div>
 
-  <!-- ===== TASK LIST (filled in by JavaScript from the LESSON settings) ===== -->
+  <!-- ===== TASK LIST (filled in by JavaScript from the lesson's settings) ===== -->
   <section aria-labelledby="tasks-heading">
     <h2 id="tasks-heading">Your tasks</h2>
     <ol class="tasks" id="task-list"></ol>
@@ -242,11 +291,18 @@
   <p class="summary" id="summary" role="status" aria-live="polite"></p>
   <p class="error" id="error" role="alert"></p>
 
+  <nav class="bottom-nav" aria-label="Previous and next lesson">
+    <button type="button" class="small" id="prev-lesson"><span aria-hidden="true">&lsaquo;</span> Previous lesson</button>
+    <button type="button" class="small" id="next-lesson">Next lesson <span aria-hidden="true">&rsaquo;</span></button>
+  </nav>
+  </div><!-- end of lesson-view -->
+
   <footer>
     <p class="privacy">
       <strong>Privacy:</strong> your document is checked on this device. It is never uploaded
       or stored anywhere. This page makes no network requests with your work.
     </p>
+    <p class="privacy" id="version-label"></p>
   </footer>
 </main>
 
@@ -254,9 +310,24 @@
 "use strict";
 
 /* =====================================================================
-   PART 1: THE LESSON
+   PART 1: THE LESSONS
    ---------------------------------------------------------------------
-   Everything an instructor would change lives here. Each task has:
+   Everything an instructor would change lives here.
+
+   APP_VERSION shows at the bottom of the sidebar. Bump it every time you
+   upload a new taskpane.html - then you can SEE whether Word picked up the
+   new version or is still showing an old, cached copy.
+
+   LESSONS is a list. Each lesson has:
+     id          - short unique name, also used in links: taskpane.html?lesson=word-2
+     title       - shown on the lesson menu and at the top of the lesson
+     subtitle    - one line describing the lesson
+     starterFile - the practice document (in the "word/starters/poc" folder)
+     tasks       - the list of tasks (below)
+   To add a lesson: copy a whole lesson block { ... }, paste it at the end
+   of the list, and change its id, text, starter file, and tasks.
+
+   Each task has:
      id           - short unique name (letters and dashes)
      title        - what shows on the card
      instructions - what the student should do
@@ -268,10 +339,15 @@
                     Leave it "" until a video is recorded.
    Wrap keyboard keys in [[double brackets]] and they display as keys.
    ===================================================================== */
-const LESSON = {
+const APP_VERSION = "0.3";
+
+const LESSONS = [
+/* ---------------- Word Lesson 1 ---------------- */
+{
+  id: "word-1",
   title: "Word Lesson 1: Flyer Basics",
-  subtitle: "Three quick formatting tasks on a volunteer flyer.",
-  starterFile: "starter.docx",
+  subtitle: "Bold, center, and bullets on a volunteer flyer.",
+  starterFile: "word/starters/poc/word-1.docx",
   tasks: [
     {
       id: "bold-title",
@@ -335,7 +411,141 @@ const LESSON = {
       video: { youtubeId: "", title: "How to make a bulleted list in Word" }
     }
   ]
-};
+},
+
+/* ---------------- Word Lesson 2 ---------------- */
+{
+  id: "word-2",
+  title: "Word Lesson 2: Make It Stand Out",
+  subtitle: "Font size, italics, and highlighting on a bake sale sign.",
+  starterFile: "word/starters/poc/word-2.docx",
+  tasks: [
+    {
+      id: "title-size",
+      title: "Make the title bigger",
+      instructions: 'Change the title, "Fall Bake Sale", to 24 pt.',
+      check: checkTextSize,
+      targetText: "Fall Bake Sale",
+      sizePt: 24,
+      steps: {
+        main: [
+          "Select the whole title.",
+          "On the Home tab, find the Font Size box (the number next to the font name).",
+          "Click in the box, type 24, and press [[Enter]]. Or click the arrow and choose 24 from the list."
+        ],
+        otherWays: [
+          "Keyboard: select the title, then press [[Ctrl]] + [[Shift]] + [[>]] (or [[Cmd]] + [[Shift]] + [[>]] on a Mac) until it reaches 24.",
+          "The Increase Font Size button (a big A with a small up arrow) works too - just keep an eye on the number."
+        ]
+      },
+      video: { youtubeId: "", title: "How to change font size in Word" }
+    },
+    {
+      id: "italic-sentence",
+      title: "Italicize a sentence",
+      instructions: 'Make the sentence "Cash and cards accepted." italic. Leave the rest of that paragraph alone.',
+      check: checkPhraseItalic,
+      phrase: "Cash and cards accepted.",
+      steps: {
+        main: [
+          'Find the paragraph that starts "All proceeds support".',
+          'Select only the last sentence: drag from "Cash" to the period after "accepted".',
+          "On the Home tab, click the Italic button (the slanted I)."
+        ],
+        otherWays: [
+          "Keyboard: select the sentence, then press [[Ctrl]] + [[I]] (Windows or Chromebook) or [[Cmd]] + [[I]] (Mac)."
+        ]
+      },
+      video: { youtubeId: "", title: "How to italicize text in Word" }
+    },
+    {
+      id: "highlight-date",
+      title: "Highlight the date",
+      instructions: 'Highlight "Saturday, November 7" so it jumps off the page. Any highlight color is fine.',
+      check: checkPhraseHighlighted,
+      phrase: "Saturday, November 7",
+      steps: {
+        main: [
+          'Select the words "Saturday, November 7" on the "When:" line.',
+          "On the Home tab, find Text Highlight Color (it looks like a marker pen).",
+          "Click the pen itself to use yellow, or click the small arrow next to it to pick another color."
+        ],
+        otherWays: [
+          "You can also click the pen first (with nothing selected) and then drag across the words like a real highlighter. Press [[Esc]] when you're done.",
+          "Phone or tablet: select the words, then look for Highlight in the Home formatting options."
+        ]
+      },
+      video: { youtubeId: "", title: "How to highlight text in Word" }
+    }
+  ]
+},
+
+/* ---------------- Word Lesson 3 ---------------- */
+{
+  id: "word-3",
+  title: "Word Lesson 3: Layout and Tables",
+  subtitle: "Page orientation, line spacing, and a sign-up table.",
+  starterFile: "word/starters/poc/word-3.docx",
+  tasks: [
+    {
+      id: "landscape",
+      title: "Turn the page sideways",
+      instructions: "Change the page orientation to Landscape (wider than it is tall).",
+      check: checkLandscape,
+      steps: {
+        main: [
+          "Click the Layout tab at the top of Word.",
+          "Click Orientation.",
+          "Choose Landscape. The page turns sideways."
+        ],
+        otherWays: [
+          "Word desktop: Layout > Margins > Custom Margins opens Page Setup, where you can also pick Landscape."
+        ]
+      },
+      video: { youtubeId: "", title: "How to change page orientation in Word" }
+    },
+    {
+      id: "double-space",
+      title: "Double-space the introduction",
+      instructions: 'Set the line spacing of the paragraph that starts "Thank you for helping" to 2.0 (double).',
+      check: checkDoubleSpaced,
+      startsWith: "Thank you for helping",
+      steps: {
+        main: [
+          'Click anywhere inside the paragraph that starts "Thank you for helping". Line spacing applies to the whole paragraph, so no need to select it.',
+          "On the Home tab, click Line and Paragraph Spacing (lines with small up and down arrows).",
+          "Choose 2.0."
+        ],
+        otherWays: [
+          "Word for Windows desktop: click in the paragraph and press [[Ctrl]] + [[2]].",
+          "Paragraph settings (the small arrow in the corner of the Paragraph group) > Line spacing > Double also counts."
+        ]
+      },
+      video: { youtubeId: "", title: "How to double-space a paragraph in Word" }
+    },
+    {
+      id: "signup-table",
+      title: "Insert a sign-up table",
+      instructions: "Below the introduction, insert a table with 3 columns and at least 4 rows. Type Name, Phone, and Shift in the top row.",
+      check: checkTable,
+      table: { columns: 3, minRows: 4, headers: ["Name", "Phone", "Shift"] },
+      steps: {
+        main: [
+          'Click at the very end of the paragraph that starts "Thank you for helping" and press [[Enter]] to make a new, empty line.',
+          "Click the Insert tab, then click Table.",
+          "Move across the grid until it says 3x4 (3 columns, 4 rows), then click.",
+          "Click in the top-left cell and type Name. Press [[Tab]] to jump to the next cell, type Phone, press [[Tab]], and type Shift."
+        ],
+        otherWays: [
+          "Insert > Table > Insert Table lets you type the number of columns and rows instead of using the grid.",
+          "Need another row? Click in the bottom-right cell and press [[Tab]]."
+        ]
+      },
+      video: { youtubeId: "", title: "How to insert a table in Word" }
+    }
+  ]
+}
+];
 
 
 /* =====================================================================
@@ -553,6 +763,35 @@ async function readWordFile(bytes) {
       text: runs.map(function (r) { return r.text; }).join("")
     });
   }
+
+  // --- Tables: for each table, a list of rows; each row is a list of cell texts ---
+  model.tables = [];
+  for (const tbl of body.getElementsByTagNameNS(W, "tbl")) {
+    const rows = [];
+    for (const tr of tbl.children) {
+      if (tr.localName !== "tr") continue;
+      const cells = [];
+      for (const tc of tr.children) {
+        if (tc.localName !== "tc") continue;
+        let cellText = "";
+        for (const t of tc.getElementsByTagNameNS(W, "t")) cellText += t.textContent;
+        cells.push(cellText);
+      }
+      rows.push(cells);
+    }
+    model.tables.push(rows);
+  }
+
+  // --- Page setup: one entry per section (most documents have just one) ---
+  model.sections = [];
+  for (const sectPr of body.getElementsByTagNameNS(W, "sectPr")) {
+    const pgSz = child(sectPr, "pgSz");
+    model.sections.push({
+      width: Number(attr(pgSz, "w")) || 12240,     // 12240 = 8.5 inches (in 1440ths of an inch)
+      height: Number(attr(pgSz, "h")) || 15840,    // 15840 = 11 inches
+      orient: attr(pgSz, "orient") || "portrait"
+    });
+  }
   return model;
 }
 
@@ -621,33 +860,113 @@ function paragraphStyleId(model, paragraph) {
 }
 
 /**
- * Is this run of text bold - no matter HOW it got that way?
- * Word decides in this order (the first place that says yes or no wins):
- *   1. formatting put directly on the text (B button or Ctrl+B)
+ * Find a text-formatting setting (bold, italic, size...) for a run of text,
+ * no matter HOW it got there. Word decides in this order, and the first
+ * place that has the setting wins:
+ *   1. formatting put directly on the text (B button, Ctrl+B, font size box)
  *   2. a character style on the text (like "Strong")
  *   3. the paragraph's style (like "Heading 1" or a custom style)
  *   4. the document's defaults
+ * tagName is Word's short name for the setting: "b" = bold, "i" = italic,
+ * "sz" = size, "highlight" = highlight color, "shd" = shading.
+ * Returns the XML element that holds the setting, or null if none is set.
  * (Simplified: Word has a rare "toggle" rule for stacked styles that we skip.)
  */
-function isRunBold(model, run, paragraph) {
+function findRunProperty(model, run, paragraph, tagName) {
   const rPr = child(run.element, "rPr");
-
-  let answer = readOnOff(child(rPr, "b"));
-  if (answer !== null) return answer;
+  let found = child(rPr, tagName);
+  if (found) return found;
 
   const characterStyle = attr(child(rPr, "rStyle"), "val");
   for (const s of styleChain(model, characterStyle)) {
-    answer = readOnOff(child(s.rPr, "b"));
-    if (answer !== null) return answer;
+    found = child(s.rPr, tagName);
+    if (found) return found;
   }
 
   for (const s of styleChain(model, paragraphStyleId(model, paragraph))) {
-    answer = readOnOff(child(s.rPr, "b"));
-    if (answer !== null) return answer;
+    found = child(s.rPr, tagName);
+    if (found) return found;
   }
 
-  answer = readOnOff(child(model.defaultRunProps, "b"));
-  return answer === true;
+  return child(model.defaultRunProps, tagName);
+}
+
+/** Is an on/off setting (like bold "b" or italic "i") turned on for this run? */
+function isRunOn(model, run, paragraph, tagName) {
+  return readOnOff(findRunProperty(model, run, paragraph, tagName)) === true;
+}
+
+/** The run's font size in points. Word stores sizes in HALF points, so 48 means 24 pt. */
+function runSizePt(model, run, paragraph) {
+  const sz = attr(findRunProperty(model, run, paragraph, "sz"), "val");
+  return sz ? Number(sz) / 2 : 10;     // Word's built-in default is 10 pt
+}
+
+/**
+ * Is this run highlighted? The Highlight pen saves a highlight color.
+ * Text shading (a background color behind the text) looks the same to a
+ * reader, so it counts too - we grade what the page looks like.
+ */
+function isRunHighlighted(model, run, paragraph) {
+  const highlight = attr(findRunProperty(model, run, paragraph, "highlight"), "val");
+  if (highlight && highlight !== "none") return true;
+  const fill = attr(findRunProperty(model, run, paragraph, "shd"), "fill");
+  return !!fill && !["auto", "ffffff", "none"].includes(fill.toLowerCase());
+}
+
+/**
+ * Paragraph spacing between lines. Returns { line, rule }.
+ * "line" is in 240ths of a line when rule is "auto": 240 = single, 480 = double.
+ * Looks in the paragraph, then its styles, then the document defaults -
+ * only at spacing settings that actually say something about line spacing.
+ */
+function paragraphLineSpacing(model, paragraph) {
+  const places = [child(paragraph.element, "pPr")];
+  styleChain(model, paragraphStyleId(model, paragraph)).forEach(function (s) { places.push(s.pPr); });
+  places.push(model.defaultParaProps);
+
+  for (const pPr of places) {
+    const spacing = child(pPr, "spacing");
+    const line = attr(spacing, "line");
+    if (line) return { line: Number(line), rule: attr(spacing, "lineRule") || "auto" };
+  }
+  return { line: 240, rule: "auto" };   // nothing set anywhere = single spacing
+}
+
+/**
+ * Find which runs hold a piece of text inside a paragraph, e.g. one sentence.
+ * Returns the runs that overlap the text (or null if the text isn't there).
+ */
+function runsCoveringText(paragraph, text) {
+  const start = paragraph.text.toLowerCase().indexOf(text.toLowerCase());
+  if (start === -1) return null;
+  const end = start + text.length;
+
+  const covering = [];
+  let position = 0;
+  paragraph.runs.forEach(function (run) {
+    const runStart = position;
+    const runEnd = position + run.text.length;
+    // Does this run overlap the wanted text (and contain something besides spaces)?
+    const overlap = run.text.slice(Math.max(start, runStart) - runStart, Math.min(end, runEnd) - runStart);
+    if (runEnd > start && runStart < end && overlap.trim() !== "") {
+      covering.push({ run: run, overlapText: overlap });
+    }
+    position = runEnd;
+  });
+  return covering;
+}
+
+/** Find the first paragraph that CONTAINS some text (not an exact match). */
+function findParagraphContaining(model, text) {
+  const wanted = text.toLowerCase();
+  return model.paragraphs.find(function (p) { return p.text.toLowerCase().includes(wanted); }) || null;
+}
+
+/** Find the first paragraph that STARTS with some text. */
+function findParagraphStartingWith(model, text) {
+  const wanted = normalize(text);
+  return model.paragraphs.find(function (p) { return normalize(p.text).startsWith(wanted); }) || null;
 }
 
 /** Paragraph alignment: "left", "center", "right", or "both" (justified). Same lookup order as bold. */
@@ -716,7 +1035,7 @@ function checkTitleBold(model, task) {
   let boldCount = 0;
   title.runs.forEach(function (run) {
     if (run.text.trim() === "") return;
-    if (isRunBold(model, run, title)) boldCount++;
+    if (isRunOn(model, run, title, "b")) boldCount++;
     else notBold.push(run.text.trim());
   });
 
@@ -775,6 +1094,162 @@ function checkBulletList(model, task) {
   return { passed: false, message: bulleted + " of " + total + " items have bullets. Still needed: " + stillNeeded + "." };
 }
 
+/** Show a number like 1.15 or 2.0 (always at least one decimal place). */
+function formatNumber(n) {
+  const rounded = Math.round(n * 100) / 100;
+  return Number.isInteger(rounded) ? rounded.toFixed(1) : String(rounded);
+}
+
+/* ----- Lesson 2 checks ----- */
+
+function checkTextSize(model, task) {
+  const para = findParagraph(model, task.targetText);
+  if (!para) return notFoundResult(task.targetText);
+
+  // Collect the size of every run that has visible text.
+  const sizes = [];
+  para.runs.forEach(function (run) {
+    if (run.text.trim() !== "") sizes.push(runSizePt(model, run, para));
+  });
+  const wrongSizes = sizes.filter(function (s) { return s !== task.sizePt; });
+
+  if (wrongSizes.length === 0) {
+    return { passed: true, message: "The title is " + task.sizePt + " pt." };
+  }
+  if (wrongSizes.length < sizes.length) {
+    return { passed: false, message: "Part of the title is " + task.sizePt + " pt, but part is still " + wrongSizes[0] +
+             " pt. Select the whole title and set it to " + task.sizePt + "." };
+  }
+  // None of it is right. Is it all one (wrong) size?
+  const uniqueSizes = Array.from(new Set(wrongSizes));
+  if (uniqueSizes.length === 1) {
+    return { passed: false, message: "The title is " + uniqueSizes[0] + " pt. It needs to be " + task.sizePt + " pt." };
+  }
+  return { passed: false, message: "The title is a mix of sizes (" + uniqueSizes.join(" pt, ") + " pt). All of it needs to be " + task.sizePt + " pt." };
+}
+
+/**
+ * Shared helper for "make this phrase italic / highlighted / ...".
+ *   isFormatted(run, paragraph) - true if a run has the formatting
+ *   label                       - the word used in messages, e.g. "italic"
+ */
+function checkPhraseFormatting(model, phrase, isFormatted, label) {
+  const para = findParagraphContaining(model, phrase);
+  if (!para) return notFoundResult(phrase);
+
+  const covering = runsCoveringText(para, phrase);
+  const notDone = covering
+    .filter(function (c) { return !isFormatted(c.run, para); })
+    .map(function (c) { return c.overlapText.trim(); });
+
+  if (notDone.length === 0) return { passed: true, message: '"' + phrase + '" is ' + label + "." };
+  if (notDone.length === covering.length) return { passed: false, message: '"' + phrase + '" isn\'t ' + label + " yet." };
+  return { passed: false, message: "Almost! Part of it is " + label + ', but "' + notDone.join(" ") + '" isn\'t yet.' };
+}
+
+/**
+ * Returns the text in a paragraph OUTSIDE a phrase that has some formatting.
+ * Used to check "leave the rest of the paragraph alone."
+ */
+function formattedTextOutsidePhrase(paragraph, phrase, isFormatted) {
+  const start = paragraph.text.toLowerCase().indexOf(phrase.toLowerCase());
+  const end = start + phrase.length;
+  let position = 0;
+  let extra = "";
+  paragraph.runs.forEach(function (run) {
+    if (isFormatted(run, paragraph)) {
+      // Keep only the characters of this run that fall outside the phrase.
+      for (let i = 0; i < run.text.length; i++) {
+        const where = position + i;
+        if (where < start || where >= end) extra += run.text[i];
+      }
+    }
+    position += run.text.length;
+  });
+  return extra.trim();
+}
+
+function checkPhraseItalic(model, task) {
+  const isItalic = function (run, para) { return isRunOn(model, run, para, "i"); };
+  const result = checkPhraseFormatting(model, task.phrase, isItalic, "italic");
+  if (!result.passed) return result;
+
+  // The sentence is italic - but did the rest of the paragraph get italicized too?
+  const para = findParagraphContaining(model, task.phrase);
+  const extra = formattedTextOutsidePhrase(para, task.phrase, isItalic);
+  if (extra !== "") {
+    const preview = extra.length > 40 ? extra.slice(0, 40) + "..." : extra;
+    return { passed: false, message: 'The sentence is italic - nice! But "' + preview + '" is italic too. Only the one sentence should be.' };
+  }
+  return result;
+}
+
+function checkPhraseHighlighted(model, task) {
+  return checkPhraseFormatting(model, task.phrase, function (run, para) {
+    return isRunHighlighted(model, run, para);
+  }, "highlighted");
+}
+
+/* ----- Lesson 3 checks ----- */
+
+function checkLandscape(model) {
+  // No page setup saved at all means Word's default: portrait.
+  const sections = model.sections.length ? model.sections : [{ width: 12240, height: 15840 }];
+  const portrait = sections.filter(function (s) { return s.width <= s.height; });
+  if (portrait.length === 0) return { passed: true, message: "The page is landscape." };
+  return { passed: false, message: "The page is still portrait (taller than it is wide). It needs to be landscape." };
+}
+
+function checkDoubleSpaced(model, task) {
+  const para = findParagraphStartingWith(model, task.startsWith);
+  if (!para) return notFoundResult(task.startsWith + "...");
+
+  const spacing = paragraphLineSpacing(model, para);
+  if (spacing.rule === "auto" && spacing.line === 480) {
+    return { passed: true, message: "The introduction is double-spaced." };
+  }
+  if (spacing.rule === "auto") {
+    return { passed: false, message: "The introduction's line spacing is " + formatNumber(spacing.line / 240) + ". It needs to be 2.0 (double)." };
+  }
+  return { passed: false, message: "The line spacing is set to an exact size in points. Choose 2.0 from Line and Paragraph Spacing instead." };
+}
+
+function checkTable(model, task) {
+  const want = task.table;
+  if (model.tables.length === 0) {
+    return { passed: false, message: "There's no table in the document yet." };
+  }
+
+  // If there are several tables, use the one with the right number of columns.
+  const table = model.tables.find(function (t) { return t.length > 0 && t[0].length === want.columns; }) || model.tables[0];
+  const rowCount = table.length;
+  const columnCount = rowCount > 0 ? table[0].length : 0;
+
+  const problems = [];
+  if (columnCount !== want.columns) {
+    problems.push("it has " + columnCount + " column" + (columnCount === 1 ? "" : "s") + " (it needs " + want.columns + ")");
+  }
+  if (rowCount < want.minRows) {
+    problems.push("it has " + rowCount + " row" + (rowCount === 1 ? "" : "s") + " (it needs at least " + want.minRows + ")");
+  }
+
+  // Compare the top row with the headings we want (ignoring case and a trailing colon).
+  const clean = function (s) { return normalize(s || "").replace(/[:.]$/, ""); };
+  const topRow = table[0] || [];
+  const headersOk = want.headers.every(function (h, i) { return clean(topRow[i]) === clean(h); });
+  if (!headersOk) {
+    const topRowEmpty = topRow.every(function (cell) { return cell.trim() === ""; });
+    problems.push(topRowEmpty
+      ? "the top row is still empty - type " + want.headers.join(", ") + " from left to right"
+      : "the top row should say " + want.headers.join(", ") + " from left to right");
+  }
+
+  if (problems.length === 0) {
+    return { passed: true, message: "The table has " + columnCount + " columns, " + rowCount + " rows, and the right headings." };
+  }
+  return { passed: false, message: "Your table is close, but " + problems.join(", and ") + "." };
+}
+
 
 /* =====================================================================
    PART 5: THE SIDEBAR (building and updating what the student sees)
@@ -785,7 +1260,8 @@ function checkBulletList(model, task) {
    as code.
    ===================================================================== */
 
-let inWord = false;    // true when running inside Word as an add-in
+let inWord = false;           // true when running inside Word as an add-in
+let currentLesson = null;     // the lesson on screen (null = the lesson menu is showing)
 
 /** Shortcut for document.getElementById. */
 function $(id) { return document.getElementById(id); }
@@ -806,7 +1282,7 @@ function appendWithKeys(parent, text) {
   });
 }
 
-/** Build one task card from the LESSON settings. */
+/** Build one task card from a task's settings in LESSONS. */
 function buildTaskCard(task, number) {
   const li = el("li", "card task");
   li.id = "task-" + task.id;
@@ -838,7 +1314,9 @@ function buildTaskCard(task, number) {
   const videoPanel = buildVideoPanel(task);
   actions.appendChild(makeToggleButton("Explain step by step", stepsPanel));
   actions.appendChild(makeToggleButton("Watch video", videoPanel, function () { loadVideo(task, videoPanel); }));
-  if (inWord) {
+  // "Show me where" only makes sense for tasks about specific text
+  // (not, say, page orientation), and only inside Word.
+  if (inWord && textToFind(task)) {
     const showBtn = el("button", "small", "Show me where");
     showBtn.type = "button";
     showBtn.addEventListener("click", function () { showMeWhere(task); });
@@ -935,7 +1413,7 @@ function showResult(task, result) {
 }
 
 function updateProgress(doneCount) {
-  const total = LESSON.tasks.length;
+  const total = currentLesson.tasks.length;
   $("progress-label").textContent = doneCount + " of " + total + " tasks done";
   $("progress-bar").max = total;
   $("progress-bar").value = doneCount;
@@ -943,7 +1421,7 @@ function updateProgress(doneCount) {
 
 /** Clear all results (used after loading a fresh practice document). */
 function resetResults() {
-  LESSON.tasks.forEach(function (task) {
+  currentLesson.tasks.forEach(function (task) {
     const badge = $("badge-" + task.id);
     badge.dataset.state = "todo";
     badge.textContent = "Not checked";
@@ -951,6 +1429,7 @@ function resetResults() {
   });
   updateProgress(0);
   $("summary").textContent = "";
+  $("next-lesson").classList.remove("ready");
 }
 
 /**
@@ -969,11 +1448,13 @@ async function runChecks(getBytes) {
     if (typeof JSZip === "undefined") {
       throw new Error("The checker couldn't load. Check your internet connection and reopen this panel.");
     }
+    const lesson = currentLesson;           // remember which lesson we're checking
     const bytes = await getBytes();
     const model = await readWordFile(bytes);
+    if (lesson !== currentLesson) return;   // the student switched lessons while we were reading - stop
 
     let done = 0;
-    LESSON.tasks.forEach(function (task) {
+    lesson.tasks.forEach(function (task) {
       let result;
       try {
         result = task.check(model, task);
@@ -987,9 +1468,17 @@ async function runChecks(getBytes) {
     });
 
     updateProgress(done);
-    $("summary").textContent = done === LESSON.tasks.length
-      ? "All " + done + " tasks are done. Great work!"
-      : done + " of " + LESSON.tasks.length + " tasks done. See the notes on each task.";
+    saveLessonProgress(lesson.id, done, lesson.tasks.length);
+
+    const allDone = done === lesson.tasks.length;
+    const hasNext = LESSONS.indexOf(lesson) < LESSONS.length - 1;
+    $("next-lesson").classList.toggle("ready", allDone && hasNext);
+    if (allDone) {
+      $("summary").textContent = "All " + done + " tasks are done. Great work!" +
+        (hasNext ? " Ready for the next lesson? Use the Next lesson button below." : " That was the last lesson!");
+    } else {
+      $("summary").textContent = done + " of " + lesson.tasks.length + " tasks done. See the notes on each task.";
+    }
   } catch (e) {
     console.error(e);
     $("error").textContent = e.message;
@@ -1005,6 +1494,16 @@ async function runChecks(getBytes) {
    (These need Word's live connection, so they only appear in the add-in.)
    ===================================================================== */
 
+/**
+ * Which text is a task about? Tasks name it in different ways (targetText,
+ * phrase, startsWith, listItems). Returns null for tasks that aren't about
+ * specific text, like page orientation.
+ */
+function textToFind(task) {
+  if (task.listItems) return task.listItems[0];
+  return task.targetText || task.phrase || task.startsWith || null;
+}
+
 /** "Show me where": select the text the task is about, right in the document. */
 async function showMeWhere(task) {
   $("error").textContent = "";
@@ -1012,7 +1511,7 @@ async function showMeWhere(task) {
     await Word.run(async function (context) {
       const body = context.document.body;
       // The bullet task is about several lines; the others are about one.
-      const firstText = task.listItems ? task.listItems[0] : task.targetText;
+      const firstText = textToFind(task);
       const lastText = task.listItems ? task.listItems[task.listItems.length - 1] : null;
 
       const firstMatches = body.search(firstText, { matchCase: false });
@@ -1067,7 +1566,7 @@ async function loadStarter() {
   const button = $("load-starter-btn");
   button.disabled = true;
   try {
-    const response = await fetch(LESSON.starterFile);
+    const response = await fetch(currentLesson.starterFile);
     if (!response.ok) throw new Error("The practice file couldn't be downloaded.");
     const base64 = await blobToBase64(await response.blob());
 
@@ -1098,11 +1597,135 @@ function blobToBase64(blob) {
 
 
 /* =====================================================================
-   PART 7: STARTING UP
+   PART 7: MOVING BETWEEN LESSONS
+   ---------------------------------------------------------------------
+   Two screens: the lesson menu, and one lesson. Only one shows at a time.
+   Progress (just "2 of 3 tasks done" per lesson - nothing from the
+   document itself) is remembered in this browser with localStorage.
+   ===================================================================== */
+
+const PROGRESS_KEY = "officeTrainer.progress.v1";
+
+/** Read saved progress. Returns {} if there is none or storage is blocked. */
+function loadProgress() {
+  try {
+    return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {};
+  } catch (e) {
+    return {};    // private browsing or blocked storage: just start fresh
+  }
+}
+
+/**
+ * Save "done of total" for one lesson. We keep the BEST result so far, so a
+ * student who finished a lesson and later checks the wrong file doesn't lose
+ * their "Complete" on the menu. Failing to save is never an error for the student.
+ */
+function saveLessonProgress(lessonId, done, total) {
+  try {
+    const all = loadProgress();
+    const best = all[lessonId] ? Math.max(all[lessonId].done, done) : done;
+    all[lessonId] = { done: best, total: total };
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
+  } catch (e) { /* storage blocked - ignore */ }
+}
+
+/** Put the lesson's id in the address bar (?lesson=word-2) so the link can be shared or bookmarked. */
+function setAddressBarLesson(lessonId) {
+  try {
+    const url = new URL(window.location.href);
+    if (lessonId) url.searchParams.set("lesson", lessonId);
+    else url.searchParams.delete("lesson");
+    // office.js sometimes switches history off inside Word, so check it exists first.
+    if (window.history && typeof window.history.replaceState === "function") {
+      window.history.replaceState(null, "", url);
+    }
+  } catch (e) { /* not important enough to show an error */ }
+}
+
+/** SCREEN 1: build and show the lesson menu. */
+function showMenu(moveFocus) {
+  currentLesson = null;
+  const progress = loadProgress();
+  const list = $("lesson-list");
+  list.replaceChildren();
+
+  LESSONS.forEach(function (lesson) {
+    const li = el("li");
+    const button = el("button", "lesson-card");
+    button.type = "button";
+    button.appendChild(el("span", "lesson-name", lesson.title));
+    button.appendChild(el("span", "lesson-sub", lesson.subtitle));
+
+    // Status line: Not started / 1 of 3 done / Complete (words + symbol, never color alone)
+    const saved = progress[lesson.id];
+    const total = lesson.tasks.length;
+    const status = el("span", "lesson-status");
+    if (!saved) {
+      status.textContent = "Not started";
+      status.dataset.state = "todo";
+    } else if (saved.done >= total) {
+      status.textContent = "✓ Complete";
+      status.dataset.state = "done";
+    } else {
+      status.textContent = saved.done + " of " + total + " tasks done";
+      status.dataset.state = "partial";
+    }
+    button.appendChild(status);
+
+    button.addEventListener("click", function () { openLesson(lesson, true); });
+    li.appendChild(button);
+    list.appendChild(li);
+  });
+
+  $("lesson-view").hidden = true;
+  $("menu-view").hidden = false;
+  setAddressBarLesson(null);
+  if (moveFocus) $("menu-title").focus();
+}
+
+/** SCREEN 2: show one lesson. */
+function openLesson(lesson, moveFocus) {
+  currentLesson = lesson;
+  const index = LESSONS.indexOf(lesson);
+
+  $("lesson-title").textContent = lesson.title;
+  $("lesson-subtitle").textContent = lesson.subtitle;
+  $("lesson-position").textContent = "Lesson " + (index + 1) + " of " + LESSONS.length;
+  $("download-starter").href = lesson.starterFile;
+
+  // Build the task cards fresh for this lesson.
+  const list = $("task-list");
+  list.replaceChildren();
+  lesson.tasks.forEach(function (task, i) { list.appendChild(buildTaskCard(task, i + 1)); });
+  resetResults();
+  $("error").textContent = "";
+  $("confirm-replace").hidden = true;
+
+  // Previous / Next: hide the one that doesn't apply at the start or end of the list.
+  $("prev-lesson").hidden = index === 0;
+  $("next-lesson").hidden = index === LESSONS.length - 1;
+
+  $("menu-view").hidden = true;
+  $("lesson-view").hidden = false;
+  setAddressBarLesson(lesson.id);
+  window.scrollTo(0, 0);
+  if (moveFocus) $("lesson-title").focus();   // keyboard and screen reader users start at the top
+}
+
+/** Move to the lesson before (-1) or after (+1) the current one. */
+function goToNeighbor(step) {
+  const next = LESSONS[LESSONS.indexOf(currentLesson) + step];
+  if (next) openLesson(next, true);
+}
+
+
+/* =====================================================================
+   PART 8: STARTING UP
    ---------------------------------------------------------------------
    Figure out where we're running:
      - Inside Word (the add-in sidebar)  -> live checking + Word extras
      - A normal browser tab              -> download / upload mode
+   Then open the lesson named in the link (?lesson=word-2), or the menu.
    ===================================================================== */
 
 let started = false;
@@ -1113,25 +1736,24 @@ function start(runningInWord) {
   started = true;
   inWord = runningInWord;
 
-  $("lesson-title").textContent = LESSON.title;
-  $("lesson-subtitle").textContent = LESSON.subtitle;
-  $("download-starter").href = LESSON.starterFile;
-
-  // Build the task cards.
-  const list = $("task-list");
-  list.replaceChildren();
-  LESSON.tasks.forEach(function (task, i) { list.appendChild(buildTaskCard(task, i + 1)); });
-  updateProgress(0);
-
-  // Show the right setup box, and wire the main button for this mode.
+  // Show the right setup box, and label the main button for this mode.
   $("setup-office").hidden = !inWord;
   $("setup-browser").hidden = inWord;
   const checkBtn = $("check-btn");
   checkBtn.textContent = inWord ? "Check my work" : "Upload my file and check";
   checkBtn.disabled = false;
+  $("version-label").textContent = "Version " + APP_VERSION;
+
+  const wantedId = new URLSearchParams(window.location.search).get("lesson");
+  const wanted = LESSONS.find(function (lesson) { return lesson.id === wantedId; });
+  if (wanted) openLesson(wanted, false);
+  else showMenu(false);
 }
 
 // Button wiring (done once).
+$("back-to-menu").addEventListener("click", function () { showMenu(true); });
+$("prev-lesson").addEventListener("click", function () { goToNeighbor(-1); });
+$("next-lesson").addEventListener("click", function () { goToNeighbor(1); });
 $("check-btn").addEventListener("click", function () {
   if (inWord) runChecks(getDocumentBytesFromWord);
   else $("file-input").click();          // opens the file picker
