@@ -21,7 +21,7 @@ used to get there (ribbon, Ctrl+B, or a style all count).
 
 ## 1. Put it on GitHub Pages
 
-1. Create a new **public** repository named `office-trainer` under `corydave`.
+1. The repository is `corydave/office-trainer` (it must be **public** for free GitHub Pages).
 2. Upload everything in this folder (you can skip `word/fixtures/`, `word/_build/` and `word/tools/`).
 3. Go to **Settings > Pages**. Under "Build and deployment," choose **Deploy from a branch**, then **main** and **/ (root)**. Save.
 4. After a minute or two, open https://corydave.github.io/office-trainer/ - you should see the trainer in upload mode.
@@ -91,3 +91,7 @@ With no `?lesson=`, the lesson menu opens.
 
 Word caches add-ins. After you change `taskpane.html`, close and reopen the document.
 If the old version still shows, clear the browser cache.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

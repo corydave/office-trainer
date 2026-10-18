@@ -7,7 +7,7 @@
   taskpane.html, hosted at the addresses below.
 
   If you move the add-in to a different web address, find-and-replace
-  https://daveghidiu.com/office-trainer/ everywhere in this file.
+  https://corydave.github.io/office-trainer/ everywhere in this file.
 -->
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -22,14 +22,14 @@
     addresses). You do NOT need to touch it when you only change taskpane.html,
     the lessons, or the starter documents - Word loads those fresh from the web.
   -->
-  <Version>1.1.0.0</Version>
+  <Version>1.2.0.0</Version>
   <ProviderName>Finger Lakes Community College</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Office Trainer"/>
   <Description DefaultValue="Practice Word skills on a real document and check your work. Your document never leaves your device."/>
-  <IconUrl DefaultValue="https://daveghidiu.com/office-trainer/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://daveghidiu.com/office-trainer/assets/icon-64.png"/>
-  <SupportUrl DefaultValue="https://daveghidiu.com/office-trainer/"/>
+  <IconUrl DefaultValue="https://corydave.github.io/office-trainer/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://corydave.github.io/office-trainer/assets/icon-64.png"/>
+  <SupportUrl DefaultValue="https://corydave.github.io/office-trainer/"/>
 
   <!-- "Document" = Word. -->
   <Hosts>
@@ -44,7 +44,7 @@
   </Requirements>
 
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://daveghidiu.com/office-trainer/taskpane.html"/>
+    <SourceLocation DefaultValue="https://corydave.github.io/office-trainer/taskpane.html"/>
   </DefaultSettings>
 
   <!--
@@ -98,14 +98,14 @@
 
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16" DefaultValue="https://daveghidiu.com/office-trainer/assets/icon-16.png"/>
-        <bt:Image id="Icon.32" DefaultValue="https://daveghidiu.com/office-trainer/assets/icon-32.png"/>
-        <bt:Image id="Icon.80" DefaultValue="https://daveghidiu.com/office-trainer/assets/icon-80.png"/>
+        <bt:Image id="Icon.16" DefaultValue="https://corydave.github.io/office-trainer/assets/icon-16.png"/>
+        <bt:Image id="Icon.32" DefaultValue="https://corydave.github.io/office-trainer/assets/icon-32.png"/>
+        <bt:Image id="Icon.80" DefaultValue="https://corydave.github.io/office-trainer/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://daveghidiu.com/office-trainer/"/>
-        <bt:Url id="Commands.Url" DefaultValue="https://daveghidiu.com/office-trainer/commands.html"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://daveghidiu.com/office-trainer/taskpane.html"/>
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://corydave.github.io/office-trainer/"/>
+        <bt:Url id="Commands.Url" DefaultValue="https://corydave.github.io/office-trainer/commands.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://corydave.github.io/office-trainer/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Office Trainer is ready"/>
