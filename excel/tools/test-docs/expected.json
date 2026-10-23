@@ -1,0 +1,1489 @@
+{
+ "about": "Expected checker results. For each workbook: which lesson file to read, and for each activity, the expected result of every step (true = pass, false = fail, null = no checks). check-tests.html compares these with what the checker says.",
+ "cases": [
+  {
+   "doc": "starters/week-01/E1-L1-rentals.xlsx",
+   "lesson": "content/week-01/01-meet-excel.md",
+   "expect": {
+    "D1.01": [
+     false
+    ],
+    "D1.02": [
+     false,
+     false,
+     false
+    ],
+    "D1.04": [
+     false,
+     false,
+     false
+    ],
+    "D1.05": [
+     null,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/E1-L1-rentals.xlsx",
+   "lesson": "content/week-01/01-meet-excel.md",
+   "expect": {
+    "D1.01": [
+     true
+    ]
+   },
+   "fileName": "Rivera_E1_Rentals.xlsx"
+  },
+  {
+   "doc": "tools/test-docs/E1-L1-solved.xlsx",
+   "lesson": "content/week-01/01-meet-excel.md",
+   "expect": {
+    "D1.02": [
+     true,
+     true,
+     true
+    ],
+    "D1.04": [
+     true,
+     true,
+     true
+    ],
+    "D1.05": [
+     null,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E1-L1-partial.xlsx",
+   "lesson": "content/week-01/01-meet-excel.md",
+   "expect": {
+    "D1.02": [
+     true,
+     false,
+     true
+    ],
+    "D1.04": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/E1-L2-log.xlsx",
+   "lesson": "content/week-01/02-enter-edit.md",
+   "expect": {
+    "D1.06": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "D1.07": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E1-L2-solved.xlsx",
+   "lesson": "content/week-01/02-enter-edit.md",
+   "expect": {
+    "D1.06": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "D1.07": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E1-L2-partial.xlsx",
+   "lesson": "content/week-01/02-enter-edit.md",
+   "expect": {
+    "D1.06": [
+     true,
+     true,
+     true,
+     false,
+     false
+    ],
+    "D1.07": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E1-L2-nodelete.xlsx",
+   "lesson": "content/week-01/02-enter-edit.md",
+   "expect": {
+    "D1.06": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/E1-L3-report.xlsx",
+   "lesson": "content/week-01/03-format-cells.md",
+   "expect": {
+    "D1.08": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D1.09": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D1.10": [
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E1-L3-solved.xlsx",
+   "lesson": "content/week-01/03-format-cells.md",
+   "expect": {
+    "D1.08": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D1.09": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D1.10": [
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E1-L3-partial.xlsx",
+   "lesson": "content/week-01/03-format-cells.md",
+   "expect": {
+    "D1.08": [
+     true,
+     false,
+     false,
+     true
+    ],
+    "D1.09": [
+     true,
+     true,
+     false,
+     false
+    ],
+    "D1.10": [
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/E1-L4-report.xlsx",
+   "lesson": "content/week-01/04-page-print.md",
+   "expect": {
+    "D1.11": [
+     false,
+     false,
+     null
+    ],
+    "D1.12": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "D1.13": [
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E1-L4-solved.xlsx",
+   "lesson": "content/week-01/04-page-print.md",
+   "expect": {
+    "D1.11": [
+     true,
+     true,
+     null
+    ],
+    "D1.12": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "D1.13": [
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/E1-SC1-inventory.xlsx",
+   "lesson": "content/week-01/05-skill-check-sc1.md",
+   "expect": {
+    "SC1": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E1-SC1-solved.xlsx",
+   "lesson": "content/week-01/05-skill-check-sc1.md",
+   "expect": {
+    "SC1": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/E2-L1-orders.xlsx",
+   "lesson": "content/week-02/01-formulas-references.md",
+   "expect": {
+    "D2.01": [
+     false,
+     false,
+     false
+    ],
+    "D2.02": [
+     false
+    ],
+    "D2.03": [
+     false,
+     false
+    ],
+    "D2.04": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E2-L1-solved.xlsx",
+   "lesson": "content/week-02/01-formulas-references.md",
+   "expect": {
+    "D2.01": [
+     true,
+     true,
+     true
+    ],
+    "D2.02": [
+     true
+    ],
+    "D2.03": [
+     true,
+     true
+    ],
+    "D2.04": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E2-L1-partial.xlsx",
+   "lesson": "content/week-02/01-formulas-references.md",
+   "expect": {
+    "D2.01": [
+     true,
+     false,
+     false
+    ],
+    "D2.02": [
+     false
+    ],
+    "D2.04": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/E2-L2-functions.xlsx",
+   "lesson": "content/week-02/02-everyday-functions.md",
+   "expect": {
+    "D2.05": [
+     false,
+     false,
+     false
+    ],
+    "D2.06": [
+     false,
+     false,
+     false
+    ],
+    "D2.07": [
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E2-L2-solved.xlsx",
+   "lesson": "content/week-02/02-everyday-functions.md",
+   "expect": {
+    "D2.05": [
+     true,
+     true,
+     true
+    ],
+    "D2.06": [
+     true,
+     true,
+     true
+    ],
+    "D2.07": [
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E2-L2-partial.xlsx",
+   "lesson": "content/week-02/02-everyday-functions.md",
+   "expect": {
+    "D2.05": [
+     true,
+     true,
+     false
+    ],
+    "D2.06": [
+     false,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/E2-L3-invoice.xlsx",
+   "lesson": "content/week-02/03-names-links.md",
+   "expect": {
+    "D2.08": [
+     false,
+     false,
+     null
+    ],
+    "D2.09": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E2-L3-solved.xlsx",
+   "lesson": "content/week-02/03-names-links.md",
+   "expect": {
+    "D2.08": [
+     true,
+     true,
+     null
+    ],
+    "D2.09": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/E2-L4-members.xlsx",
+   "lesson": "content/week-02/04-text-functions.md",
+   "expect": {
+    "D2.10": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "D2.11": [
+     false,
+     false
+    ],
+    "D2.12": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E2-L4-solved.xlsx",
+   "lesson": "content/week-02/04-text-functions.md",
+   "expect": {
+    "D2.10": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "D2.11": [
+     true,
+     true
+    ],
+    "D2.12": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/E2-SC2-orders.xlsx",
+   "lesson": "content/week-02/05-skill-check-sc2.md",
+   "expect": {
+    "SC2": [
+     null,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E2-SC2-solved.xlsx",
+   "lesson": "content/week-02/05-skill-check-sc2.md",
+   "expect": {
+    "SC2": [
+     null,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/E3-L1-import.xlsx",
+   "lesson": "content/week-03/01-bring-data-in.md",
+   "expect": {
+    "D3.01": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-L1-solved.xlsx",
+   "lesson": "content/week-03/01-bring-data-in.md",
+   "expect": {
+    "D3.01": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-L1-partial.xlsx",
+   "lesson": "content/week-03/01-bring-data-in.md",
+   "expect": {
+    "D3.01": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/E3-L1-web.xlsx",
+   "lesson": "content/week-03/01-bring-data-in.md",
+   "expect": {
+    "D3.02": [
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-L1-web-solved.xlsx",
+   "lesson": "content/week-03/01-bring-data-in.md",
+   "expect": {
+    "D3.02": [
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/E3-L2-tables.xlsx",
+   "lesson": "content/week-03/02-excel-tables.md",
+   "expect": {
+    "D3.03": [
+     false,
+     false,
+     false
+    ],
+    "D3.04": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D3.05": [
+     false
+    ],
+    "D3.06": [
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-L2-solved.xlsx",
+   "lesson": "content/week-03/02-excel-tables.md",
+   "expect": {
+    "D3.03": [
+     true,
+     true,
+     true
+    ],
+    "D3.04": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D3.05": [
+     true
+    ],
+    "D3.06": [
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-L2-partial.xlsx",
+   "lesson": "content/week-03/02-excel-tables.md",
+   "expect": {
+    "D3.03": [
+     true,
+     true,
+     true
+    ],
+    "D3.04": [
+     false,
+     true,
+     false,
+     false
+    ],
+    "D3.05": [
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/E3-L3-sort.xlsx",
+   "lesson": "content/week-03/03-sort-filter.md",
+   "expect": {
+    "D3.07": [
+     false,
+     false
+    ],
+    "D3.08": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-L3-solved.xlsx",
+   "lesson": "content/week-03/03-sort-filter.md",
+   "expect": {
+    "D3.07": [
+     true,
+     true
+    ],
+    "D3.08": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-L3-partial.xlsx",
+   "lesson": "content/week-03/03-sort-filter.md",
+   "expect": {
+    "D3.07": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/E3-L4-visual.xlsx",
+   "lesson": "content/week-03/04-visual-summaries.md",
+   "expect": {
+    "D3.09": [
+     false,
+     false,
+     false
+    ],
+    "D3.10": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-L4-solved.xlsx",
+   "lesson": "content/week-03/04-visual-summaries.md",
+   "expect": {
+    "D3.09": [
+     true,
+     true,
+     true
+    ],
+    "D3.10": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/E3-SC3-gear.xlsx",
+   "lesson": "content/week-03/05-skill-check-sc3.md",
+   "expect": {
+    "SC3": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E3-SC3-solved.xlsx",
+   "lesson": "content/week-03/05-skill-check-sc3.md",
+   "expect": {
+    "SC3": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/E4-L1-charts.xlsx",
+   "lesson": "content/week-04/01-create-charts.md",
+   "expect": {
+    "D4.01": [
+     false
+    ],
+    "D4.02": [
+     false
+    ],
+    "D4.03": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/E4-L1-charts.xlsx",
+   "lesson": "content/week-04/02-format-charts.md",
+   "expect": {
+    "D4.04": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D4.05": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L1-solved.xlsx",
+   "lesson": "content/week-04/01-create-charts.md",
+   "expect": {
+    "D4.01": [
+     true
+    ],
+    "D4.02": [
+     true
+    ],
+    "D4.03": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L1-solved.xlsx",
+   "lesson": "content/week-04/02-format-charts.md",
+   "expect": {
+    "D4.04": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D4.05": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L1-partial.xlsx",
+   "lesson": "content/week-04/01-create-charts.md",
+   "expect": {
+    "D4.01": [
+     true
+    ],
+    "D4.02": [
+     false
+    ],
+    "D4.03": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L1-partial.xlsx",
+   "lesson": "content/week-04/02-format-charts.md",
+   "expect": {
+    "D4.04": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D4.05": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L1-onsheet.xlsx",
+   "lesson": "content/week-04/01-create-charts.md",
+   "expect": {
+    "D4.01": [
+     true
+    ],
+    "D4.02": [
+     false
+    ],
+    "D4.03": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L1-onsheet.xlsx",
+   "lesson": "content/week-04/02-format-charts.md",
+   "expect": {
+    "D4.04": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D4.05": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L1-noswitch.xlsx",
+   "lesson": "content/week-04/01-create-charts.md",
+   "expect": {
+    "D4.01": [
+     true
+    ],
+    "D4.02": [
+     false
+    ],
+    "D4.03": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/E4-L3-graphics.xlsx",
+   "lesson": "content/week-04/03-graphics.md",
+   "expect": {
+    "D4.06": [
+     false,
+     false,
+     false,
+     null,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L3-solved.xlsx",
+   "lesson": "content/week-04/03-graphics.md",
+   "expect": {
+    "D4.06": [
+     true,
+     true,
+     true,
+     null,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L3-noalt.xlsx",
+   "lesson": "content/week-04/03-graphics.md",
+   "expect": {
+    "D4.06": [
+     true,
+     true,
+     true,
+     null,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/E4-L4-planner.xlsx",
+   "lesson": "content/week-04/04-themes-templates.md",
+   "expect": {
+    "D4.07": [
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L4-solved.xlsx",
+   "lesson": "content/week-04/04-themes-templates.md",
+   "expect": {
+    "D4.07": [
+     true,
+     true,
+     true,
+     true
+    ]
+   },
+   "fileName": "Ghidiu_Planner.xltx"
+  },
+  {
+   "doc": "tools/test-docs/E4-L4-solved.xlsx",
+   "lesson": "content/week-04/04-themes-templates.md",
+   "expect": {
+    "D4.07": [
+     true,
+     true,
+     true,
+     false
+    ]
+   },
+   "fileName": "Ghidiu_Planner.xlsx"
+  },
+  {
+   "doc": "starters/week-04/E4-L5-whatif.xlsx",
+   "lesson": "content/week-04/05-what-if.md",
+   "expect": {
+    "D4.08": [
+     false,
+     false
+    ],
+    "D4.09": [
+     false,
+     false
+    ],
+    "D4.10": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L5-solved.xlsx",
+   "lesson": "content/week-04/05-what-if.md",
+   "expect": {
+    "D4.08": [
+     true,
+     true
+    ],
+    "D4.09": [
+     true,
+     true
+    ],
+    "D4.10": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L5-pmt.xlsx",
+   "lesson": "content/week-04/05-what-if.md",
+   "expect": {
+    "D4.08": [
+     true,
+     false
+    ],
+    "D4.09": [
+     false,
+     false
+    ],
+    "D4.10": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L5-noreport.xlsx",
+   "lesson": "content/week-04/05-what-if.md",
+   "expect": {
+    "D4.09": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/E4-SC4-sales.xlsx",
+   "lesson": "content/week-04/06-skill-check-sc4.md",
+   "expect": {
+    "SC4": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-SC4-solved.xlsx",
+   "lesson": "content/week-04/06-skill-check-sc4.md",
+   "expect": {
+    "SC4": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-SC4-partial.xlsx",
+   "lesson": "content/week-04/06-skill-check-sc4.md",
+   "expect": {
+    "SC4": [
+     true,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E4-L5-solved.xlsx",
+   "lesson": "content/week-04/07-project-p4.md",
+   "expect": {
+    "P4-check": [
+     false,
+     true,
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-L1-review.xlsx",
+   "lesson": "content/week-05/01-comments-notes.md",
+   "expect": {
+    "D5.01": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L1-solved.xlsx",
+   "lesson": "content/week-05/01-comments-notes.md",
+   "expect": {
+    "D5.01": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L1-replied.xlsx",
+   "lesson": "content/week-05/01-comments-notes.md",
+   "expect": {
+    "D5.01": [
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-L2-schedule.xlsx",
+   "lesson": "content/week-05/02-coauthor-combine.md",
+   "expect": {
+    "D5.02": [
+     null,
+     null,
+     null,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L2-schedule-solved.xlsx",
+   "lesson": "content/week-05/02-coauthor-combine.md",
+   "expect": {
+    "D5.02": [
+     null,
+     null,
+     null,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-L2-combine.xlsx",
+   "lesson": "content/week-05/02-coauthor-combine.md",
+   "expect": {
+    "D5.03": [
+     false,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L2-combine-solved.xlsx",
+   "lesson": "content/week-05/02-coauthor-combine.md",
+   "expect": {
+    "D5.03": [
+     true,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L2-combine-link.xlsx",
+   "lesson": "content/week-05/02-coauthor-combine.md",
+   "expect": {
+    "D5.03": [
+     true,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-L3-inspect.xlsx",
+   "lesson": "content/week-05/03-inspect-protect.md",
+   "expect": {
+    "D5.04": [
+     false,
+     false,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L3-inspect-solved.xlsx",
+   "lesson": "content/week-05/03-inspect-protect.md",
+   "expect": {
+    "D5.04": [
+     true,
+     true,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L3-inspect-partial.xlsx",
+   "lesson": "content/week-05/03-inspect-protect.md",
+   "expect": {
+    "D5.04": [
+     true,
+     false,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-L3-access.xlsx",
+   "lesson": "content/week-05/03-inspect-protect.md",
+   "expect": {
+    "D5.05": [
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L3-access-solved.xlsx",
+   "lesson": "content/week-05/03-inspect-protect.md",
+   "expect": {
+    "D5.05": [
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-L3-signup.xlsx",
+   "lesson": "content/week-05/03-inspect-protect.md",
+   "expect": {
+    "D5.06": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L3-signup-solved.xlsx",
+   "lesson": "content/week-05/03-inspect-protect.md",
+   "expect": {
+    "D5.06": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L3-signup-locked.xlsx",
+   "lesson": "content/week-05/03-inspect-protect.md",
+   "expect": {
+    "D5.06": [
+     false,
+     true,
+     true,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-L4-schedule.xlsx",
+   "lesson": "content/week-05/04-web-export.md",
+   "expect": {
+    "D5.07": [
+     false,
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L4-solved.xlsx",
+   "lesson": "content/week-05/04-web-export.md",
+   "expect": {
+    "D5.07": [
+     true,
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-SC5-roster.xlsx",
+   "lesson": "content/week-05/05-skill-check-sc5.md",
+   "expect": {
+    "SC5": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-SC5-solved.xlsx",
+   "lesson": "content/week-05/05-skill-check-sc5.md",
+   "expect": {
+    "SC5": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-SC5-solved.xlsx",
+   "lesson": "content/week-05/06-project-p5.md",
+   "expect": {
+    "P5-check": [
+     false,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-L3-inspect-solved.xlsx",
+   "lesson": "content/week-05/06-project-p5.md",
+   "expect": {
+    "P5-check": [
+     true,
+     true,
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/E5-CAP-exam.xlsx",
+   "lesson": "content/week-05/07-capstone.md",
+   "expect": {
+    "CAP": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-CAP-solved.xlsx",
+   "lesson": "content/week-05/07-capstone.md",
+   "expect": {
+    "CAP": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/E5-CAP-half.xlsx",
+   "lesson": "content/week-05/07-capstone.md",
+   "expect": {
+    "CAP": [
+     true,
+     true,
+     true,
+     false,
+     false,
+     false,
+     false,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false,
+     false,
+     true,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  }
+ ]
+}

@@ -4,7 +4,7 @@
 
 - **Format:** 5 weeks, online or hybrid, about 9 hours of learner work per week (assumes 1 credit - see Decisions)
 - **Certification target:** Microsoft Office Specialist (MOS): Word Associate (Microsoft 365 Apps), exam MO-110
-- **Coverage:** 8/8 course learning outcomes assessed · 7/7 outline topics · 71/71 MO-110 sub-skills practiced (53 also in weekly skill checks; all 71 in the capstone) · 5 MO-111 objectives fully and 7 partly covered
+- **Coverage:** 8/8 course learning outcomes assessed · 7/7 outline topics · 71/71 MO-110 sub-skills practiced (53 also in weekly skill checks; 22 sampled across every domain in the capstone) · 5 MO-111 objectives fully and 7 partly covered
 - **Companion:** `word-course-map.html` shows this map interactively. This Markdown file is the master copy. Both files are generated from the same data (`_build/data.py`), so they always agree; after changing the map, regenerate both with `python3 build.py`.
 
 ## How to read this map
@@ -257,8 +257,8 @@ A two-page newsletter or event flyer for a real campus club, small business or c
 | ID | Task (checked outcome) | MO-110 | Other | Platform |
 |---|---|---|---|---|
 | D4.01 | Open a resume template; replace every placeholder content control; save as Lastname_Resume.dotx. | - | E1.1, E4.1 | Desktop only |
-| D4.02 | In the ATS version, align dates at the right margin with a right tab stop and dot leader. | - | - | Desktop only |
-| D4.03 | Save your name and contact line as a Quick Part and insert it into the cover letter. | - | E3.1 | Desktop only |
+| D4.03 | In the ATS version, align dates at the right margin with a right tab stop and dot leader. | - | - | Desktop only |
+| D4.02 | Save your name and contact line as a Quick Part and insert it into the cover letter. | - | E3.1 | Desktop only |
 | D4.04 | Create a recipient list of five employers (Company, Contact, Title, Address, City, State, ZIP, Position). | - | E4.3 | Desktop only |
 | D4.05 | Insert an Address Block, a Greeting Line and the Position field in the letter body. | - | E4.3 | Desktop only |
 | D4.06 | Add an If...Then...Else rule that changes one sentence for remote jobs; preview every record and fix any blank lines. | - | E4.3, E4.1 | Desktop only |
@@ -502,7 +502,7 @@ A timed, 50-minute MO-110 style practice exam covering all six domains (Certipor
 
 ## MOS crosswalk: MO-110 Word Associate (Microsoft 365 Apps)
 
-All 71 sub-skills are practiced in at least one drill and appear in the capstone practice exam. Wording follows Microsoft's skills outline; check the current study guide before printing.
+All 71 sub-skills are practiced in at least one drill; the capstone practice exam samples 22 of them from every domain. Wording follows Microsoft's skills outline; check the current study guide before printing.
 
 ### Domain 1: Manage documents (20-25%)
 

@@ -391,8 +391,8 @@ WEEKS = [
     ],
     "drills": [
         ("D4.01", "Open a resume template; replace every placeholder content control; save as Lastname_Resume.dotx.", [], ["E1.1", "E4.1"], "desktop"),
-        ("D4.02", "In the ATS version, align dates at the right margin with a right tab stop and dot leader.", [], [], "desktop"),
-        ("D4.03", "Save your name and contact line as a Quick Part and insert it into the cover letter.", [], ["E3.1"], "desktop"),
+        ("D4.03", "In the ATS version, align dates at the right margin with a right tab stop and dot leader.", [], [], "desktop"),
+        ("D4.02", "Save your name and contact line as a Quick Part and insert it into the cover letter.", [], ["E3.1"], "desktop"),
         ("D4.04", "Create a recipient list of five employers (Company, Contact, Title, Address, City, State, ZIP, Position).", [], ["E4.3"], "desktop"),
         ("D4.05", "Insert an Address Block, a Greeting Line and the Position field in the letter body.", [], ["E4.3"], "desktop"),
         ("D4.06", "Add an If...Then...Else rule that changes one sentence for remote jobs; preview every record and fix any blank lines.", [], ["E4.3", "E4.1"], "desktop"),

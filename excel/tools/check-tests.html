@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Excel checker tests</title>
+<!--
+  CHECKER TESTS
+  Runs every check in the Excel lesson files against the starter workbooks
+  and the answer keys in test-docs/, and compares the results with
+  test-docs/expected.json. Open it from the course website (or any local web
+  server): browsers block fetch() from file:// pages.
+  Run it after any change to excel-checker.js or to a check: line.
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+        integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="../../word/tools/trainer-md.js"></script>
+<script src="excel-checker.js"></script>
+<style>
+  :root { --bg: #fff; --ink: #1a1a1a; --muted: #4b5563; --line: #c9ced6; --good: #305305; --bad: #a23108; --surface: #f4f6f9; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #16181d; --ink: #f2f2f2; --muted: #c3c8d0; --line: #444a55; --good: #b5e48c; --bad: #ffb38f; --surface: #22262e; } }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Arial, sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p { margin: 0 0 10px; color: var(--muted); }
+  .summary { font-weight: 700; color: var(--ink); }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--surface); }
+  td.ok { color: var(--good); font-weight: 700; white-space: nowrap; }
+  td.bad { color: var(--bad); font-weight: 700; white-space: nowrap; }
+  code { font-size: 13px; }
+  .msg { color: var(--muted); }
+  label { display: inline-flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+  :focus-visible { outline: 3px solid #0046ad; outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Excel checker tests</h1>
+  <p>Every checked step in the Excel lessons, run against the starters and answer keys. A row is <strong>OK</strong> when the checker agrees with <code>test-docs/expected.json</code>.</p>
+  <p class="summary" id="summary" role="status" aria-live="polite">Running…</p>
+  <label><input type="checkbox" id="only-bad"> Show only problems</label>
+  <div class="table-wrap">
+    <table>
+      <caption class="sr-only" style="position:absolute;left:-9999px">Checker test results</caption>
+      <thead><tr><th scope="col">Result</th><th scope="col">Document</th><th scope="col">Step</th><th scope="col">Expected</th><th scope="col">Checker said</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</main>
+<script>
+"use strict";
+// Paths in expected.json are relative to the excel/ folder, one level up from here.
+const BASE = "../";
+
+/** Make a table cell with plain text (never innerHTML: messages contain document text). */
+function cell(text, className) {
+  const td = document.createElement("td");
+  td.textContent = text;
+  if (className) td.className = className;
+  return td;
+}
+
+async function fetchText(path) {
+  const r = await fetch(BASE + path);
+  if (!r.ok) throw new Error("Couldn't load " + path);
+  return r.text();
+}
+async function fetchBytes(path) {
+  const r = await fetch(BASE + path);
+  if (!r.ok) throw new Error("Couldn't load " + path);
+  return new Uint8Array(await r.arrayBuffer());
+}
+
+async function run() {
+  const expected = JSON.parse(await fetchText("tools/test-docs/expected.json"));
+  const rows = document.getElementById("rows");
+  let ok = 0, bad = 0;
+  const lessons = {};   // lesson path -> parsed Trainer Markdown
+
+  for (const c of expected.cases) {
+    if (!lessons[c.lesson]) lessons[c.lesson] = TrainerMD.parse(await fetchText(c.lesson));
+    const model = await ExcelChecker.readXlsx(await fetchBytes(c.doc), { fileName: c.fileName });
+    for (const [activityId, wantList] of Object.entries(c.expect)) {
+      const block = lessons[c.lesson].blocks.find((b) => b.kind === "directive" && b.arg === activityId);
+      if (!block) { addRow(false, c, activityId + " (missing)", "-", "Activity not found in the lesson"); continue; }
+      block.steps.forEach((step, i) => {
+        const want = wantList[i];
+        if (!step.checks.length) {
+          addRow(want === null || want === undefined, c, activityId + " step " + (i + 1), want === null ? "no checks" : String(want), "no checks");
+          return;
+        }
+        const result = ExcelChecker.runStep(model, step, {});
+        addRow(result.pass === want, c, activityId + " step " + (i + 1), want ? "pass" : "fail",
+          (result.pass ? "pass: " : "fail: ") + result.messages.join(" | "));
+      });
+    }
+  }
+
+  function addRow(good, c, step, want, said) {
+    if (good) ok++; else bad++;
+    const tr = document.createElement("tr");
+    tr.dataset.good = String(good);
+    tr.append(cell(good ? "✓ OK" : "✗ Wrong", good ? "ok" : "bad"),
+      cell(c.doc.split("/").pop() + (c.fileName !== undefined ? " (saved as \"" + c.fileName + "\")" : "")),
+      cell(step), cell(want), cell(said, "msg"));
+    rows.append(tr);
+  }
+  document.getElementById("summary").textContent = bad === 0
+    ? "All " + ok + " results match. Checker version " + ExcelChecker.VERSION + "."
+    : bad + " of " + (ok + bad) + " results don't match. See the rows marked Wrong.";
+  document.body.dataset.done = bad === 0 ? "pass" : "fail";
+}
+
+document.getElementById("only-bad").addEventListener("change", (e) => {
+  for (const tr of document.querySelectorAll("#rows tr")) tr.hidden = e.target.checked && tr.dataset.good === "true";
+});
+run().catch((e) => { document.getElementById("summary").textContent = "The tests couldn't run: " + e.message; document.body.dataset.done = "error"; });
+</script>
+</body>
+</html>

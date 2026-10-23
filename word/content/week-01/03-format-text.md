@@ -24,6 +24,7 @@ You don't have to select a whole paragraph to change its paragraph formatting. J
 ## Character formatting
 
 ::: video
+id: w1-l3-fonts-format-painter
 url: TODO
 title: Fonts, sizes, effects and the Format Painter
 captions: none
@@ -60,6 +61,7 @@ Double-click the paintbrush to keep it on for several places; press [[key: Esc]]
 
 ::: drill D1.06
 title: Set fonts, bold, a text effect and use the Format Painter
+badge: Font Stylist
 starter: starters/week-01/W1-L3-letter.docx
 platform: web
 mos: 2.2.1, 2.2.2
@@ -83,6 +85,7 @@ minutes: 8
 ## Paragraph formatting
 
 ::: video
+id: w1-l3-paragraph-spacing
 url: TODO
 title: Alignment, spacing and indents
 captions: none
@@ -108,6 +111,7 @@ Text pasted from email or the web often carries an odd font, color or highlight.
 
 ::: drill D1.07
 title: Spacing, indents, alignment and Clear Formatting
+badge: Paragraph Pro
 starter: starters/week-01/W1-L3-letter.docx
 platform: web
 mos: 2.2.3, 2.2.5

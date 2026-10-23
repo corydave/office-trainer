@@ -1,0 +1,1536 @@
+{
+ "about": "Expected checker results. For each presentation: which lesson file to read, and for each activity, the expected result of every step (true = pass, false = fail, null = no checks). check-tests.html compares these with what the checker says.",
+ "cases": [
+  {
+   "doc": "starters/week-01/P1-L1-welcome.pptx",
+   "lesson": "content/week-01/01-meet-powerpoint.md",
+   "expect": {
+    "D1.01": [
+     false
+    ],
+    "D1.02": [
+     false,
+     false,
+     null,
+     false
+    ],
+    "D1.03": [
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/P1-L1-welcome.pptx",
+   "lesson": "content/week-01/01-meet-powerpoint.md",
+   "expect": {
+    "D1.01": [
+     true
+    ]
+   },
+   "fileName": "Rivera_P1_Welcome.pptx"
+  },
+  {
+   "doc": "tools/test-docs/P1-L1-solved.pptx",
+   "lesson": "content/week-01/01-meet-powerpoint.md",
+   "expect": {
+    "D1.02": [
+     true,
+     true,
+     null,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-L1-partial.pptx",
+   "lesson": "content/week-01/01-meet-powerpoint.md",
+   "expect": {
+    "D1.02": [
+     false,
+     true,
+     null,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/P1-L2-orientation.pptx",
+   "lesson": "content/week-01/02-slides-sections.md",
+   "expect": {
+    "D1.04": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D1.05": [
+     false,
+     false
+    ],
+    "D1.06": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-L2-solved.pptx",
+   "lesson": "content/week-01/02-slides-sections.md",
+   "expect": {
+    "D1.04": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D1.05": [
+     true,
+     true
+    ],
+    "D1.06": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-L2-partial.pptx",
+   "lesson": "content/week-01/02-slides-sections.md",
+   "expect": {
+    "D1.04": [
+     true,
+     true,
+     false,
+     true
+    ],
+    "D1.05": [
+     false,
+     false
+    ],
+    "D1.06": [
+     true,
+     false,
+     false,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-L2-sections.pptx",
+   "lesson": "content/week-01/02-slides-sections.md",
+   "expect": {
+    "D1.06": [
+     true,
+     true,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/P1-L3-text.pptx",
+   "lesson": "content/week-01/03-text-lists.md",
+   "expect": {
+    "D1.07": [
+     false,
+     false,
+     false
+    ],
+    "D1.08": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-L3-solved.pptx",
+   "lesson": "content/week-01/03-text-lists.md",
+   "expect": {
+    "D1.07": [
+     true,
+     true,
+     true
+    ],
+    "D1.08": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-L3-partial.pptx",
+   "lesson": "content/week-01/03-text-lists.md",
+   "expect": {
+    "D1.07": [
+     false,
+     true,
+     false
+    ],
+    "D1.08": [
+     false,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/P1-L4-print.pptx",
+   "lesson": "content/week-01/04-size-notes-print.md",
+   "expect": {
+    "D1.09": [
+     false
+    ],
+    "D1.10": [
+     false
+    ],
+    "D1.11": [
+     false,
+     false,
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-L4-solved.pptx",
+   "lesson": "content/week-01/04-size-notes-print.md",
+   "expect": {
+    "D1.09": [
+     true
+    ],
+    "D1.10": [
+     true
+    ],
+    "D1.11": [
+     true,
+     true,
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/P1-SC1-club.pptx",
+   "lesson": "content/week-01/05-skill-check-sc1.md",
+   "expect": {
+    "SC1": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-SC1-solved.pptx",
+   "lesson": "content/week-01/05-skill-check-sc1.md",
+   "expect": {
+    "SC1": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-SC1-half.pptx",
+   "lesson": "content/week-01/05-skill-check-sc1.md",
+   "expect": {
+    "SC1": [
+     true,
+     false,
+     false,
+     true,
+     true,
+     false,
+     true,
+     false,
+     false,
+     true,
+     false,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P1-L2-solved.pptx",
+   "lesson": "content/week-01/06-project-p1.md",
+   "expect": {
+    "P1-check": [
+     false,
+     true,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/P2-L1-design.pptx",
+   "lesson": "content/week-02/01-themes-backgrounds.md",
+   "expect": {
+    "D2.01": [
+     false,
+     null,
+     false
+    ],
+    "D2.02": [
+     false,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-L1-solved.pptx",
+   "lesson": "content/week-02/01-themes-backgrounds.md",
+   "expect": {
+    "D2.01": [
+     true,
+     null,
+     true
+    ],
+    "D2.02": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-L1-theme.pptx",
+   "lesson": "content/week-02/01-themes-backgrounds.md",
+   "expect": {
+    "D2.01": [
+     true,
+     null,
+     false
+    ],
+    "D2.02": [
+     true,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-L1-applyall.pptx",
+   "lesson": "content/week-02/01-themes-backgrounds.md",
+   "expect": {
+    "D2.02": [
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/P2-L2-master.pptx",
+   "lesson": "content/week-02/02-slide-master.md",
+   "expect": {
+    "D2.03": [
+     false,
+     false,
+     false,
+     null
+    ],
+    "D2.04": [
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-L2-solved.pptx",
+   "lesson": "content/week-02/02-slide-master.md",
+   "expect": {
+    "D2.03": [
+     true,
+     true,
+     true,
+     null
+    ],
+    "D2.04": [
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-L2-partial.pptx",
+   "lesson": "content/week-02/02-slide-master.md",
+   "expect": {
+    "D2.03": [
+     false,
+     true,
+     false,
+     null
+    ],
+    "D2.04": [
+     true,
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/P2-L3-handouts.pptx",
+   "lesson": "content/week-02/03-handouts-templates.md",
+   "expect": {
+    "D2.05": [
+     false,
+     false,
+     null
+    ],
+    "D2.06": [
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/P2-L3-handouts.pptx",
+   "lesson": "content/week-02/03-handouts-templates.md",
+   "expect": {
+    "D2.06": [
+     true,
+     null
+    ]
+   },
+   "fileName": "Rivera_Lakeshore.potx"
+  },
+  {
+   "doc": "starters/week-02/P2-L3-handouts.pptx",
+   "lesson": "content/week-02/03-handouts-templates.md",
+   "expect": {
+    "D2.06": [
+     false,
+     null
+    ]
+   },
+   "fileName": "Rivera_Lakeshore.pptx"
+  },
+  {
+   "doc": "tools/test-docs/P2-L3-solved.pptx",
+   "lesson": "content/week-02/03-handouts-templates.md",
+   "expect": {
+    "D2.05": [
+     true,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/P2-L4-cluttered.pptx",
+   "lesson": "content/week-02/04-design-reads.md",
+   "expect": {
+    "D2.07": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-L4-solved.pptx",
+   "lesson": "content/week-02/04-design-reads.md",
+   "expect": {
+    "D2.07": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-L4-partial.pptx",
+   "lesson": "content/week-02/04-design-reads.md",
+   "expect": {
+    "D2.07": [
+     false,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/P2-SC2-kickoff.pptx",
+   "lesson": "content/week-02/05-skill-check-sc2.md",
+   "expect": {
+    "SC2": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-SC2-solved.pptx",
+   "lesson": "content/week-02/05-skill-check-sc2.md",
+   "expect": {
+    "SC2": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-SC2-half.pptx",
+   "lesson": "content/week-02/05-skill-check-sc2.md",
+   "expect": {
+    "SC2": [
+     false,
+     true,
+     false,
+     true,
+     false,
+     false,
+     true,
+     false,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-L1-solved.pptx",
+   "lesson": "content/week-02/06-project-p2.md",
+   "expect": {
+    "P2-check": [
+     false,
+     true,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P2-SC2-solved.pptx",
+   "lesson": "content/week-02/06-project-p2.md",
+   "expect": {
+    "P2-check": [
+     true,
+     false,
+     true,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/P3-L1-pictures.pptx",
+   "lesson": "content/week-03/01-pictures.md",
+   "expect": {
+    "D3.01": [
+     false,
+     false,
+     false
+    ],
+    "D3.02": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L1-solved.pptx",
+   "lesson": "content/week-03/01-pictures.md",
+   "expect": {
+    "D3.01": [
+     true,
+     true,
+     true
+    ],
+    "D3.02": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L1-stretched.pptx",
+   "lesson": "content/week-03/01-pictures.md",
+   "expect": {
+    "D3.01": [
+     true,
+     false,
+     false
+    ],
+    "D3.02": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L1-resized.pptx",
+   "lesson": "content/week-03/01-pictures.md",
+   "expect": {
+    "D3.01": [
+     true,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/P3-L2-shapes.pptx",
+   "lesson": "content/week-03/02-shapes-align.md",
+   "expect": {
+    "D3.03": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D3.04": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L2-solved.pptx",
+   "lesson": "content/week-03/02-shapes-align.md",
+   "expect": {
+    "D3.03": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D3.04": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L2-partial.pptx",
+   "lesson": "content/week-03/02-shapes-align.md",
+   "expect": {
+    "D3.03": [
+     true,
+     false,
+     false,
+     false
+    ],
+    "D3.04": [
+     true,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/P3-L3-data.pptx",
+   "lesson": "content/week-03/03-tables-charts.md",
+   "expect": {
+    "D3.05": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D3.06": [
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L3-solved.pptx",
+   "lesson": "content/week-03/03-tables-charts.md",
+   "expect": {
+    "D3.05": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D3.06": [
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L3-partial.pptx",
+   "lesson": "content/week-03/03-tables-charts.md",
+   "expect": {
+    "D3.05": [
+     true,
+     true,
+     false,
+     false
+    ],
+    "D3.06": [
+     true,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/P3-L4-smartart.pptx",
+   "lesson": "content/week-03/04-smartart.md",
+   "expect": {
+    "D3.07": [
+     false,
+     false,
+     false,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L4-solved.pptx",
+   "lesson": "content/week-03/04-smartart.md",
+   "expect": {
+    "D3.07": [
+     true,
+     true,
+     true,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L4-partial.pptx",
+   "lesson": "content/week-03/04-smartart.md",
+   "expect": {
+    "D3.07": [
+     true,
+     true,
+     false,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/P3-SC3-report.pptx",
+   "lesson": "content/week-03/05-skill-check-sc3.md",
+   "expect": {
+    "SC3": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-SC3-solved.pptx",
+   "lesson": "content/week-03/05-skill-check-sc3.md",
+   "expect": {
+    "SC3": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-SC3-half.pptx",
+   "lesson": "content/week-03/05-skill-check-sc3.md",
+   "expect": {
+    "SC3": [
+     true,
+     false,
+     true,
+     true,
+     false,
+     false,
+     false,
+     false,
+     true,
+     true,
+     false,
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-SC3-solved.pptx",
+   "lesson": "content/week-03/06-project-p3.md",
+   "expect": {
+    "P3-check": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P3-L3-solved.pptx",
+   "lesson": "content/week-03/06-project-p3.md",
+   "expect": {
+    "P3-check": [
+     false,
+     true,
+     true,
+     false,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/P4-L1-transitions.pptx",
+   "lesson": "content/week-04/01-transitions.md",
+   "expect": {
+    "D4.01": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D4.02": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L1-solved.pptx",
+   "lesson": "content/week-04/01-transitions.md",
+   "expect": {
+    "D4.01": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D4.02": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L1-partial.pptx",
+   "lesson": "content/week-04/01-transitions.md",
+   "expect": {
+    "D4.01": [
+     true,
+     true,
+     false,
+     false
+    ],
+    "D4.02": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L1-fadeonly.pptx",
+   "lesson": "content/week-04/01-transitions.md",
+   "expect": {
+    "D4.01": [
+     true,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/P4-L2-animations.pptx",
+   "lesson": "content/week-04/02-animations.md",
+   "expect": {
+    "D4.03": [
+     false,
+     false,
+     false
+    ],
+    "D4.04": [
+     false,
+     false,
+     false
+    ],
+    "D4.05": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L2-solved.pptx",
+   "lesson": "content/week-04/02-animations.md",
+   "expect": {
+    "D4.03": [
+     true,
+     true,
+     true
+    ],
+    "D4.04": [
+     true,
+     true,
+     true
+    ],
+    "D4.05": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L2-partial.pptx",
+   "lesson": "content/week-04/02-animations.md",
+   "expect": {
+    "D4.03": [
+     true,
+     true,
+     true
+    ],
+    "D4.04": [
+     false,
+     false,
+     false
+    ],
+    "D4.05": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/P4-L3-media.pptx",
+   "lesson": "content/week-04/03-media-3d.md",
+   "expect": {
+    "D4.06": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D4.07": [
+     false
+    ],
+    "D4.08": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L3-solved.pptx",
+   "lesson": "content/week-04/03-media-3d.md",
+   "expect": {
+    "D4.06": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D4.07": [
+     true
+    ],
+    "D4.08": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L3-partial.pptx",
+   "lesson": "content/week-04/03-media-3d.md",
+   "expect": {
+    "D4.06": [
+     true,
+     false,
+     false,
+     false
+    ],
+    "D4.07": [
+     false
+    ],
+    "D4.08": [
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/P4-L4-links.pptx",
+   "lesson": "content/week-04/04-links-zoom.md",
+   "expect": {
+    "D4.09": [
+     false,
+     false,
+     false
+    ],
+    "D4.10": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L4-solved.pptx",
+   "lesson": "content/week-04/04-links-zoom.md",
+   "expect": {
+    "D4.09": [
+     true,
+     true,
+     true
+    ],
+    "D4.10": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L4-partial.pptx",
+   "lesson": "content/week-04/04-links-zoom.md",
+   "expect": {
+    "D4.09": [
+     true,
+     false,
+     false
+    ],
+    "D4.10": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/P4-SC4-kiosk.pptx",
+   "lesson": "content/week-04/05-skill-check-sc4.md",
+   "expect": {
+    "SC4": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-SC4-solved.pptx",
+   "lesson": "content/week-04/05-skill-check-sc4.md",
+   "expect": {
+    "SC4": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-SC4-half.pptx",
+   "lesson": "content/week-04/05-skill-check-sc4.md",
+   "expect": {
+    "SC4": [
+     true,
+     false,
+     false,
+     true,
+     false,
+     true,
+     false,
+     false,
+     false,
+     false,
+     true,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-SC4-solved.pptx",
+   "lesson": "content/week-04/06-project-p4.md",
+   "expect": {
+    "P4-check": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P4-L1-solved.pptx",
+   "lesson": "content/week-04/06-project-p4.md",
+   "expect": {
+    "P4-check": [
+     false,
+     false,
+     true,
+     false,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/P5-L1-review.pptx",
+   "lesson": "content/week-05/01-comments-coauthor.md",
+   "expect": {
+    "D5.01": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D5.02": [
+     null,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L1-solved.pptx",
+   "lesson": "content/week-05/01-comments-coauthor.md",
+   "expect": {
+    "D5.01": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D5.02": [
+     null,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L1-partial.pptx",
+   "lesson": "content/week-05/01-comments-coauthor.md",
+   "expect": {
+    "D5.01": [
+     true,
+     false,
+     false,
+     false
+    ],
+    "D5.02": [
+     null,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/P5-L2-compare.pptx",
+   "lesson": "content/week-05/02-compare-combine.md",
+   "expect": {
+    "D5.03": [
+     null,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/P5-L2-reviewer.pptx",
+   "lesson": "content/week-05/02-compare-combine.md",
+   "expect": {
+    "D5.03": [
+     null,
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L2-solved.pptx",
+   "lesson": "content/week-05/02-compare-combine.md",
+   "expect": {
+    "D5.03": [
+     null,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L2-titleonly.pptx",
+   "lesson": "content/week-05/02-compare-combine.md",
+   "expect": {
+    "D5.03": [
+     null,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/P5-L3-show.pptx",
+   "lesson": "content/week-05/03-deliver.md",
+   "expect": {
+    "D5.04": [
+     false,
+     false
+    ],
+    "D5.05": [
+     false,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L3-solved.pptx",
+   "lesson": "content/week-05/03-deliver.md",
+   "expect": {
+    "D5.04": [
+     true,
+     true
+    ],
+    "D5.05": [
+     true,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L3-partial.pptx",
+   "lesson": "content/week-05/03-deliver.md",
+   "expect": {
+    "D5.04": [
+     false,
+     false
+    ],
+    "D5.05": [
+     true,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/P5-L4-final.pptx",
+   "lesson": "content/week-05/04-inspect-share.md",
+   "expect": {
+    "D5.06": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "D5.07": [
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L4-solved.pptx",
+   "lesson": "content/week-05/04-inspect-share.md",
+   "expect": {
+    "D5.06": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L4-partial.pptx",
+   "lesson": "content/week-05/04-inspect-share.md",
+   "expect": {
+    "D5.06": [
+     false,
+     false,
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/P5-SC5-team.pptx",
+   "lesson": "content/week-05/05-skill-check-sc5.md",
+   "expect": {
+    "SC5": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-SC5-solved.pptx",
+   "lesson": "content/week-05/05-skill-check-sc5.md",
+   "expect": {
+    "SC5": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-SC5-half.pptx",
+   "lesson": "content/week-05/05-skill-check-sc5.md",
+   "expect": {
+    "SC5": [
+     true,
+     false,
+     true,
+     false,
+     true,
+     false,
+     false,
+     true,
+     false,
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-L4-solved.pptx",
+   "lesson": "content/week-05/06-project-p5.md",
+   "expect": {
+    "P5-check": [
+     false,
+     false,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/P5-CAP-exam.pptx",
+   "lesson": "content/week-05/07-capstone.md",
+   "expect": {
+    "CAP": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-CAP-solved.pptx",
+   "lesson": "content/week-05/07-capstone.md",
+   "expect": {
+    "CAP": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/P5-CAP-half.pptx",
+   "lesson": "content/week-05/07-capstone.md",
+   "expect": {
+    "CAP": [
+     true,
+     false,
+     true,
+     true,
+     true,
+     false,
+     false,
+     true,
+     false,
+     false,
+     true,
+     false,
+     false,
+     true,
+     false,
+     false,
+     false,
+     true,
+     true,
+     true
+    ]
+   }
+  }
+ ]
+}

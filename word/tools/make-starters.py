@@ -2,7 +2,8 @@
 # Each starter has the exact problems its drills ask learners to fix, so the
 # checks in the lesson files can be written against a known starting point.
 # Run from the word/ folder:  python3 tools/make-starters.py
-# Needs python-docx (pip install python-docx).
+# Needs python-docx and Pillow (pip install python-docx pillow).
+# Week 1 is built here; Weeks 2 to 5 are in starters_w2to5.py.
 #
 # Business names and people in these files are fictional.
 import pathlib
@@ -12,6 +13,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_COLOR_INDEX, WD_BREAK
 from docx.enum.section import WD_ORIENT
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+from docxkit import set_compat
 
 OUT = pathlib.Path(__file__).resolve().parent.parent / "starters" / "week-01"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -41,6 +43,7 @@ def new_doc(font="Aptos", size=11, after=8, lang="en-US"):
         setattr(sec, side, Inches(1))
     cp = doc.core_properties
     cp.author = ""; cp.title = ""; cp.keywords = ""; cp.subject = ""; cp.comments = ""; cp.last_modified_by = ""
+    set_compat(doc, 15)  # current Word; python-docx's template would open in Compatibility Mode
     return doc
 
 
@@ -201,3 +204,6 @@ def skillcheck1():
 
 if __name__ == "__main__":
     lesson1(); lesson2(); lesson3(); lesson4(); skillcheck1()
+    # Weeks 2 to 5 live in their own file to keep this one readable.
+    import starters_w2to5
+    starters_w2to5.build_all()

@@ -30,6 +30,7 @@ Word hides the characters that control layout. **Show/Hide** makes them visible:
 Turn it on with [[path: Home > Paragraph > Show/Hide]] or [[key: Ctrl+Shift+8 / Cmd+8]]. The marks never print.
 
 ::: video
+id: w1-l2-show-hide
 url: TODO
 title: Using Show/Hide to find hidden problems
 captions: none
@@ -40,6 +41,7 @@ Two problems show up right away: **empty paragraphs** (a `¶` alone on a line, u
 
 ::: drill D1.03
 title: Remove extra paragraphs and spaces
+badge: Space Cleaner
 starter: starters/week-01/W1-L2-letter.docx
 platform: web
 mos: 1.1.4, 2.1.1
@@ -72,6 +74,7 @@ explain: Find shows the count at the top of the Navigation pane ("3 results").
 
 ::: drill D1.04
 title: Replace the old company name
+badge: Find and Replace
 starter: starters/week-01/W1-L2-letter.docx
 platform: web
 mos: 1.1.1, 2.1.1
@@ -95,12 +98,13 @@ Some characters aren't on the keyboard. Three ways to type them:
 
 ::: drill D1.05
 title: Add a copyright symbol and an accent
+badge: Symbol Finder
 starter: starters/week-01/W1-L2-letter.docx
 platform: web
 mos: 2.1.2
 minutes: 4
 
-- step: In the footer, put a **©** symbol in front of "2026 Lakeshore Paddle Company".
+- step: In the footer, type a **©** symbol and a space in front of "2026 Lakeshore Paddle Company", so it reads **© 2026 Lakeshore Paddle Company**.
   check: text.present value="© 2026" in=footer
   hint: Double-click the footer area to edit it, then use [[path: Insert > Symbol]] or type `(c)`.
   web: In Word for the web, open the footer with [[path: Insert > Header & Footer]].
@@ -128,6 +132,7 @@ Text pasted from email or a website brings its own font and color along. **Paste
 
 ::: drill D1.08
 title: Move a paragraph, and paste it clean
+badge: Clean Paster
 starter: starters/week-01/W1-L2-letter.docx
 platform: web
 other: E2.1, N9, N10

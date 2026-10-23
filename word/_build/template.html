@@ -677,7 +677,7 @@ footer { border-top: 1px solid var(--line); padding-block: 18px 32px; font-size:
 
     return el("div", { class: "stack-lg" },
       section("MO-110 Word Associate (Microsoft 365 Apps)",
-        el("p", {}, `All ${S.sub} sub-skills across ${S.objectives} objectives are practiced in at least one drill and appear on the capstone practice exam. ${S.subChecked} are also tested in a weekly skill check.`),
+        el("p", {}, `All ${S.sub} sub-skills across ${S.objectives} objectives are practiced in at least one drill, and ${S.subChecked} are also tested in a weekly skill check. The capstone practice exam samples ${S.capSkills} of them from every domain.`),
         el("div", { class: "legend" }, el("span", {}, el("span", { class: "swatch checked" }), "Practiced and in a weekly skill check"),
           el("span", {}, el("span", { class: "swatch drilled" }), "Practiced, assessed on the capstone")),
         bars,

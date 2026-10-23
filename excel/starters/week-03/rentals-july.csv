@@ -1,0 +1,37 @@
+Rental #,Date,Day,Boat,Hours,Rate,Customer
+2001,07/01/2027,Thu,Solo kayak,3,35,Member
+2002,07/02/2027,Fri,Paddleboard,2,30,Visitor
+2003,07/03/2027,Sat,Solo kayak,2,35,Member
+2004,07/04/2027,Sun,Tandem kayak,5,50,Member
+2004,07/04/2027,Sun,Tandem kayak,5,50,Member
+2005,07/06/2027,Tue,Tandem kayak,5,50,Member
+2006,07/07/2027,Wed,Solo kayak,2,35,Member
+2007,07/08/2027,Thu,Paddleboard,4,30,Visitor
+2008,07/09/2027,Fri,Tandem kayak,4,50,Member
+2009,07/11/2027,Sun,Solo kayak,1,35,Visitor
+2010,07/12/2027,Mon,Canoe,2,45,Member
+2010,07/12/2027,Mon,Canoe,2,45,Member
+2011,07/13/2027,Tue,Canoe,3,45,Visitor
+2012,07/14/2027,Wed,Tandem kayak,2,50,Visitor
+2013,07/16/2027,Fri,Tandem kayak,3,50,Visitor
+2014,07/17/2027,Sat,Solo kayak,1,35,Member
+2015,07/18/2027,Sun,Canoe,2,45,Member
+2016,07/19/2027,Mon,Tandem kayak,3,50,Member
+2016,07/19/2027,Mon,Tandem kayak,3,50,Member
+2017,07/21/2027,Wed,Solo kayak,5,35,Visitor
+2018,07/22/2027,Thu,Paddleboard,5,30,Member
+2019,07/23/2027,Fri,Tandem kayak,3,50,Visitor
+2020,07/24/2027,Sat,Canoe,2,45,Visitor
+2021,07/26/2027,Mon,Tandem kayak,3,50,Member
+2022,07/27/2027,Tue,Canoe,2,45,Visitor
+2023,07/28/2027,Wed,Canoe,4,45,Visitor
+2023,07/28/2027,Wed,Canoe,4,45,Visitor
+2024,07/29/2027,Thu,Paddleboard,5,30,Visitor
+2025,07/31/2027,Sat,Canoe,2,45,Visitor
+2026,08/01/2027,Sun,Solo kayak,2,35,Member
+2027,08/02/2027,Mon,Canoe,1,45,Member
+2028,08/03/2027,Tue,Tandem kayak,1,50,Visitor
+2029,08/05/2027,Thu,Canoe,5,45,Member
+2030,08/06/2027,Fri,Paddleboard,2,30,Visitor
+2031,08/07/2027,Sat,Tandem kayak,1,50,Visitor
+2032,08/08/2027,Sun,Tandem kayak,2,50,Visitor

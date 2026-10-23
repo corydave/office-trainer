@@ -21,6 +21,7 @@ This week you are a student assistant at **Lakeshore Paddle Company**, a small k
 ## The Word window
 
 ::: video
+id: w1-l1-window-tour
 url: TODO
 title: A two-minute tour of the Word window
 captions: none
@@ -63,6 +64,7 @@ Switch views on the **View** tab, or with the small buttons on the right side of
 
 ::: drill D1.12
 title: Compare the views
+badge: View Switcher
 starter: starters/week-01/W1-L1-letter.docx
 platform: desktop
 minutes: 3
@@ -72,6 +74,10 @@ Open the starter letter and try each view.
 - step: Switch to **Read Mode**, then **Web Layout**, then back to **Print Layout**.
   desktop: Use [[path: View > Views]].
   web: Word for the web has no Web Layout. Compare Editing view with Reading view instead ([[path: View > Reading View]]).
+- step: Switch to Web Layout one more time and take a screenshot.
+  screenshot: The Word window in Web Layout view, with the letter showing as one long page and no page breaks.
+  example: TODO
+  describe: Name the view you're in and one thing that looks different from Print Layout.
 :::
 
 ::: quiz Q1.2
@@ -115,6 +121,7 @@ explain: Word opens .docx, .doc, .txt, .rtf and .odt files, and desktop Word can
 
 ::: drill D1.01
 title: Save the letter with a clear name
+badge: File Namer
 starter: starters/week-01/W1-L1-letter.docx
 platform: web
 other: N1, N3, N4
@@ -139,6 +146,7 @@ Desktop Word lets you put the commands you use most in one place. Adding **Print
 
 ::: drill D1.02
 title: Customize the Quick Access Toolbar
+badge: Toolbar Tuner
 starter: starters/week-01/W1-L1-letter.docx
 platform: desktop
 other: E1.1, N2
@@ -146,9 +154,11 @@ minutes: 4
 
 - step: Add **Print Preview and Print** to the Quick Access Toolbar.
   hint: Select the small arrow at the end of the Quick Access Toolbar, then choose **Print Preview and Print**. If you don't see the toolbar, right-click the Ribbon and choose **Show Quick Access Toolbar**.
-  check: self.attest label="Print Preview and Print is on my Quick Access Toolbar."
 - step: Add **Save As** the same way.
-  check: self.attest label="Save As is on my Quick Access Toolbar."
+- step: Take a screenshot of the top of the Word window.
+  screenshot: Your Quick Access Toolbar with the Print Preview and Print and Save As buttons on it.
+  example: TODO
+  describe: List the buttons on your Quick Access Toolbar, from left to right.
 :::
 
 ::: quiz Q1.4

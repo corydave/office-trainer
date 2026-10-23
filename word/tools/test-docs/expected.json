@@ -1,0 +1,1327 @@
+{
+ "about": "Expected checker results. For each document: which lesson file to read, and for each activity, the expected result of every step that has checks (true = pass, false = fail, null = step has no checks). check-tests.html compares these with what the checker says.",
+ "cases": [
+  {
+   "doc": "starters/week-01/W1-L1-letter.docx",
+   "fileName": "Rivera_W1_Letter.docx",
+   "lesson": "content/week-01/01-meet-word.md",
+   "expect": {
+    "D1.01": [
+     null,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/W1-L1-letter.docx",
+   "fileName": "Document1.docx",
+   "lesson": "content/week-01/01-meet-word.md",
+   "expect": {
+    "D1.01": [
+     null,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/W1-L1-letter.docx",
+   "fileName": "Lastname_W1_Letter.docx",
+   "lesson": "content/week-01/01-meet-word.md",
+   "expect": {
+    "D1.01": [
+     null,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/W1-L1-letter.docx",
+   "fileName": "",
+   "lesson": "content/week-01/01-meet-word.md",
+   "expect": {
+    "D1.01": [
+     null,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/W1-L2-letter.docx",
+   "lesson": "content/week-01/02-clean-text.md",
+   "expect": {
+    "D1.03": [
+     null,
+     false,
+     false
+    ],
+    "D1.04": [
+     false
+    ],
+    "D1.05": [
+     false,
+     false
+    ],
+    "D1.08": [
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W1-L2-solved.docx",
+   "lesson": "content/week-01/02-clean-text.md",
+   "expect": {
+    "D1.03": [
+     null,
+     true,
+     true
+    ],
+    "D1.04": [
+     true
+    ],
+    "D1.05": [
+     true,
+     true
+    ],
+    "D1.08": [
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W1-L2-partial.docx",
+   "lesson": "content/week-01/02-clean-text.md",
+   "expect": {
+    "D1.03": [
+     null,
+     false,
+     true
+    ],
+    "D1.04": [
+     false
+    ],
+    "D1.05": [
+     false,
+     false
+    ],
+    "D1.08": [
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/W1-L3-letter.docx",
+   "lesson": "content/week-01/03-format-text.md",
+   "expect": {
+    "D1.06": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D1.07": [
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W1-L3-solved.docx",
+   "lesson": "content/week-01/03-format-text.md",
+   "expect": {
+    "D1.06": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D1.07": [
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W1-L3-partial.docx",
+   "lesson": "content/week-01/03-format-text.md",
+   "expect": {
+    "D1.06": [
+     false,
+     false,
+     true,
+     false
+    ],
+    "D1.07": [
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/W1-L4-letter.docx",
+   "lesson": "content/week-01/04-page-and-output.md",
+   "expect": {
+    "D1.09": [
+     false,
+     false
+    ],
+    "D1.10": [
+     false,
+     false,
+     false
+    ],
+    "D1.11": [
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W1-L4-solved.docx",
+   "lesson": "content/week-01/04-page-and-output.md",
+   "expect": {
+    "D1.09": [
+     true,
+     true
+    ],
+    "D1.10": [
+     true,
+     true,
+     true
+    ],
+    "D1.11": [
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W1-L4-partial.docx",
+   "lesson": "content/week-01/04-page-and-output.md",
+   "expect": {
+    "D1.09": [
+     false,
+     false
+    ],
+    "D1.10": [
+     false,
+     false,
+     false
+    ],
+    "D1.11": [
+     null,
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-01/W1-SC1-memo.docx",
+   "lesson": "content/week-01/05-skill-check-sc1.md",
+   "expect": {
+    "SC1": [
+     null,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W1-SC1-solved.docx",
+   "lesson": "content/week-01/05-skill-check-sc1.md",
+   "expect": {
+    "SC1": [
+     null,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/W2-L1-report.docx",
+   "lesson": "content/week-02/01-styles.md",
+   "expect": {
+    "D2.01": [
+     false,
+     false,
+     false,
+     null
+    ],
+    "D2.02": [
+     null,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W2-L1-solved.docx",
+   "lesson": "content/week-02/01-styles.md",
+   "expect": {
+    "D2.01": [
+     true,
+     true,
+     true,
+     null
+    ],
+    "D2.02": [
+     null,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W2-L1-partial.docx",
+   "lesson": "content/week-02/01-styles.md",
+   "expect": {
+    "D2.01": [
+     false,
+     true,
+     false,
+     null
+    ],
+    "D2.02": [
+     null,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/W2-L2-report.docx",
+   "lesson": "content/week-02/02-navigation.md",
+   "expect": {
+    "D2.03": [
+     null,
+     false,
+     null
+    ],
+    "D2.04": [
+     false,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W2-L2-solved.docx",
+   "lesson": "content/week-02/02-navigation.md",
+   "expect": {
+    "D2.03": [
+     null,
+     true,
+     null
+    ],
+    "D2.04": [
+     true,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/W2-L3-report.docx",
+   "lesson": "content/week-02/03-lists-headers-breaks.md",
+   "expect": {
+    "D2.05": [
+     false,
+     false,
+     false
+    ],
+    "D2.06": [
+     false,
+     false,
+     false
+    ],
+    "D2.07": [
+     false,
+     false
+    ],
+    "D2.08": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W2-L3-solved.docx",
+   "lesson": "content/week-02/03-lists-headers-breaks.md",
+   "expect": {
+    "D2.05": [
+     true,
+     true,
+     true
+    ],
+    "D2.06": [
+     true,
+     true,
+     true
+    ],
+    "D2.07": [
+     true,
+     true
+    ],
+    "D2.08": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W2-L3-partial.docx",
+   "lesson": "content/week-02/03-lists-headers-breaks.md",
+   "expect": {
+    "D2.05": [
+     true,
+     false,
+     false
+    ],
+    "D2.06": [
+     false,
+     false,
+     false
+    ],
+    "D2.07": [
+     true,
+     false
+    ],
+    "D2.08": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/W2-L4-report.docx",
+   "lesson": "content/week-02/04-notes-contents-citations.md",
+   "expect": {
+    "D2.09": [
+     false,
+     false,
+     false
+    ],
+    "D2.10": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D2.11": [
+     true,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W2-L4-solved.docx",
+   "lesson": "content/week-02/04-notes-contents-citations.md",
+   "expect": {
+    "D2.09": [
+     true,
+     true,
+     true
+    ],
+    "D2.10": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D2.11": [
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-02/W2-SC2-handbook.docx",
+   "lesson": "content/week-02/05-skill-check-sc2.md",
+   "expect": {
+    "SC2": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W2-SC2-solved.docx",
+   "lesson": "content/week-02/05-skill-check-sc2.md",
+   "expect": {
+    "SC2": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W2-SC2-partial.docx",
+   "lesson": "content/week-02/05-skill-check-sc2.md",
+   "expect": {
+    "SC2": [
+     true,
+     true,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/W3-L1-flyer.docx",
+   "lesson": "content/week-03/01-graphics.md",
+   "expect": {
+    "D3.01": [
+     false,
+     false,
+     false
+    ],
+    "D3.02": [
+     false
+    ],
+    "D3.03": [
+     false,
+     false,
+     false
+    ],
+    "D3.04": [
+     false,
+     false,
+     false
+    ],
+    "D3.05": [
+     false,
+     false
+    ],
+    "D3.06": [
+     null,
+     false,
+     null
+    ],
+    "D3.07": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W3-L1-solved.docx",
+   "lesson": "content/week-03/01-graphics.md",
+   "expect": {
+    "D3.01": [
+     true,
+     true,
+     true
+    ],
+    "D3.02": [
+     true
+    ],
+    "D3.03": [
+     true,
+     true,
+     true
+    ],
+    "D3.04": [
+     true,
+     true,
+     true
+    ],
+    "D3.05": [
+     true,
+     true
+    ],
+    "D3.06": [
+     null,
+     true,
+     null
+    ],
+    "D3.07": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W3-L1-partial.docx",
+   "lesson": "content/week-03/01-graphics.md",
+   "expect": {
+    "D3.01": [
+     true,
+     false,
+     false
+    ],
+    "D3.02": [
+     false
+    ],
+    "D3.03": [
+     false,
+     true,
+     false
+    ],
+    "D3.04": [
+     false,
+     false,
+     false
+    ],
+    "D3.05": [
+     true,
+     false
+    ],
+    "D3.06": [
+     null,
+     false,
+     null
+    ],
+    "D3.07": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/W3-L2-schedule.docx",
+   "lesson": "content/week-03/02-tables.md",
+   "expect": {
+    "D3.08": [
+     false,
+     false
+    ],
+    "D3.09": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W3-L2-solved.docx",
+   "lesson": "content/week-03/02-tables.md",
+   "expect": {
+    "D3.08": [
+     true,
+     true
+    ],
+    "D3.09": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W3-L2-partial.docx",
+   "lesson": "content/week-03/02-tables.md",
+   "expect": {
+    "D3.08": [
+     true,
+     false
+    ],
+    "D3.09": [
+     false,
+     true,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/W3-L3-survey.docx",
+   "lesson": "content/week-03/03-charts.md",
+   "expect": {
+    "D3.10": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W3-L3-solved.docx",
+   "lesson": "content/week-03/03-charts.md",
+   "expect": {
+    "D3.10": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/W3-L4-newsletter.docx",
+   "lesson": "content/week-03/04-desktop-publishing.md",
+   "expect": {
+    "D3.11": [
+     false,
+     false,
+     false
+    ],
+    "D3.12": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W3-L4-solved.docx",
+   "lesson": "content/week-03/04-desktop-publishing.md",
+   "expect": {
+    "D3.11": [
+     true,
+     true,
+     true
+    ],
+    "D3.12": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W3-L4-partial.docx",
+   "lesson": "content/week-03/04-desktop-publishing.md",
+   "expect": {
+    "D3.11": [
+     false,
+     false,
+     false
+    ],
+    "D3.12": [
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-03/W3-SC3-flyer.docx",
+   "lesson": "content/week-03/05-skill-check-sc3.md",
+   "expect": {
+    "SC3": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W3-SC3-solved.docx",
+   "lesson": "content/week-03/05-skill-check-sc3.md",
+   "expect": {
+    "SC3": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/W4-L1-resume-template.docx",
+   "lesson": "content/week-04/01-templates.md",
+   "expect": {
+    "D4.01": [
+     false,
+     false,
+     null
+    ]
+   },
+   "fileName": "W4-L1-resume-template.docx"
+  },
+  {
+   "doc": "tools/test-docs/W4-L1-resume-solved.docx",
+   "lesson": "content/week-04/01-templates.md",
+   "expect": {
+    "D4.01": [
+     true,
+     true,
+     null
+    ]
+   },
+   "fileName": "Rivera_Resume.dotx"
+  },
+  {
+   "doc": "starters/week-04/W4-L1-cover-letter.docx",
+   "lesson": "content/week-04/01-templates.md",
+   "expect": {
+    "D4.02": [
+     null,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W4-L1-cover-solved.docx",
+   "lesson": "content/week-04/01-templates.md",
+   "expect": {
+    "D4.02": [
+     null,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/W4-L2-resume-ats.docx",
+   "lesson": "content/week-04/02-resumes.md",
+   "expect": {
+    "D4.03": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W4-L2-solved.docx",
+   "lesson": "content/week-04/02-resumes.md",
+   "expect": {
+    "D4.03": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/W4-employers.docx",
+   "lesson": "content/week-04/03-mail-merge.md",
+   "expect": {
+    "D4.04": [
+     false,
+     false
+    ]
+   },
+   "fileName": "W4-employers.docx"
+  },
+  {
+   "doc": "tools/test-docs/W4-employers-solved.docx",
+   "lesson": "content/week-04/03-mail-merge.md",
+   "expect": {
+    "D4.04": [
+     true,
+     true
+    ]
+   },
+   "fileName": "Rivera_Employers.docx"
+  },
+  {
+   "doc": "starters/week-04/W4-L3-letter.docx",
+   "lesson": "content/week-04/03-mail-merge.md",
+   "expect": {
+    "D4.05": [
+     false,
+     false,
+     false
+    ],
+    "D4.06": [
+     false,
+     null
+    ],
+    "D4.07": [
+     false,
+     false
+    ]
+   },
+   "fileName": "W4-L3-letter.docx"
+  },
+  {
+   "doc": "tools/test-docs/W4-L3-letter-solved.docx",
+   "lesson": "content/week-04/03-mail-merge.md",
+   "expect": {
+    "D4.05": [
+     true,
+     true,
+     true
+    ],
+    "D4.06": [
+     true,
+     null
+    ],
+    "D4.07": [
+     false,
+     false
+    ]
+   },
+   "fileName": "Rivera_W4_Cover.docx"
+  },
+  {
+   "doc": "tools/test-docs/W4-L3-merged.docx",
+   "lesson": "content/week-04/03-mail-merge.md",
+   "expect": {
+    "D4.07": [
+     true,
+     true
+    ]
+   },
+   "fileName": "Rivera_W4_Merged.docx"
+  },
+  {
+   "doc": "starters/week-04/W4-L4-blank.docx",
+   "lesson": "content/week-04/04-envelopes-labels.md",
+   "expect": {
+    "D4.08": [
+     false,
+     false,
+     null
+    ],
+    "D4.09": [
+     false,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W4-L4-labels.docx",
+   "lesson": "content/week-04/04-envelopes-labels.md",
+   "expect": {
+    "D4.08": [
+     true,
+     true,
+     null
+    ],
+    "D4.09": [
+     false,
+     false,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W4-L4-directory.docx",
+   "lesson": "content/week-04/04-envelopes-labels.md",
+   "expect": {
+    "D4.08": [
+     false,
+     false,
+     null
+    ],
+    "D4.09": [
+     true,
+     true,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/W4-L5-resume.docx",
+   "lesson": "content/week-04/05-web.md",
+   "expect": {
+    "D4.10": [
+     false,
+     null
+    ],
+    "D4.11": [
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W4-L5-solved.docx",
+   "lesson": "content/week-04/05-web.md",
+   "expect": {
+    "D4.10": [
+     true,
+     null
+    ],
+    "D4.11": [
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-04/W4-SC4-letter.docx",
+   "lesson": "content/week-04/06-skill-check-sc4.md",
+   "expect": {
+    "SC4": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W4-SC4-solved.docx",
+   "lesson": "content/week-04/06-skill-check-sc4.md",
+   "expect": {
+    "SC4": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/W5-L1-policy.docx",
+   "lesson": "content/week-05/01-review.md",
+   "expect": {
+    "D5.01": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D5.03": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W5-L1-policy-solved.docx",
+   "lesson": "content/week-05/01-review.md",
+   "expect": {
+    "D5.01": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D5.03": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W5-L1-policy-partial.docx",
+   "lesson": "content/week-05/01-review.md",
+   "expect": {
+    "D5.01": [
+     true,
+     false,
+     false,
+     false
+    ],
+    "D5.03": [
+     true,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/W5-L1-draft.docx",
+   "lesson": "content/week-05/01-review.md",
+   "expect": {
+    "D5.02": [
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W5-L1-draft-solved.docx",
+   "lesson": "content/week-05/01-review.md",
+   "expect": {
+    "D5.02": [
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/W5-L2-letter-original.docx",
+   "lesson": "content/week-05/02-compare-coauthor.md",
+   "expect": {
+    "D5.04": [
+     false,
+     false
+    ],
+    "D5.05": [
+     null,
+     null,
+     null
+    ]
+   },
+   "fileName": "W5-L2-letter-original.docx"
+  },
+  {
+   "doc": "tools/test-docs/W5-L2-compared.docx",
+   "lesson": "content/week-05/02-compare-coauthor.md",
+   "expect": {
+    "D5.04": [
+     true,
+     false
+    ]
+   },
+   "fileName": "Rivera_W5_Compared.docx"
+  },
+  {
+   "doc": "tools/test-docs/W5-L2-combined.docx",
+   "lesson": "content/week-05/02-compare-coauthor.md",
+   "expect": {
+    "D5.04": [
+     false,
+     true
+    ]
+   },
+   "fileName": "Rivera_W5_Combined.docx"
+  },
+  {
+   "doc": "starters/week-05/W5-L3-ship.docx",
+   "lesson": "content/week-05/03-inspect-ship.md",
+   "expect": {
+    "D5.06": [
+     false,
+     false,
+     false,
+     false
+    ],
+    "D5.07": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "D5.08": [
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W5-L3-solved.docx",
+   "lesson": "content/week-05/03-inspect-ship.md",
+   "expect": {
+    "D5.06": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "D5.07": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "D5.08": [
+     true
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W5-L3-partial.docx",
+   "lesson": "content/week-05/03-inspect-ship.md",
+   "expect": {
+    "D5.06": [
+     true,
+     false,
+     false,
+     false
+    ],
+    "D5.07": [
+     true,
+     false,
+     false,
+     false,
+     false,
+     false
+    ],
+    "D5.08": [
+     false
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/W5-SC5-report.docx",
+   "lesson": "content/week-05/04-skill-check-sc5.md",
+   "expect": {
+    "SC5": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W5-SC5-solved.docx",
+   "lesson": "content/week-05/04-skill-check-sc5.md",
+   "expect": {
+    "SC5": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "doc": "starters/week-05/W5-CAP-exam.docx",
+   "lesson": "content/week-05/06-capstone.md",
+   "expect": {
+    "CAP": [
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "doc": "tools/test-docs/W5-CAP-solved.docx",
+   "lesson": "content/week-05/06-capstone.md",
+   "expect": {
+    "CAP": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ]
+   }
+  }
+ ]
+}

@@ -2,11 +2,11 @@
 #
 # While testing, tell browsers and Word to check for a new copy every time
 # instead of reusing an old saved ("cached") one. That way an updated
-# taskpane.html or starter document shows up right away.
+# taskpane.html, lesson (.md) or starter document shows up right away.
 # "no-cache" still allows saving a copy - it just has to be re-checked first.
 
 <IfModule mod_headers.c>
-  <FilesMatch "\.(html|docx)$">
+  <FilesMatch "\.(html|docx|md)$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>

@@ -17,6 +17,7 @@ The last ten percent of a document is the part people notice: the right paper si
 ## Page setup
 
 ::: video
+id: w1-l4-page-setup
 url: TODO
 title: Margins, paper size and orientation
 captions: none
@@ -41,6 +42,7 @@ Run Editor ([[path: Review > Editor]] in desktop Word, [[path: Home > Editor]] i
 
 ::: drill D1.09
 title: Fix the page setup and proofread
+badge: Page Setter
 starter: starters/week-01/W1-L4-letter.docx
 platform: web
 mos: 1.2.1
@@ -70,6 +72,7 @@ The **proofing language** tells Editor which dictionary to use and tells screen 
 
 ::: drill D1.10
 title: Set properties and the proofing language
+badge: Properties and Language
 starter: starters/week-01/W1-L4-letter.docx
 platform: desktop
 mos: 1.3.2
@@ -105,18 +108,23 @@ Word for the web hands printing to your browser. It first builds a PDF, then ope
 
 ::: drill D1.11
 title: Export a PDF and set up printing
+badge: PDF and Print
 starter: starters/week-01/W1-L4-letter.docx
 platform: web
 mos: 1.3.1, 1.3.3
 other: N12, N13
 minutes: 5
 
-The trainer can't see files outside the document, so these steps are on your honor. You'll hand in a real PDF with Project 1.
+The trainer can't see files outside the document, so these steps use screenshots. You'll hand in a real PDF with Project 1.
 
 - step: Export the letter as a PDF named **Lastname_W1_Letter.pdf** and open it to check that it looks right.
-  check: self.attest label="I exported the PDF and checked that it opens and looks like the document."
+  screenshot: Your PDF open in a browser or PDF reader, with the file name Lastname_W1_Letter.pdf visible.
+  example: TODO
+  describe: Give the PDF's file name and how many pages it has.
 - step: Open Print and set it to print **2 copies** of **page 1 only**. Look at the preview, then cancel (you don't need to print).
-  check: self.attest label="I set 2 copies of page 1 and checked the preview."
+  screenshot: The Print screen showing Copies set to 2 and Pages set to 1, with the preview beside them.
+  example: TODO
+  describe: Say what Copies and Pages are set to.
 - step: Close the document.
 :::
 

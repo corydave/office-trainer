@@ -111,7 +111,11 @@ if "—" in blob:
 total_sub = len(SKILLS)
 drilled = sum(1 for s in SKILLS.values() if s["drills"])
 checked = sum(1 for s in SKILLS.values() if s["checks"])
-STATS = {"clos": len(CLOS), "closAssessed": sum(1 for e in EVIDENCE if e["A"]),
+# How many exam sub-skills the capstone practice exam lists (its "mos:" line).
+_cap = next(pathlib.Path(__file__).resolve().parent.parent.glob("content/week-05/*capstone*.md"), None)
+_capm = re.search(r"^mos: (.*)$", _cap.read_text(encoding="utf8"), re.M) if _cap else None
+CAP_SKILLS = len([x for x in _capm.group(1).split(",") if x.strip()]) if _capm else 0
+STATS = {"capSkills": CAP_SKILLS, "clos": len(CLOS), "closAssessed": sum(1 for e in EVIDENCE if e["A"]),
          "topics": len(TOPICS), "topicsCovered": sum(1 for t in TOPICS if t["weeks"]),
          "sub": total_sub, "subDrilled": drilled, "subChecked": checked,
          "objectives": sum(len(d["objectives"]) for d in MO110),
@@ -142,7 +146,7 @@ A(f"# {COURSE['title']}\n")
 A(f"**{COURSE['college']}** · {COURSE['version']} · {COURSE['date']} · {COURSE['author']}\n")
 A(f"- **Format:** {COURSE['format']}")
 A(f"- **Certification target:** {COURSE['cert']}")
-A(f"- **Coverage:** {STATS['closAssessed']}/{STATS['clos']} course learning outcomes assessed · {STATS['topicsCovered']}/{STATS['topics']} outline topics · {STATS['subDrilled']}/{STATS['sub']} MO-110 sub-skills practiced ({STATS['subChecked']} also in weekly skill checks; all {STATS['sub']} in the capstone) · {STATS['mo111Full']} MO-111 objectives fully and {STATS['mo111Partial']} partly covered")
+A(f"- **Coverage:** {STATS['closAssessed']}/{STATS['clos']} course learning outcomes assessed · {STATS['topicsCovered']}/{STATS['topics']} outline topics · {STATS['subDrilled']}/{STATS['sub']} MO-110 sub-skills practiced ({STATS['subChecked']} also in weekly skill checks; {STATS['capSkills']} sampled across every domain in the capstone) · {STATS['mo111Full']} MO-111 objectives fully and {STATS['mo111Partial']} partly covered")
 A(f"- **Companion:** `word-course-map.html` shows this map interactively. This Markdown file is the master copy. Both files are generated from the same data (`_build/data.py`), so they always agree; after changing the map, regenerate both with `python3 build.py`.\n")
 
 A("## How to read this map\n")
@@ -247,7 +251,7 @@ for t in TOPICS:
 A("")
 
 A("## MOS crosswalk: MO-110 Word Associate (Microsoft 365 Apps)\n")
-A(f"All {STATS['sub']} sub-skills are practiced in at least one drill and appear in the capstone practice exam. Wording follows Microsoft's skills outline; check the current study guide before printing.\n")
+A(f"All {STATS['sub']} sub-skills are practiced in at least one drill; the capstone practice exam samples {STATS['capSkills']} of them from every domain. Wording follows Microsoft's skills outline; check the current study guide before printing.\n")
 for d in MO110:
     A(f"### Domain {d['id']}: {d['name']} ({d['weight']})\n")
     A("| Code | Skill | Week | Drills | Skill check |"); A("|---|---|---|---|---|")

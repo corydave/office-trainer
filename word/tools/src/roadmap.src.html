@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>__APP__ Course Roadmap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A subway-map view of the five-week Microsoft __APP__ course: every lesson, drill, badge and certificate.">
+<!-- Fonts are hosted with the course (assets/fonts, SIL Open Font License), so opening
+     this page sends nothing to a font service. -->
+<style>
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-style: normal; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-style: normal; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-style: italic; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Comfortaa"; font-weight: 500 600; font-style: normal; font-display: swap; src: url("../assets/fonts/comfortaa-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Comfortaa"; font-weight: 700; font-style: normal; font-display: swap; src: url("../assets/fonts/comfortaa-latin-700-normal.woff2") format("woff2"); }
+</style>
+<style>
+/* =====================================================================
+   WORD COURSE ROADMAP
+   Layout concept: a transit map. Each week is a colored line, each
+   lesson, skill check and project a stop. Wide screens show the map with
+   a details panel beside it; phones get a top-to-bottom route list.
+   Every color is a token, redefined for dark mode. Small text clears 7:1.
+   ===================================================================== */
+:root {
+  --bg: #f4f6fa; --surface: #ffffff; --surface-2: #eef1f7; --ink: #111a2e; --muted: #424a57; --line: #d3dae8;
+  --focus: #0046ad; --blue: #0046ad; --blue-soft: #e3ecfa; --orange: #8a2905; --orange-soft: #f8e6df; --green: #305305; --green-soft: #e8f0df;
+  /* one color per week (the "lines") */
+  --w1: #0046ad; --w2: #305305; --w3: #a23108; --w4: #6b21a8; --w5: #374151;
+  --on-line: #ffffff;   /* text drawn on a line color */
+  --font-body: "Atkinson Hyperlegible", Arial, Arimo, sans-serif;
+  --font-display: "Comfortaa", "Atkinson Hyperlegible", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1220; --surface: #131b2c; --surface-2: #1a2438; --ink: #e9eef8; --muted: #b4bfd3; --line: #2b3852;
+    --focus: #9cbcff; --blue: #9cbcff; --blue-soft: #1b2c4f; --orange: #ffab8a; --orange-soft: #3a2018; --green: #a6d585; --green-soft: #1d2e1a;
+    --w1: #7aa7ff; --w2: #8cc56a; --w3: #ff9a6b; --w4: #c79bf2; --w5: #b8c0cc; --on-line: #0c1220; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1220; --surface: #131b2c; --surface-2: #1a2438; --ink: #e9eef8; --muted: #b4bfd3; --line: #2b3852;
+  --focus: #9cbcff; --blue: #9cbcff; --blue-soft: #1b2c4f; --orange: #ffab8a; --orange-soft: #3a2018; --green: #a6d585; --green-soft: #1d2e1a;
+  --w1: #7aa7ff; --w2: #8cc56a; --w3: #ff9a6b; --w4: #c79bf2; --w5: #b8c0cc; --on-line: #0c1220; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; max-width: 68ch; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.eyebrow { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; color: var(--muted); }
+.muted { color: var(--muted); }
+
+/* ---------- header ---------- */
+header { padding-block: 28px 12px; }
+header .wrap { display: flex; flex-direction: column; gap: 14px; }
+.lede { font-size: 1.1rem; color: var(--muted); }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 0.95rem; }
+.stats b { font-family: var(--font-display); font-size: 1.15rem; margin-right: 4px; font-variant-numeric: tabular-nums; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 3px; }
+.seg button { font: inherit; font-size: 0.9rem; font-weight: 700; border: 0; background: none; color: var(--muted); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.seg-label { font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-right: 6px; }
+.theme { font: inherit; font-size: 0.85rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; cursor: pointer; margin-left: auto; }
+
+/* ---------- layout ---------- */
+main { padding-block: 8px 48px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 20px; align-items: start; }
+@media (max-width: 1080px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.map-card { padding: 12px; overflow: hidden; }
+#map svg { display: block; width: 100%; height: auto; }
+
+/* ---------- the map (SVG) ---------- */
+.route { fill: none; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+.transfer { fill: none; stroke: var(--muted); stroke-width: 3; stroke-dasharray: 2 9; stroke-linecap: round; opacity: .7; }
+.l1 { stroke: var(--w1); } .l2 { stroke: var(--w2); } .l3 { stroke: var(--w3); } .l4 { stroke: var(--w4); } .l5 { stroke: var(--w5); }
+.f1 { fill: var(--w1); } .f2 { fill: var(--w2); } .f3 { fill: var(--w3); } .f4 { fill: var(--w4); } .f5 { fill: var(--w5); }
+.stop-fill { fill: var(--surface); }
+.stop-ink { stroke: var(--ink); fill: var(--surface); }
+.planned .marker { stroke-dasharray: 4 3; }
+.station { cursor: pointer; outline: none; }
+.station .halo { fill: none; stroke: var(--focus); stroke-width: 3; opacity: 0; }
+.station:focus-visible .halo, .station[aria-current="true"] .halo { opacity: 1; }
+.station[aria-current="true"] .halo { stroke-dasharray: none; }
+.st-label { font-size: 15px; font-weight: 700; fill: var(--ink); }
+.st-meta { font-size: 13.5px; fill: var(--muted); }
+.planned .st-label { fill: var(--muted); font-weight: 400; }
+.wk-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; fill: var(--ink); }
+.wk-num { font-family: var(--font-display); font-size: 18px; font-weight: 700; fill: var(--on-line); }
+.wk-tag { font-size: 13.5px; fill: var(--muted); }
+
+/* ---------- legend ---------- */
+.legend { display: flex; flex-wrap: wrap; gap: 10px 22px; padding: 12px 8px 4px; font-size: 0.9rem; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend svg { flex: none; }
+
+/* ---------- route list (phones, and the List view) ---------- */
+.list { display: flex; flex-direction: column; gap: 18px; }
+.list section { padding: 16px; }
+.list h2 { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
+.bullet { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--on-line); font-family: var(--font-display); font-weight: 700; flex: none; }
+.b1 { background: var(--w1); } .b2 { background: var(--w2); } .b3 { background: var(--w3); } .b4 { background: var(--w4); } .b5 { background: var(--w5); }
+.list ol { list-style: none; margin: 12px 0 0; padding: 0; position: relative; }
+.list li { position: relative; padding-left: 40px; }
+.list li::before { content: ""; position: absolute; left: 13px; top: 0; bottom: 0; width: 6px; background: var(--rail); }
+.list li:first-child::before { top: 18px; }
+.list li:last-child::before { bottom: calc(100% - 18px); }
+.list li::after { content: ""; position: absolute; left: 6px; top: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 4px solid var(--rail); box-sizing: border-box; }
+.list li.k-project::after { border-radius: 6px; border-color: var(--ink); }
+.list li.k-skillcheck::after { box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 10px var(--rail); }
+.list li.planned::after { border-style: dashed; }
+.list button { all: unset; display: block; width: 100%; padding: 8px 10px; border-radius: 10px; cursor: pointer; box-sizing: border-box; }
+.list button:hover { background: var(--surface-2); }
+.list button:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; }
+.list button[aria-current="true"] { background: var(--blue-soft); }
+.list .t { font-weight: 700; display: block; }
+.list .m { font-size: 0.85rem; color: var(--muted); }
+
+/* ---------- details panel ---------- */
+.panel { padding: 20px; position: sticky; top: 12px; display: flex; flex-direction: column; gap: 14px; }
+@media (max-width: 1080px) { .panel { position: static; } }
+.panel h2 { font-size: 1.35rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); }
+.chip.auto { border-color: var(--blue); color: var(--blue); background: var(--surface); }
+.chip.screenshot { border-color: var(--orange); color: var(--orange); background: var(--surface); }
+.chip.instructor { border-color: var(--green); color: var(--green); background: var(--surface); }
+.chip.desktop { background: var(--orange-soft); color: var(--orange); border-color: transparent; }
+.chip.soon { background: var(--surface-2); color: var(--muted); }
+.cert-note { display: flex; gap: 12px; align-items: center; background: var(--green-soft); border-radius: 10px; padding: 10px 12px; font-size: 0.95rem; }
+.acts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.acts li { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: start; }
+.acts .name { font-weight: 700; }
+.acts .sub { font-size: 0.85rem; color: var(--muted); }
+details summary { cursor: pointer; font-weight: 700; }
+details ul { margin: 8px 0 0; padding-left: 1.1em; font-size: 0.9rem; }
+.nav { display: flex; gap: 8px; justify-content: space-between; }
+.btn { font: inherit; font-size: 0.9rem; font-weight: 700; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 7px 12px; border-radius: 8px; cursor: pointer; }
+.btn:hover:not([disabled]) { border-color: var(--blue); color: var(--blue); }
+.btn[disabled] { opacity: .45; cursor: default; }
+footer { padding-block: 0 32px; font-size: 0.85rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .station .halo { transition: opacity .15s; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <span class="eyebrow" id="college"></span>
+    <h1 id="title"></h1>
+    <p class="lede">Five weeks, five lines. Ride each one stop by stop: every lesson earns a certificate, and every drill, skill check and project earns a badge.</p>
+    <div class="stats" id="stats" aria-label="Course at a glance"></div>
+    <div class="controls">
+      <div><span class="seg-label" id="view-label">View</span>
+        <span class="seg" role="group" aria-labelledby="view-label">
+          <button type="button" data-view="map" aria-pressed="true">Map</button>
+          <button type="button" data-view="list" aria-pressed="false">List</button>
+        </span></div>
+      <div><span class="seg-label" id="mode-label">I'm taking it</span>
+        <span class="seg" role="group" aria-labelledby="mode-label">
+          <button type="button" data-mode="practice" aria-pressed="true">On my own</button>
+          <button type="button" data-mode="section" aria-pressed="false">In a class section</button>
+        </span></div>
+      <button type="button" class="theme" id="theme">Theme: system</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap layout">
+    <div>
+      <div class="card map-card" id="map-view">
+        <div id="map" role="group" aria-label="Course map. Use Tab or the arrow keys to move between stops, and Enter to open one."></div>
+        <div class="legend" id="legend" aria-label="Map key"></div>
+      </div>
+      <div class="list" id="list-view" hidden></div>
+    </div>
+    <aside class="card panel" id="panel" aria-live="polite" aria-label="Stop details"></aside>
+  </div>
+</main>
+<footer><div class="wrap" id="footer"></div></footer>
+
+<script>
+/*__TRAINER_MD__*/
+</script>
+<script type="application/json" id="roadmap-data">__DATA_JSON__</script>
+<script>
+/* =========================================================================
+   Roadmap logic, in plain terms:
+   1. Read the course data the build step put in the page.
+   2. Draw the map (SVG) and the route list (HTML) from it.
+   3. Show one stop's details in the panel; keep map, list and panel in sync.
+   Text always goes in with textContent. The only HTML inserted as markup is
+   badge artwork made by TrainerMD.badgeSVG, which escapes everything it uses.
+   ========================================================================= */
+(function () {
+  "use strict";
+  const TM = window.TrainerMD;
+  const DATA = JSON.parse(document.getElementById("roadmap-data").textContent);
+  const $ = (id) => document.getElementById(id);
+  const SVG = "http://www.w3.org/2000/svg";
+
+  // ---------- small helpers ----------
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === null || v === undefined || v === false) continue;
+      if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? "" : String(v));
+    }
+    for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false) n.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+    return n;
+  }
+  function svg(tag, attrs, ...kids) {
+    const n = document.createElementNS(SVG, tag);
+    for (const [k, v] of Object.entries(attrs || {})) if (v !== null && v !== undefined) n.setAttribute(k, String(v));
+    for (const kid of kids.flat()) if (kid) n.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+    return n;
+  }
+  const store = {
+    get(k) { try { return localStorage.getItem("roadmap-" + k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem("roadmap-" + k, v); } catch (e) { /* storage blocked: fine */ } },
+  };
+  const KIND_WORD = { start: "Start here", lesson: "Lesson", skillcheck: "Skill check", project: "Project", capstone: "Capstone", course: "Finish line" };
+  const minutesText = (m) => !m ? "" : m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? " " + (m % 60) + " min" : ""}` : `${m} min`;
+
+  /** Break a title into lines of about `max` characters, at most 4 lines. */
+  function wrap(text, max) {
+    const words = text.split(" "), lines = [];
+    let cur = "";
+    for (const w of words) {
+      if ((cur + " " + w).trim().length > max && cur) { lines.push(cur); cur = w; } else cur = (cur + " " + w).trim();
+    }
+    if (cur) lines.push(cur);
+    return lines.length > 4 ? lines.slice(0, 3).concat([lines.slice(3).join(" ")]) : lines;
+  }
+
+  // ---------- the stops, in riding order ----------
+  const stops = [];
+  DATA.weeks.forEach((w) => w.stations.forEach((s) => stops.push(Object.assign(s, { week: w }))));
+  const byId = Object.fromEntries(stops.map((s) => [s.sid, s]));
+  let current = stops[0].sid;
+  let mode = store.get("mode") || DATA.course.mode || "practice";
+
+  // ---------- header ----------
+  $("college").textContent = DATA.course.college;
+  $("title").textContent = DATA.app.fullName + ": Course Roadmap";
+  const badgesSoFar = stops.reduce((n, s) => n + s.activities.length, 0);
+  const plannedDrills = stops.reduce((n, s) => n + s.plannedDrills.length, 0);
+  const stat = (b, t) => el("span", {}, el("b", {}, b), t);
+  $("stats").append(
+    stat(DATA.weeks.length, "weeks"),
+    stat(stops.length, "stops"),
+    stat(stops.filter((s) => s.certificate).length, "certificates"),
+    stat(badgesSoFar + plannedDrills + stops.filter((s) => s.status === "planned" && (s.kind === "skillcheck" || s.kind === "project")).length, "badges to earn"),
+  );
+  const anyPlanned = stops.some((s) => s.status === "planned" && s.kind !== "course");
+  $("footer").textContent = `Built from ${DATA.builtFrom}.${anyPlanned ? ' Stops marked "coming soon" are planned and being written.' : ""} Content license: ${DATA.course.license}.`;
+
+  // =====================================================================
+  // THE MAP: one horizontal line per week, snaking down the page.
+  // Even weeks run left to right, odd weeks right to left, joined by a
+  // dotted transfer, the way a folded transit map reads.
+  // =====================================================================
+  // Geometry, in SVG units: the map is 820 wide and scales to fit its column.
+  // Labels alternate below and above the line, so each gets twice the room.
+  const W = 820, LEFT = 92, RIGHT = 728, ROW = 236, TOP = 150;
+  function drawMap() {
+    const height = TOP + (DATA.weeks.length - 1) * ROW + 110;
+    const root = svg("svg", { viewBox: `0 0 ${W} ${height}`, role: "presentation" });
+    const lines = svg("g"), transfers = svg("g"), stationsLayer = svg("g"), labels = svg("g");
+    const pos = {}; // stop id -> {x, y}
+
+    DATA.weeks.forEach((w, i) => {
+      const y = TOP + i * ROW;
+      const n = w.stations.length;
+      const ltr = i % 2 === 0;
+      const xs = w.stations.map((_, k) => n === 1 ? (LEFT + RIGHT) / 2 : LEFT + (RIGHT - LEFT) * k / (n - 1));
+      if (!ltr) xs.reverse();
+      w.stations.forEach((s, k) => { pos[s.sid] = { x: xs[k], y, above: k % 2 === 1 }; });
+
+      // week name with its line "bullet", above the start of the line
+      const startX = xs[0];
+      const anchor = ltr ? "start" : "end";
+      const bx = ltr ? startX - 6 : startX + 6;
+      labels.append(svg("g", {},
+        svg("circle", { cx: ltr ? bx + 15 : bx - 15, cy: y - 122, r: 16, class: "f" + w.n }),
+        svg("text", { x: ltr ? bx + 15 : bx - 15, y: y - 116, "text-anchor": "middle", class: "wk-num" }, String(w.n)),
+        svg("text", { x: ltr ? bx + 40 : bx - 40, y: y - 124, "text-anchor": anchor, class: "wk-title" }, `Week ${w.n}: ${w.title}`),
+        svg("text", { x: ltr ? bx + 40 : bx - 40, y: y - 104, "text-anchor": anchor, class: "wk-tag" }, w.tagline),
+      ));
+      // the colored line itself
+      lines.append(svg("path", { d: `M${Math.min(...xs)} ${y}H${Math.max(...xs)}`, class: "route l" + w.n }));
+      // dotted transfer down to the next week's line
+      if (i < DATA.weeks.length - 1) {
+        const endX = xs[xs.length - 1], y2 = y + ROW, bulge = ltr ? 64 : -64;
+        transfers.append(svg("path", { d: `M${endX} ${y}C${endX + bulge} ${y} ${endX + bulge} ${y2} ${endX} ${y2}`, class: "transfer" }));
+      }
+    });
+
+    // stops: one focusable group each, in riding order
+    stops.forEach((s, idx) => {
+      const { x, y, above } = pos[s.sid];
+      const n = s.week.n;
+      const g = svg("g", { class: "station" + (s.status === "planned" ? " planned" : ""), tabindex: "0", role: "button",
+        "data-sid": s.sid, "aria-current": "false",
+        "aria-label": `Week ${n}, ${KIND_WORD[s.kind]}: ${s.title}${s.minutes ? ", about " + minutesText(s.minutes) : ""}${s.status === "planned" ? ", coming soon" : ""}` });
+      g.append(svg("circle", { class: "halo", cx: x, cy: y, r: 23 }));
+      g.append(marker(s.kind, x, y, n));
+      // Labels at either end of a line hug the inside, so the transfer curves never cross them
+      const lines = wrap(s.title, 20);
+      const anchor = x >= RIGHT - 1 ? "end" : x <= LEFT + 1 ? "start" : "middle";
+      const tx = anchor === "end" ? x + 14 : anchor === "start" ? x - 14 : x;
+      // An invisible hit area covering the marker and its label: one big, easy target
+      const top = above ? y - 44 - lines.length * 18 : y - 18;
+      const bottom = above ? y + 18 : y + 26 + lines.length * 18;
+      const hx = anchor === "end" ? tx - 170 : anchor === "start" ? tx - 20 : x - 80;
+      g.insertBefore(svg("rect", { x: hx, y: top, width: anchor === "middle" ? 160 : 190, height: bottom - top, fill: "transparent" }), g.firstChild);
+      lines.forEach((t, k) => {
+        const ty = above ? y - 30 - (lines.length - 1 - k) * 18 : y + 36 + k * 18;
+        g.append(svg("text", { x: tx, y: ty, "text-anchor": anchor, class: "st-label" }, t));
+      });
+      g.addEventListener("click", () => select(s.sid, true));
+      g.addEventListener("keydown", (e) => stationKeys(e, idx));
+      stationsLayer.append(g);
+    });
+
+    root.append(transfers, lines, labels, stationsLayer);
+    $("map").replaceChildren(root);
+  }
+
+  /** The symbol for each kind of stop (also used in the key). */
+  function marker(kind, x, y, n) {
+    const m = svg("g", { class: "marker-group" });
+    if (kind === "project") m.append(svg("rect", { class: "marker stop-ink", x: x - 17, y: y - 11, width: 34, height: 22, rx: 11, "stroke-width": 4 }));
+    else if (kind === "skillcheck") m.append(svg("circle", { class: "marker stop-fill l" + n, cx: x, cy: y, r: 13, "stroke-width": 5 }), svg("circle", { class: "f" + n, cx: x, cy: y, r: 4.5 }));
+    else if (kind === "start") m.append(svg("rect", { class: "marker f" + n, x: x - 7, y: y - 16, width: 14, height: 32, rx: 4 }));
+    else if (kind === "capstone" || kind === "course") {
+      m.append(svg("circle", { class: "marker " + (kind === "course" ? "stop-ink" : "stop-fill l" + n), cx: x, cy: y, r: 16, "stroke-width": 5 }));
+      m.append(svg("path", { d: star(x, y, 8.5), class: kind === "course" ? "" : "f" + n, style: kind === "course" ? "fill: var(--ink)" : null }));
+    } else m.append(svg("circle", { class: "marker stop-fill l" + n, cx: x, cy: y, r: 10, "stroke-width": 5 }));
+    return m;
+  }
+  function star(cx, cy, r) {
+    let d = "";
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+      d += (i ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(1) + " " + (cy + rr * Math.sin(a)).toFixed(1);
+    }
+    return d + "z";
+  }
+
+  /** Arrow keys ride the line; Enter or Space opens a stop. */
+  function stationKeys(e, idx) {
+    let next = null;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = Math.min(idx + 1, stops.length - 1);
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = Math.max(idx - 1, 0);
+    if (e.key === "Home") next = 0;
+    if (e.key === "End") next = stops.length - 1;
+    if (next !== null) { e.preventDefault(); focusStation(stops[next].sid); select(stops[next].sid, false); }
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(stops[idx].sid, true); }
+  }
+  function focusStation(sid) { const g = document.querySelector(`#map [data-sid="${sid}"]`); if (g) g.focus(); }
+
+  function drawLegend() {
+    const item = (kind, words) => {
+      const s = svg("svg", { viewBox: "0 0 44 44", width: 30, height: 30, "aria-hidden": "true" });
+      s.append(svg("path", { d: "M2 22H42", class: "route l1", style: "stroke-width:8" }));
+      s.append(marker(kind, 22, 22, 1));
+      return el("span", {}, s, words);
+    };
+    const soon = svg("svg", { viewBox: "0 0 44 44", width: 30, height: 30, "aria-hidden": "true" });
+    soon.append(svg("circle", { cx: 22, cy: 22, r: 10, class: "stop-fill l5", "stroke-width": 5, "stroke-dasharray": "4 3" }));
+    const items = [item("start", "Start here"), item("lesson", "Lesson (certificate)"), item("skillcheck", "Skill check"),
+      item("project", "Project"), item("capstone", "Capstone")];
+    if (anyPlanned) items.push(el("span", {}, soon, "Coming soon")); // only while lessons are still being written
+    $("legend").replaceChildren(...items);
+  }
+
+  // =====================================================================
+  // THE ROUTE LIST: the same stops as an ordinary list (phones, screen
+  // readers, and anyone who prefers it).
+  // =====================================================================
+  function drawList() {
+    const box = $("list-view");
+    box.replaceChildren(...DATA.weeks.map((w) => el("section", { class: "card", style: `--rail: var(--w${w.n})`, "aria-labelledby": "lw" + w.n },
+      el("h2", { id: "lw" + w.n }, el("span", { class: "bullet b" + w.n, "aria-hidden": "true" }, String(w.n)), `Week ${w.n}: ${w.title}`),
+      el("p", { class: "muted" }, w.tagline),
+      el("ol", {}, w.stations.map((s) => el("li", { class: `k-${s.kind}${s.status === "planned" ? " planned" : ""}` },
+        el("button", { type: "button", "data-sid": s.sid, "aria-current": "false", onclick: () => select(s.sid, true) },
+          el("span", { class: "t" }, s.title),
+          el("span", { class: "m" }, [KIND_WORD[s.kind], minutesText(s.minutes), s.status === "planned" ? "coming soon" : ""].filter(Boolean).join(" · ")))))))));
+  }
+
+  // =====================================================================
+  // THE PANEL: everything about one stop.
+  // =====================================================================
+  function labelsFor(kinds) {
+    return el("span", { class: "chips" }, kinds.map((k) => el("span", { class: "chip " + k }, DATA.labels[k][mode])));
+  }
+  function badgeArt(o) {
+    // Trusted markup: TrainerMD.badgeSVG escapes every value it draws.
+    const holder = el("span", { class: "art" });
+    holder.innerHTML = TM.badgeSVG(o);
+    return holder;
+  }
+
+  function renderPanel() {
+    const s = byId[current];
+    const idx = stops.indexOf(s);
+    const p = $("panel");
+    const parts = [];
+    parts.push(el("span", { class: "eyebrow" }, `Week ${s.week.n} · ${KIND_WORD[s.kind]}`));
+    parts.push(el("h2", {}, s.title));
+    const facts = el("div", { class: "chips" });
+    if (s.minutes) facts.append(el("span", { class: "chip" }, "About " + minutesText(s.minutes)));
+    if (s.status === "planned") facts.append(el("span", { class: "chip soon" }, "Coming soon"));
+    if (s.activities.some((a) => a.platform === "desktop")) facts.append(el("span", { class: "chip desktop" }, "Some drills need desktop " + DATA.app.name));
+    if (facts.childNodes.length) parts.push(facts);
+    if (s.goals) parts.push(el("p", {}, el("b", {}, "You'll be able to: "), s.goals.replace(/^./, (c) => c.toLowerCase())));
+
+    if (s.certificate) {
+      const isCourse = s.kind === "course";
+      parts.push(el("div", { class: "cert-note" }, badgeArt({ week: isCourse ? null : s.week.n, kind: isCourse ? "course" : "lesson", label: "Certificate", size: 44 }),
+        el("span", {}, isCourse
+          ? "Finish all five weeks for the course certificate. The back lists every badge and outcome."
+          : `Finish this lesson to earn a certificate. The back lists its badges and the outcomes they cover${mode === "practice" ? ", marked as your practice record" : ""}.`)));
+    }
+
+    if (s.activities.length) {
+      parts.push(el("h3", {}, "Badges to earn here"));
+      parts.push(el("ul", { class: "acts" }, s.activities.map((a) => el("li", {},
+        badgeArt({ week: a.badge.week, kind: a.badge.kind, code: a.id, label: a.badge.name + " badge", size: 52 }),
+        el("div", {}, el("span", { class: "name" }, a.badge.name), " ", el("span", { class: "sub" }, `${a.id} · ${a.title}`),
+          el("div", { style: "margin-top:4px" }, labelsFor(a.assess),
+            a.platform === "desktop" ? el("span", { class: "chip desktop", style: "margin-left:6px" }, "Desktop " + DATA.app.name) : null))))));
+      if (s.quizzes) parts.push(el("p", { class: "muted" }, `Plus ${s.quizzes} quick check${s.quizzes === 1 ? "" : "s"} along the way (practice only, no badge).`));
+    } else if (s.plannedDrills.length) {
+      parts.push(el("h3", {}, "Planned practice drills"));
+      parts.push(el("p", {}, `${s.plannedDrills.join(", ")}. Each one will earn a badge. This lesson is being written.`));
+    } else if (s.status === "planned" && (s.kind === "skillcheck" || s.kind === "project")) {
+      parts.push(el("p", { class: "muted" }, `Earns a badge when finished. ${s.kind === "skillcheck" ? "Auto-checked, timed." : DATA.labels.instructor[mode] + "."} Being written.`));
+    }
+
+    if (s.clos.length) {
+      const map = Object.fromEntries(DATA.outcomes.map((o) => [o.id, o.text]));
+      parts.push(el("details", {}, el("summary", {}, `Course outcomes (${s.clos.length})`), el("ul", {}, s.clos.map((c) => el("li", {}, `${c}: ${map[c] || ""}`)))));
+    }
+    if (s.mos.length) {
+      parts.push(el("details", {}, el("summary", {}, `${DATA.app.exam || "MOS"} exam skills practiced (${s.mos.length})`),
+        el("ul", {}, s.mos.slice(0, 80).map((c) => el("li", {}, `${c} ${DATA.mosNames[c] || ""}`)))));
+    }
+
+    parts.push(el("div", { class: "nav" },
+      el("button", { type: "button", class: "btn", disabled: idx === 0 ? true : null, onclick: () => step(-1) }, "‹ Previous stop"),
+      el("button", { type: "button", class: "btn", disabled: idx === stops.length - 1 ? true : null, onclick: () => step(1) }, "Next stop ›")));
+    p.replaceChildren(...parts);
+  }
+  function step(d) { const i = stops.findIndex((s) => s.sid === current); const n = stops[i + d]; if (n) { select(n.sid, false); focusStation(n.sid); } }
+
+  /** Make one stop current everywhere. `reveal` scrolls the panel into view on small screens. */
+  function select(sid, reveal) {
+    if (!byId[sid]) return;
+    current = sid;
+    document.querySelectorAll("[data-sid]").forEach((n) => n.setAttribute("aria-current", n.dataset.sid === sid ? "true" : "false"));
+    renderPanel();
+    try { history.replaceState(null, "", "#" + sid); } catch (e) { /* sandboxed: fine */ }
+    if (reveal && window.matchMedia("(max-width: 1080px)").matches) {
+      const smooth = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+      $("panel").scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    }
+  }
+
+  // ---------- view, mode and theme switches ----------
+  function setView(v) {
+    $("map-view").hidden = v !== "map";
+    $("list-view").hidden = v !== "list";
+    document.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+    store.set("view", v);
+  }
+  document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => setView(b.dataset.view)));
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+    store.set("mode", m);
+    renderPanel();
+  }
+  document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const THEMES = ["system", "light", "dark"];
+  function applyTheme(t) {
+    if (t === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", t);
+    $("theme").textContent = "Theme: " + t; store.set("theme", t);
+  }
+  $("theme").addEventListener("click", () => applyTheme(THEMES[(THEMES.indexOf(store.get("theme") || "system") + 1) % 3]));
+
+  // ---------- start-up ----------
+  if (store.get("theme")) applyTheme(store.get("theme"));
+  drawMap(); drawLegend(); drawList();
+  const wanted = (location.hash || "").slice(1);
+  // Phones start on the list; a remembered choice wins.
+  setView(store.get("view") || (window.matchMedia("(max-width: 700px)").matches ? "list" : "map"));
+  setMode(mode === "section" ? "section" : "practice");
+  select(byId[wanted] ? wanted : stops[0].sid, false);
+})();
+</script>
+</body>
+</html>

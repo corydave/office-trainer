@@ -168,6 +168,31 @@ kbd { font-family: var(--mono); font-size: .82em; padding: 1px 5px; border: 1px 
 .tm-checks code { background: none; padding: 0; }
 .tm-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .tm-starter { font-size: 12px; color: var(--muted); }
+/* activity labels: shape + words, never color alone */
+.tm-labels { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.tm-pill.tm-assess { border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.tm-pill.tm-assess-auto { border-color: var(--blue); color: var(--blue); }
+.tm-pill.tm-assess-screenshot { border-color: var(--orange-fill); color: var(--orange); }
+.tm-pill.tm-assess-instructor { border-color: var(--green); color: var(--green); }
+.tm-award { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 6px 0 0 !important; color: var(--muted); }
+.tm-badge-art { flex: none; }
+.tm-screenshot { border: 1px dashed var(--orange-fill); border-radius: 8px; padding: 8px 10px; margin: 6px 0; background: var(--orange-soft); }
+.tm-screenshot p { margin: 0 0 4px !important; }
+.tm-example summary { cursor: pointer; font-size: 13px; color: var(--blue); font-weight: 700; }
+.tm-example img { margin-top: 6px; border: 1px solid var(--line); }
+.tm-week h2 { display: flex; align-items: center; gap: 8px; }
+.tm-line { display: inline-block; width: 28px; height: 8px; border-radius: 999px; }
+.tm-stations li { margin-bottom: 8px; }
+.tm-goals { font-size: 13px; color: var(--muted); }
+/* instructor (section) videos */
+.tm-from { font-size: 13px; margin: 0 0 6px !important; }
+.tm-pill.tm-instructor-pill { background: var(--green-soft); color: var(--green); }
+.tm-override { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 0 0 14px; }
+.vid-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.vid-table th, .vid-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.vid-table code { font-size: 12px; }
+.vid-table .tm-btn { padding: 2px 8px; font-size: 12px; }
+.vid-state { font-weight: 700; color: var(--green); }
 
 /* ---------- settings dialog ---------- */
 dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); max-width: min(520px, 92vw); padding: 20px; }
@@ -200,6 +225,7 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
       <button type="button" role="menuitem" data-new="lesson">Lesson<span class="sub">Text, videos, quizzes and drills</span></button>
       <button type="button" role="menuitem" data-new="skillcheck">Skill check<span class="sub">Timed tasks, no hints</span></button>
       <button type="button" role="menuitem" data-new="project">Project<span class="sub">Brief, preflight and rubric</span></button>
+      <button type="button" role="menuitem" data-new="section">Section video file<span class="sub">An instructor's own videos for one section</span></button>
     </div>
   </div>
   <button class="btn primary" id="btn-save" type="button">Save</button>
@@ -221,10 +247,13 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
       <button class="btn" type="button" data-insert="quiz">Quiz</button>
       <button class="btn" type="button" data-insert="drill">Drill</button>
       <button class="btn" type="button" data-insert="step">Step</button>
+      <button class="btn" type="button" data-insert="screenshot">Screenshot step</button>
       <button class="btn" type="button" data-insert="check">Check ▾</button>
       <button class="btn" type="button" data-insert="key">Key</button>
       <button class="btn" type="button" data-insert="path">Ribbon path</button>
       <button class="btn" type="button" data-insert="rubric">Rubric</button>
+      <button class="btn" type="button" data-insert="replacevideo">Replace video</button>
+      <button class="btn" type="button" data-insert="addvideo">Add video</button>
     </div>
     <label for="source" class="vh">Lesson Markdown</label>
     <textarea id="source" spellcheck="true" autocomplete="off"></textarea>
@@ -252,6 +281,15 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
           <option value="480">Wide panel (480 px)</option>
           <option value="760">Page (760 px)</option>
         </select>
+      </label>
+      <label>Mode
+        <select id="pv-mode">
+          <option value="practice">Practice (no section)</option>
+          <option value="section">Class section</option>
+        </select>
+      </label>
+      <label title="Open a course folder to list its sections">Preview as
+        <select id="pv-section"><option value="">Standard course</option></select>
       </label>
       <label><input type="checkbox" id="pv-checks" checked> Show checks (author view)</label>
     </div>
@@ -307,6 +345,9 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
     dirHandle: null,      // the open course folder
     dirty: false,
     starters: null,       // Set of starter paths found in the folder (null = unknown)
+    allPaths: null,       // Set of every file path in the folder, for the outline's file: checks
+    index: null,          // every video id and activity id in the course (TrainerMD.courseIndex)
+    sections: {},         // section code -> parsed section file, for "Preview as"
     files: [],            // [{ path, handle, errors, warnings }]
     config: { headingFont: TM.DEFAULT_FONTS.heading, bodyFont: TM.DEFAULT_FONTS.body, videoHosts: TM.DEFAULT_VIDEO_HOSTS.slice() },
     fonts: { heading: TM.DEFAULT_FONTS.heading, body: TM.DEFAULT_FONTS.body },
@@ -320,8 +361,9 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
 
   // ---------- templates for New ----------
   const TEMPLATES = {
-    lesson: `---\ntype: lesson\nid: W1-L5\nweek: 1\norder: 5\ntitle: New Lesson\nobjectives: [W1.1]\nclos: [CLO1]\nminutes: 30\nstatus: draft\n---\n\n::: callout why\nOne or two sentences on why this matters in college, at work or in life.\n:::\n\n## First idea\n\nExplain the idea in plain words.\n\n::: video\nurl: TODO\ntitle: Short descriptive title\ncaptions: none\nduration: 2:00\n:::\n\n::: drill D1.13\ntitle: Practice the first idea\nstarter: starters/week-01/W1-L5-starter.docx\nplatform: web\nmos: 2.2.3\nminutes: 5\n\n- step: Describe the outcome the learner should produce.\n  check: text.present value="example"\n  hint: Where to find the command.\n:::\n`,
+    lesson: `---\ntype: lesson\nid: W1-L5\nweek: 1\norder: 5\ntitle: New Lesson\nobjectives: [W1.1]\nclos: [CLO1]\nminutes: 30\nstatus: draft\n---\n\n::: callout why\nOne or two sentences on why this matters in college, at work or in life.\n:::\n\n## First idea\n\nExplain the idea in plain words.\n\n::: video\nid: w1-l5-first-idea\nurl: TODO\ntitle: Short descriptive title\ncaptions: none\nduration: 2:00\n:::\n\n::: drill D1.13\ntitle: Practice the first idea\nbadge: First Idea\nstarter: starters/week-01/W1-L5-starter.docx\nplatform: web\nmos: 2.2.3\nminutes: 5\n\n- step: Describe the outcome the learner should produce.\n  check: text.present value="example"\n  hint: Where to find the command.\n:::\n\n::: quiz Q15.1\nquestion: A quick question about the first idea?\ntype: single\n- [ ] A wrong answer\n- [x] The right answer\nexplain: Why the right answer is right.\n:::\n`,
     skillcheck: `---\ntype: skillcheck\nid: W1-SC2\nweek: 1\norder: 7\ntitle: "Skill Check: New"\nobjectives: [W1.3]\nminutes: 20\nstatus: draft\n---\n\nInstructions for the learner.\n\n::: skillcheck SC2\ntitle: Short title\nstarter: starters/week-01/W1-SC2.docx\nplatform: web\ntimeLimit: 20\nattempts: 2\npassing: 70\n\n- task: First task.\n  check: text.absent value="example"\n:::\n`,
+    section: `---\ntype: section\nid: WRD-XXXX\ntitle: Microsoft Word, term, section\ninstructor: Your name\nterm: Spring 2027\nstatus: draft\n---\n\nVideos for this section. Anything not listed here stays as the standard course video.\n\n::: replace-video w1-l2-show-hide\nurl: TODO\ntitle: Your video's title\ncaptions: none\nduration: 3:00\nnote: One line for learners about why you made this.\n:::\n`,
     project: `---\ntype: project\nid: W1-P2\nweek: 1\norder: 8\ntitle: "Project: New"\nobjectives: [W1.2]\nminutes: 120\nstatus: draft\n---\n\n## What you'll make\n\nDescribe the deliverables.\n\n::: preflight P2-check\ntitle: Preflight\nstarter: none\nplatform: web\n\n- step: No empty paragraphs used as spacing.\n  check: para.noEmpty max=0\n:::\n\n::: rubric P2\n- P2-a | 50 | CLO1 | First criterion.\n- P2-b | 50 | CLO2 | Second criterion.\n:::\n`,
   };
 
@@ -333,8 +375,11 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
     quiz: "\n::: quiz Q1.9\nquestion: Your question?\ntype: single\n- [x] Right answer\n- [ ] Wrong answer\nexplain: Why the right answer is right.\n:::\n",
     drill: "\n::: drill D1.99\ntitle: Drill title\nstarter: starters/week-01/STARTER.docx\nplatform: web\nmos: 2.2.3\nminutes: 5\n\n- step: What the learner does.\n  check: text.present value=\"example\"\n  hint: Where the command is.\n:::\n",
     step: "- step: What the learner does.\n  check: text.present value=\"example\"\n  hint: Where the command is.\n",
+    screenshot: "- step: Take a screenshot of the part of Word that shows the result.\n  screenshot: What the screenshot must show.\n  example: TODO\n  describe: What to write instead if you can't take or see a screenshot.\n",
     key: "[[key: Ctrl+S / Cmd+S]]",
     path: "[[path: Home > Paragraph > Show/Hide]]",
+    replacevideo: "\n::: replace-video VIDEO-ID\nurl: TODO\ntitle: Your video's title\ncaptions: none\nduration: 3:00\nnote: One line for learners.\n:::\n",
+    addvideo: "\n::: add-video after D1.04\nurl: TODO\ntitle: Your video's title\ncaptions: none\nduration: 3:00\n:::\n",
     rubric: "\n::: rubric P1\n- P1-a | 50 | CLO1 | First criterion.\n- P1-b | 50 | CLO2 | Second criterion.\n:::\n",
   };
   // Example "check:" lines, one per check in the library
@@ -367,13 +412,26 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
     const text = src.value;
     const doc = TM.parse(text);
     const issues = TM.validate(doc, {
+      app: state.config.app || "word",
       videoHosts: state.config.videoHosts,
       starterExists: state.starters ? (p) => state.starters.has(p) : null,
+      fileExists: state.allPaths ? (p) => state.allPaths.has(p) : null,
+      videoIds: state.index ? state.index.videoIds : null,
+      anchorIds: state.index ? state.index.anchorIds : null,
+      fileName: state.fileName,
     });
+    // "Preview as" a section: swap in that section's videos (the lesson text itself is untouched)
+    const code = $("pv-section").value;
+    let section = code ? state.sections[code] : null;
+    if (doc.meta.type === "section") { section = doc; }       // editing a section file: preview it live
+    const shown = code && doc.meta.type !== "section" ? TM.applyOverrides(doc, section) : doc;
     // The preview HTML comes only from TrainerMD.render, which escapes all text.
-    $("preview").innerHTML = TM.render(doc, {
+    $("preview").innerHTML = TM.render(shown, {
       platform: $("pv-platform").value, showChecks: $("pv-checks").checked, videoHosts: state.config.videoHosts,
+      mode: $("pv-mode").value, assetBase: "../",   // the editor lives in tools/, images/ is one level up
+      appName: TM.checkSet(state.config.app || "word").appName,
     });
+    if (doc.meta.type === "section") $("preview").append(courseVideoList(doc));
     showProblems(issues);
     const s = TM.summarize(doc);
     const words = text.replace(/^---[\s\S]*?---/, "").split(/\s+/).filter(Boolean).length;
@@ -405,6 +463,56 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
       li.append(b); ul.append(li);
     });
     body.append(ul);
+  }
+
+  /**
+   * For a section file: every video in the course with its id, and whether this
+   * section replaces it. "Replace" inserts a ready-to-fill block at the cursor.
+   */
+  function courseVideoList(sectionDoc) {
+    const box = document.createElement("section");
+    const h = document.createElement("h2"); h.textContent = "Course videos";
+    box.append(h);
+    if (!state.index) {
+      const p = document.createElement("p"); p.className = "tm-goals";
+      p.textContent = "Open the course folder to list every video and its id here.";
+      box.append(p); return box;
+    }
+    const replaced = new Set(sectionDoc.blocks.filter(b => b.name === "replace-video").map(b => b.arg));
+    const added = new Set(sectionDoc.blocks.filter(b => b.name === "add-video").map(b => b.arg.replace(/^after\s+/, "")));
+    const table = document.createElement("table"); table.className = "vid-table";
+    const head = document.createElement("tr");
+    ["Video", "Id", "This section", ""].forEach(t => { const th = document.createElement("th"); th.scope = "col"; th.textContent = t; head.append(th); });
+    const thead = document.createElement("thead"); thead.append(head); table.append(thead);
+    const tbody = document.createElement("tbody");
+    state.index.videos.forEach(v => {
+      const tr = document.createElement("tr");
+      const t1 = document.createElement("td"); t1.textContent = v.title; const sub = document.createElement("div"); sub.className = "tm-goals"; sub.textContent = v.lesson; t1.append(sub);
+      const t2 = document.createElement("td"); const c = document.createElement("code"); c.textContent = v.id; t2.append(c);
+      const t3 = document.createElement("td");
+      t3.textContent = replaced.has(v.id) ? "Replaced" : "Standard";
+      if (replaced.has(v.id)) t3.className = "vid-state";
+      if (added.has(v.id)) t3.textContent += " + a video after it";
+      const t4 = document.createElement("td");
+      if (!replaced.has(v.id)) {
+        const b = document.createElement("button"); b.type = "button"; b.className = "tm-btn"; b.textContent = "Replace";
+        b.setAttribute("aria-label", "Replace " + v.title);
+        // add the new block at the end of the file, where section blocks belong
+        b.addEventListener("click", () => { src.setSelectionRange(src.value.length, src.value.length); insertAtCursor(SNIPPETS.replacevideo.replace("VIDEO-ID", v.id)); });
+        t4.append(b);
+      }
+      tr.append(t1, t2, t3, t4); tbody.append(tr);
+    });
+    table.append(tbody);
+    const wrap = document.createElement("div"); wrap.className = "tm-table"; wrap.append(table);
+    box.append(wrap);
+    return box;
+  }
+  function fillSectionSelect() {
+    const sel = $("pv-section"), keep = sel.value;
+    sel.replaceChildren(new Option("Standard course", ""));
+    Object.keys(state.sections).sort().forEach(code => sel.append(new Option(`${code} (${state.sections[code].meta.instructor || "instructor"})`, code)));
+    if (state.sections[keep]) sel.value = keep;
   }
 
   /** Put the cursor on a line and scroll it into view. */
@@ -555,7 +663,7 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
         const w = await state.fileHandle.createWritable();
         await w.write(src.value); await w.close();
         setDirty(false); toast("Saved " + state.fileName);
-        if (state.dirHandle) refreshFolderCounts();
+        if (state.dirHandle) { await readIndexAndSections(); refreshFolderCounts(); }
         return;
       }
       // Fallback: download a copy
@@ -604,6 +712,9 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
       state.config.headingFont = meta.headingFont || TM.DEFAULT_FONTS.heading;
       state.config.bodyFont = meta.bodyFont || TM.DEFAULT_FONTS.body;
       if (Array.isArray(meta.videoHosts)) state.config.videoHosts = meta.videoHosts;
+      // app: excel switches the check list (and the preview's "Desktop Excel" notes) to Excel's.
+      state.config.app = String(meta.app || "word").toLowerCase();
+      if (meta.mode === "section" || meta.mode === "practice") $("pv-mode").value = meta.mode;
       if (!store.get("font-heading")) state.fonts.heading = state.config.headingFont;
       if (!store.get("font-body")) state.fonts.body = state.config.bodyFont;
       applyFonts();
@@ -615,17 +726,36 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
     // 3. lesson files
     const contentDir = await getChildDir(dir, "content");
     const all = contentDir ? await walk(contentDir, "content", [], 0) : [];
-    state.files = all.filter(f => f.path.endsWith(".md")).sort((a, b) => a.path.localeCompare(b.path));
+    // 4. section video files
+    const sectionsDir = await getChildDir(dir, "sections");
+    const secFiles = sectionsDir ? (await walk(sectionsDir, "sections", [], 0)).filter(f => f.path.endsWith(".md")) : [];
+    state.files = all.filter(f => f.path.endsWith(".md")).concat(secFiles).sort((a, b) => a.path.localeCompare(b.path));
+    state.allPaths = new Set(all.map(f => f.path));
+    await readIndexAndSections();
     await refreshFolderCounts();
     $("files").hidden = false;
     document.querySelector(".work").classList.add("has-files");
     if (state.files.length && !state.dirty) openFromFolder(state.files[0]);
   }
 
+  /** Re-read every lesson (for the video and activity ids) and every section file. */
+  async function readIndexAndSections() {
+    const lessons = [], sections = {};
+    for (const f of state.files) {
+      const doc = TM.parse(await (await f.handle.getFile()).text());
+      if (doc.meta.type === "section" && doc.meta.id) sections[doc.meta.id] = doc;
+      else if (f.path.startsWith("content/")) lessons.push(doc);
+    }
+    state.index = TM.courseIndex(lessons);
+    state.sections = sections;
+    fillSectionSelect();
+  }
+
   async function refreshFolderCounts() {
     for (const f of state.files) {
       const text = await (await f.handle.getFile()).text();
-      const issues = TM.validate(TM.parse(text), { videoHosts: state.config.videoHosts, starterExists: (p) => state.starters.has(p) });
+      const issues = TM.validate(TM.parse(text), { app: state.config.app || "word", videoHosts: state.config.videoHosts, starterExists: (p) => state.starters.has(p), fileExists: (p) => state.allPaths.has(p),
+        videoIds: state.index.videoIds, anchorIds: state.index.anchorIds, fileName: f.path.split("/").pop() });
       f.errors = issues.filter(i => i.level === "error").length;
       f.warnings = issues.length - f.errors;
     }
@@ -642,7 +772,7 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
     const nav = $("files");
     nav.replaceChildren();
     const groups = {};
-    state.files.forEach(f => { const g = f.path.split("/").slice(1, -1).join("/") || "content"; (groups[g] = groups[g] || []).push(f); });
+    state.files.forEach(f => { const g = f.path.split("/").slice(0, -1).join("/") || "course"; (groups[g] = groups[g] || []).push(f); });
     Object.entries(groups).forEach(([g, list]) => {
       const h = document.createElement("h2"); h.textContent = g; nav.append(h);
       const ul = document.createElement("ul");
@@ -675,7 +805,9 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
   // =====================================================================
   // Preview controls and quiz interactions
   // =====================================================================
-  ["pv-platform", "pv-checks"].forEach(id => $(id).addEventListener("change", refresh));
+  ["pv-platform", "pv-checks", "pv-mode"].forEach(id => $(id).addEventListener("change", refresh));
+  // Previewing as a section means previewing a graded class, so switch the mode too
+  $("pv-section").addEventListener("change", () => { if ($("pv-section").value) $("pv-mode").value = "section"; refresh(); });
   $("pv-width").addEventListener("change", () => {
     document.documentElement.style.setProperty("--pane-width", $("pv-width").value + "px");
     store.set("pane-width", $("pv-width").value);

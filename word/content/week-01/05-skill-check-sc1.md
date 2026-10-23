@@ -16,6 +16,7 @@ This skill check works like a MOS exam task: one starter file, a set of tasks an
 
 ::: skillcheck SC1
 title: Spring rental policy memo
+badge: Skill Check 1
 starter: starters/week-01/W1-SC1-memo.docx
 platform: web
 mos: 1.1.1, 1.1.4, 1.2.1, 1.3.2, 2.1.1, 2.1.2, 2.2.1, 2.2.2, 2.2.3, 2.2.5

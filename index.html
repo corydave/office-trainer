@@ -2,11 +2,494 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- The site's front door just forwards to the trainer (which runs in upload mode in a normal browser). -->
-  <meta http-equiv="refresh" content="0; url=taskpane.html">
-  <title>Office Trainer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    OFFICE TRAINER - the product page (the site's home page)
+    =====================================================================
+    One self-contained page: HTML, CSS and a little JavaScript, no frameworks
+    and nothing loaded from other websites. Students come first (pick a
+    course and start), then sections for installing the add-in, privacy,
+    instructors and other colleges.
+
+    SECURITY
+    - The Content Security Policy below allows only files from this site,
+      plus the one small script and one style block in this page, which are
+      pinned by their sha256 fingerprints. If you edit the script or the
+      style block, run  python3 word/tools/build-index-csp.py  to update
+      the fingerprints, or the browser will refuse to run them. The page
+      still works without the script: only the light/dark button needs it.
+    - No forms, no cookies, no analytics, no outside fonts or images.
+    - Links that open other sites use rel="noopener noreferrer".
+
+    ACCESSIBILITY
+    - A "Skip to main content" link, landmarks (header, nav, main, footer),
+      one h1, headings in order, visible focus, and text that reflows at
+      320 px wide and at 400% zoom.
+    - Colors pass WCAG AA contrast in light and dark mode. Motion is off for
+      people who ask their system for reduced motion.
+  -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'sha256-puYcGOYjimrnWnsYA9ygXMgs8pCgYvswHUVP80eAFkA='; style-src 'sha256-Z3zV5MQ2odv3BLgw0HfVN4DdenuNJNkOd5M2Z46XbVQ='; img-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Office Trainer: free lessons and practice for Microsoft Word, Excel and PowerPoint. Practice on real files, check your work instantly, and prepare for the Microsoft Office Specialist exams.">
+  <meta name="color-scheme" content="light dark">
+  <title>Office Trainer: Learn Word, Excel and PowerPoint</title>
+  <link rel="icon" href="assets/icon-32.png" sizes="32x32">
+  <style>
+    /* ===================================================================
+       FONTS: hosted with the site (assets/fonts), so no font service is contacted.
+       Comfortaa for headings, Atkinson Hyperlegible (made for readability) for text.
+       =================================================================== */
+    @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-style: normal; font-display: swap; src: url("assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-style: normal; font-display: swap; src: url("assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-style: italic; font-display: swap; src: url("assets/fonts/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); }
+    @font-face { font-family: "Comfortaa"; font-weight: 700; font-style: normal; font-display: swap; src: url("assets/fonts/comfortaa-latin-700-normal.woff2") format("woff2"); }
+
+    /* ===================================================================
+       COLORS: one set of names, defined twice (light and dark).
+       Every pair used for text passes WCAG AA (4.5 to 1 or better).
+       =================================================================== */
+    :root {
+      --bg: #ffffff;
+      --surface: #f3f6fb;      /* cards and bands */
+      --ink: #14171c;          /* main text */
+      --muted: #4a5260;        /* secondary text */
+      --line: #cfd6e0;
+      --brand: #0046ad;        /* the trainer's blue (the check-mark icon) */
+      --brand-ink: #ffffff;    /* text on the brand color */
+      --link: #0046ad;
+      --word: #1d4f9c;
+      --excel: #1b6b3c;
+      --ppt: #a83a17;
+      --focus: #0046ad;
+      --shadow: 0 1px 2px rgba(20, 23, 28, .06), 0 4px 16px rgba(20, 23, 28, .06);
+    }
+    /* Dark colors: used when the system asks for dark mode (unless the visitor chose light), or when they chose dark. */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #111418; --surface: #1b2027; --ink: #eef1f5; --muted: #b9c1cc; --line: #343c47;
+        --brand: #7fb0ff; --brand-ink: #0b1220; --link: #9cc2ff;
+        --word: #8fb4f0; --excel: #7fd39d; --ppt: #f4a07f; --focus: #9cc2ff;
+        --shadow: none;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #111418; --surface: #1b2027; --ink: #eef1f5; --muted: #b9c1cc; --line: #343c47;
+      --brand: #7fb0ff; --brand-ink: #0b1220; --link: #9cc2ff;
+      --word: #8fb4f0; --excel: #7fd39d; --ppt: #f4a07f; --focus: #9cc2ff;
+      --shadow: none;
+    }
+
+    /* ===================================================================
+       BASE
+       =================================================================== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font: 1.0625rem/1.6 "Atkinson Hyperlegible", Arial, Arimo, sans-serif;
+      overflow-wrap: break-word;   /* long web addresses wrap instead of widening the page */
+    }
+    h1, h2, h3 { font-family: Comfortaa, "Atkinson Hyperlegible", Arial, sans-serif; line-height: 1.25; margin: 0 0 .5em; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); letter-spacing: -.01em; }
+    h2 { font-size: clamp(1.45rem, 3.2vw, 2rem); }
+    h3 { font-size: 1.2rem; }
+    p, ul, ol { margin: 0 0 1em; }
+    a { color: var(--link); text-underline-offset: .15em; }
+    a:hover { text-decoration-thickness: 2px; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+    img { max-width: 100%; height: auto; }
+    code { font-family: ui-monospace, Consolas, "Liberation Mono", monospace; font-size: .92em; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3em; }
+    kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 .35em; background: var(--surface); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+    .muted { color: var(--muted); }
+
+    /* Hidden until it gets keyboard focus. */
+    .skip { position: absolute; left: 16px; top: -100px; background: var(--brand); color: var(--brand-ink); padding: 8px 14px; border-radius: 6px; z-index: 10; font-weight: 700; }
+    .skip:focus { top: 12px; }
+
+    /* ===================================================================
+       HEADER AND NAVIGATION
+       =================================================================== */
+    .site-head { border-bottom: 1px solid var(--line); }
+    .site-head .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-top: 12px; padding-bottom: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: Comfortaa, Arial, sans-serif; font-weight: 700; font-size: 1.2rem; }
+    .brand img { width: 36px; height: 36px; border-radius: 8px; }
+    .site-nav { margin-left: auto; }
+    .site-nav ul { display: flex; flex-wrap: wrap; gap: 4px 18px; list-style: none; margin: 0; padding: 0; }
+    .site-nav a { color: var(--ink); text-decoration: none; font-weight: 700; padding: 6px 0; display: inline-block; }
+    .site-nav a:hover { color: var(--link); text-decoration: underline; }
+    .theme-btn {
+      font: inherit; font-size: .95rem; color: var(--ink); background: transparent; border: 1px solid var(--line);
+      border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 40px;
+    }
+    .theme-btn:hover { border-color: var(--ink); }
+    .theme-btn[hidden] { display: none; }
+
+    /* ===================================================================
+       SECTIONS
+       =================================================================== */
+    section { padding: 56px 0; }
+    section + section { border-top: 1px solid var(--line); }
+    .band { background: var(--surface); }
+    .lead { font-size: 1.2rem; color: var(--muted); max-width: 46em; }
+
+    .hero { padding: 64px 0 56px; }
+    .hero h1 { max-width: 16em; }
+    .hero .lead { font-size: 1.25rem; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 20px 0 28px; }
+    .pill-row li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: .95rem; background: var(--bg); }
+
+    /* Buttons are links styled as buttons (they go somewhere). */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px;
+      padding: 10px 18px; border-radius: 10px; font-weight: 700; text-decoration: none;
+      background: var(--brand); color: var(--brand-ink); border: 2px solid var(--brand);
+    }
+    .btn:hover { filter: brightness(1.08); text-decoration: underline; }
+    .btn.secondary { background: transparent; color: var(--link); border-color: currentColor; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    /* ===================================================================
+       COURSE CARDS
+       =================================================================== */
+    .cards { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); margin-top: 28px; }
+    .card {
+      display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--line);
+      border-top: 6px solid var(--accent); border-radius: 12px; padding: 20px; box-shadow: var(--shadow);
+    }
+    .card.word { --accent: var(--word); }
+    .card.excel { --accent: var(--excel); }
+    .card.ppt { --accent: var(--ppt); }
+    .card h3 { color: var(--accent); font-size: 1.45rem; margin-bottom: .25em; }
+    .card .facts { font-size: .95rem; color: var(--muted); margin-bottom: .8em; }
+    .card ul { padding-left: 1.2em; }
+    .card li { margin-bottom: .2em; }
+    .card .btn-row { margin-top: auto; padding-top: 8px; }
+    .card .btn { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .card .btn.secondary { background: transparent; color: var(--accent); }
+
+    /* ===================================================================
+       STEPS, TWO-COLUMN BLOCKS AND LISTS
+       =================================================================== */
+    .steps { counter-reset: step; list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 24px; }
+    .steps li { counter-increment: step; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 16px; }
+    .steps li::before {
+      content: counter(step); display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+      background: var(--brand); color: var(--brand-ink); font-weight: 700; margin-bottom: 8px;
+    }
+    .steps h3 { margin-bottom: .3em; }
+    .steps p { margin: 0; color: var(--muted); }
+    .two { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 24px; }
+    .panel { border: 1px solid var(--line); border-radius: 12px; padding: 20px; background: var(--bg); }
+    .panel h3 { margin-top: 0; }
+    .ticks { list-style: none; padding: 0; }
+    .ticks li { padding-left: 1.7em; position: relative; margin-bottom: .55em; }
+    .ticks li::before { content: "✓"; position: absolute; left: 0; color: var(--brand); font-weight: 700; }
+    ol.numbered { padding-left: 1.4em; }
+    ol.numbered li { margin-bottom: .5em; }
+    .note { border-left: 4px solid var(--brand); background: var(--surface); padding: 12px 16px; border-radius: 0 8px 8px 0; }
+
+    /* ===================================================================
+       FOOTER
+       =================================================================== */
+    footer { border-top: 1px solid var(--line); padding: 32px 0 40px; font-size: .95rem; color: var(--muted); }
+    footer p { margin-bottom: .6em; }
+  </style>
 </head>
 <body>
-  <p><a href="taskpane.html">Open Office Trainer</a></p>
+  <a class="skip" href="#main">Skip to main content</a>
+
+  <header class="site-head">
+    <div class="wrap">
+      <a class="brand" href="./" aria-label="Office Trainer home">
+        <img src="assets/icon-64.png" alt="" width="36" height="36">
+        <span>Office Trainer</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="#courses">Courses</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#install">Install</a></li>
+          <li><a href="#privacy">Privacy</a></li>
+          <li><a href="#instructors">Instructors</a></li>
+        </ul>
+      </nav>
+      <!-- Shown only when JavaScript runs (the script removes "hidden"). -->
+      <button class="theme-btn" id="theme-btn" type="button" aria-pressed="false" hidden>Dark mode</button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- ============================ HERO ============================ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap">
+        <h1 id="hero-title">Learn Word, Excel and PowerPoint by doing the real thing</h1>
+        <p class="lead">Office Trainer gives you short lessons, then has you practice in a real file in the real app. Select <strong>Check my work</strong> and it tells you right away what's done and what still needs fixing.</p>
+        <ul class="pill-row" aria-label="At a glance">
+          <li>Free for students</li>
+          <li>Works in the browser and on a Chromebook</li>
+          <li>Prepares you for Microsoft Office Specialist exams</li>
+          <li>Your files never leave your device</li>
+        </ul>
+        <div class="btn-row">
+          <a class="btn" href="#courses">Choose a course</a>
+          <a class="btn secondary" href="#how">See how it works</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ COURSES ============================ -->
+    <section class="band" id="courses" aria-labelledby="courses-title">
+      <div class="wrap">
+        <h2 id="courses-title">Start here: pick a course</h2>
+        <p class="lead">Each course is five weeks of lessons, drills, timed skill checks and projects, built around one small business so the practice files feel real. You can start right now in your browser, no sign-in needed.</p>
+
+        <div class="cards">
+          <article class="card word" aria-labelledby="c-word">
+            <h3 id="c-word">Word</h3>
+            <p class="facts">5 weeks · 20 lessons · 66 badges · MO-110 exam prep</p>
+            <p>Make documents people take seriously, then the ones you'll need for school and work:</p>
+            <ul>
+              <li>Business letters and a memo</li>
+              <li>A research paper with citations and a template</li>
+              <li>A newsletter or event flyer</li>
+              <li>A job application packet with mail merge</li>
+              <li>A reviewed, shared, clean final copy</li>
+            </ul>
+            <div class="btn-row">
+              <a class="btn" href="taskpane.html?app=word">Start Word</a>
+              <a class="btn secondary" href="word/roadmap.html">Course roadmap</a>
+            </div>
+          </article>
+
+          <article class="card excel" aria-labelledby="c-excel">
+            <h3 id="c-excel">Excel</h3>
+            <p class="facts">5 weeks · 21 lessons · 64 badges · MO-210 exam prep</p>
+            <p>Build spreadsheets that do the math for you and show what the numbers mean:</p>
+            <ul>
+              <li>A monthly budget</li>
+              <li>An invoice or grade calculator</li>
+              <li>A data report from a real data set</li>
+              <li>A business plan with charts and what-if analysis</li>
+              <li>A team workbook you share and publish</li>
+            </ul>
+            <div class="btn-row">
+              <a class="btn" href="taskpane.html?app=excel">Start Excel</a>
+              <a class="btn secondary" href="excel/roadmap.html">Course roadmap</a>
+            </div>
+          </article>
+
+          <article class="card ppt" aria-labelledby="c-ppt">
+            <h3 id="c-ppt">PowerPoint</h3>
+            <p class="facts">5 weeks · 20 lessons · 54 badges · MO-310 exam prep</p>
+            <p>Make presentations people can follow, then deliver them with confidence:</p>
+            <ul>
+              <li>An explainer on something you know well</li>
+              <li>A brand template and a deck made from it</li>
+              <li>A data story with a chart and SmartArt</li>
+              <li>An interactive tour with video and a Zoom menu</li>
+              <li>A team presentation, rehearsed and delivered</li>
+            </ul>
+            <div class="btn-row">
+              <a class="btn" href="taskpane.html?app=powerpoint">Start PowerPoint</a>
+              <a class="btn secondary" href="powerpoint/roadmap.html">Course roadmap</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ HOW IT WORKS ============================ -->
+    <section id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <h2 id="how-title">How it works</h2>
+        <ol class="steps">
+          <li>
+            <h3>Learn one idea</h3>
+            <p>A short lesson explains one skill, with the exact menu path and a quick question to check you've got it.</p>
+          </li>
+          <li>
+            <h3>Practice in a real file</h3>
+            <p>Open the practice file in Word, Excel or PowerPoint and do the steps any way you like: the Ribbon, a shortcut or the right-click menu all count.</p>
+          </li>
+          <li>
+            <h3>Check your work</h3>
+            <p>The trainer looks at the result, not your clicks, and tells you what's right and what to fix. Inside the app, it can also show you where.</p>
+          </li>
+          <li>
+            <h3>Earn badges and certificates</h3>
+            <p>Every drill, skill check and project earns a badge. Finish a lesson for a certificate that lists the skills you showed.</p>
+          </li>
+        </ol>
+
+        <div class="two">
+          <div class="panel">
+            <h3>Inside the app (the sidebar)</h3>
+            <p>Add Office Trainer to Word, Excel or PowerPoint once, and it opens as a panel next to your file. It reads the file you have open, so checking takes one click.</p>
+            <p class="muted">Works in the web apps (including on a Chromebook) and in the desktop apps on Windows and Mac. See <a href="#install">Install</a>.</p>
+          </div>
+          <div class="panel">
+            <h3>In any browser</h3>
+            <p>No add-in? Open a course from this page, download each practice file, do the work in any version of the app (even on a phone), save it, and select <strong>Upload my file and check</strong>. The file opens in your browser tab to be checked; it isn't sent anywhere.</p>
+            <p class="muted">Same lessons, same checks, same badges.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ WHAT YOU GET ============================ -->
+    <section class="band" aria-labelledby="get-title">
+      <div class="wrap">
+        <h2 id="get-title">Made for every learner</h2>
+        <div class="two">
+          <ul class="ticks">
+            <li><strong>Ready for the exam.</strong> The lessons cover every skill on the Microsoft Office Specialist Associate exams (MO-110, MO-210, MO-310), and each course ends with a timed practice exam.</li>
+            <li><strong>Real skills, not trivia.</strong> Projects are things you'd actually make: a budget, a cover letter, a team presentation.</li>
+            <li><strong>Practice at your own pace.</strong> Skill checks can be untimed or given extra time.</li>
+          </ul>
+          <ul class="ticks">
+            <li><strong>Readable your way.</strong> Pick your fonts, such as Atkinson Hyperlegible, Verdana or OpenDyslexic (if it's installed). Light and dark modes follow your system.</li>
+            <li><strong>Keyboard friendly.</strong> Everything works without a mouse. <kbd>F6</kbd> (<kbd>Ctrl</kbd>+<kbd>F6</kbd> in the web apps) moves between your file, the Ribbon and the trainer.</li>
+            <li><strong>Accessible by design.</strong> Lessons teach alt text, contrast and reading order as you go, and videos are published only with checked captions.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ INSTALL ============================ -->
+    <section id="install" aria-labelledby="install-title">
+      <div class="wrap">
+        <h2 id="install-title">Add it to Word, Excel or PowerPoint</h2>
+        <p class="lead">One add-in works in all three apps. Install it once and it shows the right course in each one.</p>
+        <div class="two">
+          <div class="panel">
+            <h3>Install it yourself</h3>
+            <ol class="numbered">
+              <li>Download <a href="manifest.xml" download>manifest.xml</a> (the small file that tells the app where the trainer lives).</li>
+              <li>Open a blank document, workbook or presentation in Word, Excel or PowerPoint on the web (office.com).</li>
+              <li>On the <strong>Home</strong> tab, select <strong>Add-ins</strong>, then <strong>More Settings</strong> (older menus say <strong>More Add-ins</strong> or <strong>Advanced</strong>), then <strong>Upload My Add-in</strong>. The menu moves now and then; it's always under Add-ins.</li>
+              <li><strong>Browse</strong> to <code>manifest.xml</code> and select <strong>Upload</strong>. An <strong>Office Trainer</strong> button appears on the Home tab.</li>
+            </ol>
+            <p class="muted">If you clear your browser data or switch browsers, upload it again. Some schools turn off uploading add-ins; if the option isn't there, ask your IT office.</p>
+            <p class="muted">For the desktop apps, or for a whole class, ask your school's Microsoft 365 administrator to install it for you.</p>
+          </div>
+          <div class="panel">
+            <h3>Install it for a whole school</h3>
+            <p>A Microsoft 365 administrator can give it to everyone at once, so nobody uploads anything: <strong>Microsoft 365 admin center</strong> &gt; <strong>Settings</strong> &gt; <strong>Integrated apps</strong> &gt; <strong>Upload custom apps</strong>, choose <strong>Office Add-in</strong> as the app type, upload <code>manifest.xml</code> and pick who gets it. It can take up to a day to appear.</p>
+            <p class="muted">The add-in asks only for access to the file that's open, so it can read it for checking and open practice files. It can't see anything else on your computer or account.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ PRIVACY ============================ -->
+    <section class="band" id="privacy" aria-labelledby="privacy-title">
+      <div class="wrap">
+        <h2 id="privacy-title">Your privacy</h2>
+        <p class="lead">Office Trainer was built to need nothing from you.</p>
+        <ul class="ticks">
+          <li><strong>Your file stays on your device.</strong> The checker runs inside the trainer panel (or this browser tab). Your document is never uploaded or stored anywhere.</li>
+          <li><strong>No accounts.</strong> There's nothing to sign up for. Your progress, badges and certificates are saved only in your own browser, and you can save a copy of your record as a file.</li>
+          <li><strong>No tracking.</strong> No analytics, no ads and no cookies. Fonts are hosted here, so no font service learns you visited.</li>
+          <li><strong>Videos in privacy-enhanced mode.</strong> Lesson videos come only from approved hosts, and YouTube videos use its privacy-enhanced mode, which doesn't set tracking cookies until you press play.</li>
+          <li><strong>Practice files are made up.</strong> The lessons follow a fictional company, and remind you to keep real names, grades and account numbers out of your projects.</li>
+        </ul>
+        <p class="note">In a class section (planned), the results your instructor needs will go only to your instructor. Until then, every course runs in practice mode: nothing leaves your device.</p>
+      </div>
+    </section>
+
+    <!-- ============================ INSTRUCTORS ============================ -->
+    <section id="instructors" aria-labelledby="inst-title">
+      <div class="wrap">
+        <h2 id="inst-title">For instructors and staff</h2>
+        <div class="two">
+          <div class="panel">
+            <h3>Plan with the course maps</h3>
+            <p>Each map shows the course outcomes, outline topics, weekly objectives, every drill and its exam skills, the projects with their rubrics, and how each outcome is assessed.</p>
+            <ul>
+              <li><a href="word/word-course-map.html">Word course map</a></li>
+              <li><a href="excel/excel-course-map.html">Excel course map</a></li>
+              <li><a href="powerpoint/powerpoint-course-map.html">PowerPoint course map</a></li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Adapt the lessons</h3>
+            <p>Lessons are plain Markdown files with a few simple blocks for drills, quizzes and checks. Edit them in the <a href="word/tools/editor.html">lesson editor</a>, which checks your changes and previews them as students will see them. Changes go live as soon as the file is uploaded, with nothing for students to reinstall.</p>
+            <p class="muted">Each course also has a checker test page (for example <a href="powerpoint/tools/check-tests.html">PowerPoint checker tests</a>) that runs every check against the answer keys.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ OPEN ============================ -->
+    <section class="band" id="open" aria-labelledby="open-title">
+      <div class="wrap">
+        <h2 id="open-title">Free and open, for any college</h2>
+        <p class="lead">Office Trainer costs nothing for students or schools. Use it as it is, or copy it and make it your own.</p>
+        <ul class="ticks">
+          <li><strong>Code:</strong> MIT License. Host your own copy, change it, share it.</li>
+          <li><strong>Lessons:</strong> Creative Commons Attribution 4.0 (CC BY 4.0). Reuse and adapt them with credit to Finger Lakes Community College.</li>
+          <li><strong>Fonts:</strong> Comfortaa and Atkinson Hyperlegible, under the SIL Open Font License.</li>
+          <li><strong>Runs anywhere static:</strong> it's plain files, so any web host works (GitHub Pages, a campus web server). There's no database and nothing to maintain on a server.</li>
+        </ul>
+        <div class="btn-row">
+          <a class="btn" href="https://github.com/corydave/office-trainer" rel="noopener noreferrer">Get the source</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><strong>Office Trainer</strong> · Finger Lakes Community College, Computing Sciences</p>
+      <p>Microsoft, Word, Excel and PowerPoint are trademarks of the Microsoft group of companies. Office Trainer is an independent teaching project and is not made, sponsored or endorsed by Microsoft.</p>
+    </div>
+  </footer>
+
+  <script>
+    // LIGHT / DARK MODE BUTTON
+    // The page follows the system setting on its own. This button lets a
+    // visitor pick the other one; the choice is remembered in this browser
+    // only (localStorage), and forgetting it is never an error.
+    (function () {
+      "use strict";
+      var KEY = "officeTrainer.siteTheme";
+      var root = document.documentElement;
+      var btn = document.getElementById("theme-btn");
+      var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+
+      /** Is the page dark right now? (the visitor's choice, else the system's) */
+      function isDark() {
+        var chosen = root.getAttribute("data-theme");
+        if (chosen) return chosen === "dark";
+        return !!(systemDark && systemDark.matches);
+      }
+      /** Make the button say what it will switch to, and whether dark is on. */
+      function label() {
+        var dark = isDark();
+        btn.textContent = dark ? "Light mode" : "Dark mode";
+        btn.setAttribute("aria-pressed", String(dark));
+      }
+
+      try {
+        var saved = localStorage.getItem(KEY);
+        if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+      } catch (e) { /* storage blocked: follow the system */ }
+
+      btn.hidden = false;
+      label();
+      btn.addEventListener("click", function () {
+        var next = isDark() ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem(KEY, next); } catch (e) { /* not important */ }
+        label();
+      });
+      // If the system switches while the page is open and the visitor hasn't chosen, update the label.
+      if (systemDark && systemDark.addEventListener) systemDark.addEventListener("change", label);
+    })();
+  </script>
 </body>
 </html>

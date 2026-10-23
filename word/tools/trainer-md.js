@@ -21,7 +21,7 @@
 (function (root) {
   "use strict";
 
-  const VERSION = "0.1.0";
+  const VERSION = "0.4.0";
 
   // -------------------------------------------------------------------------
   // Fonts: each choice expands to a fallback chain (see course.config.md).
@@ -65,17 +65,204 @@
     "effect.present":       { params: { kind: "enum:shadow|glow|reflection|outline|any" }, selector: true },
     "format.same":          { params: { a: "string!", b: "string!", props: "string" } },
     "format.clean":         { params: {}, selector: true },
-    "para.is":              { params: { align: "enum:left|center|right|justify", lineSpacing: "lineSpacing", spaceBefore: "length", spaceAfter: "length", firstLineIndent: "length", leftIndent: "length" }, selector: true, needsOneOf: ["align", "lineSpacing", "spaceBefore", "spaceAfter", "firstLineIndent", "leftIndent"] },
+    "para.is":              { params: { align: "enum:left|center|right|justify", lineSpacing: "lineSpacing", spaceBefore: "length", spaceAfter: "length", firstLineIndent: "length", leftIndent: "length", keepNext: "bool", dropCap: "bool" }, selector: true, needsOneOf: ["align", "lineSpacing", "spaceBefore", "spaceAfter", "firstLineIndent", "leftIndent", "keepNext", "dropCap"] },
     "page.is":              { params: { margins: "length", top: "length", bottom: "length", left: "length", right: "length", size: "enum:letter|a4|legal", orientation: "enum:portrait|landscape" }, needsOneOf: ["margins", "top", "bottom", "left", "right", "size", "orientation"] },
     "props.is":             { params: { title: "string", author: "string", keywords: "string" }, needsOneOf: ["title", "author", "keywords"] },
     "lang.is":              { params: { value: "lang!" } },
     "self.attest":          { params: { label: "string!" }, notInSkillCheck: true },
+    // ----- Week 2: styles, navigation, lists, headers, sections, references -----
+    "style.is":             { params: { name: "string!" }, selector: true },
+    "style.def":            { params: { name: "string!", font: "string", size: "number", bold: "bool", italic: "bool", color: "color", spaceBefore: "length", spaceAfter: "length", keepNext: "bool", align: "enum:left|center|right|justify", lineSpacing: "lineSpacing" }, needsOneOf: ["font", "size", "bold", "italic", "color", "spaceBefore", "spaceAfter", "keepNext", "align", "lineSpacing"] },
+    "bookmark.is":          { params: { name: "string!", at: "string" } },
+    "link.present":         { params: { label: "string", anchor: "string", url: "string", descriptive: "bool", min: "int" } },
+    "field.present":        { params: { code: "string!", min: "int", max: "int" }, selector: true },
+    "section.is":           { params: { index: "int", orientation: "enum:portrait|landscape", columns: "int", breakType: "enum:nextPage|continuous|evenPage|oddPage", firstPageDifferent: "bool", border: "bool" }, selector: true, needsOneOf: ["orientation", "columns", "breakType", "firstPageDifferent", "border"] },
+    "break.count":          { params: { kind: "enum:page|column|section!", min: "int", max: "int" } },
+    "list.is":              { params: { kind: "enum:bullet|number", level: "int", format: "enum:decimal|lowerLetter|upperLetter|lowerRoman|upperRoman|bullet", symbol: "string", pattern: "string", number: "int" }, selector: true, needsOneOf: ["kind", "level", "format", "symbol", "pattern", "number"] },
+    "notes.is":             { params: { kind: "enum:footnote|endnote!", min: "int", max: "int", format: "enum:decimal|lowerRoman|upperRoman|lowerLetter|upperLetter|chicago" } },
+    "toc.is":               { params: { levels: "int", includes: "string" } },
+    "citation.is":          { params: { citations: "int", sources: "int", bibliography: "bool", citeStyle: "enum:APA|MLA|Chicago|IEEE" }, needsOneOf: ["citations", "sources", "bibliography", "citeStyle"] },
+    // ----- Week 3: graphics, tables, page design -----
+    "object.count":         { params: { kind: "enum:any|picture|icon|shape|textbox|smartart|chart|model3d!", min: "int", max: "int" } },
+    "object.is":            { params: { kind: "enum:any|picture|icon|shape|textbox|smartart|chart|model3d!", index: "int", name: "string", any: "bool", contains: "string", alt: "bool", decorative: "bool", wrap: "enum:inline|square|tight|through|topAndBottom|behind|inFront", halign: "enum:left|center|right", valign: "enum:top|middle|bottom", pictureStyle: "bool", artistic: "bool", bgRemoved: "bool", fill: "string", outline: "string", says: "string", layout: "string", items: "int", colors: "bool", smartStyle: "bool", chartType: "enum:column|bar|line|pie" } },
+    "table.count":          { params: { contains: "string", min: "int", max: "int" } },
+    "table.is":             { params: { index: "int", contains: "string", lacks: "string", any: "bool", rows: "int", minRows: "int", cols: "int", headerRepeat: "bool", merged: "bool", sortedBy: "int", order: "enum:asc|desc", cellMargin: "length", cellSpacing: "length", col: "int", width: "length" }, needsOneOf: ["rows", "minRows", "cols", "headerRepeat", "merged", "sortedBy", "cellMargin", "cellSpacing", "width"] },
+    "theme.is":             { params: { colors: "string", accent1: "color", accent2: "color", accent3: "color", accent4: "color", accent5: "color", accent6: "color" }, needsOneOf: ["colors", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6"] },
+    "page.background":      { params: { watermark: "string", color: "string" }, needsOneOf: ["watermark", "color"] },
+    // ----- Week 4: templates, tabs, mail merge -----
+    "tabs.is":              { params: { position: "length", align: "enum:left|right|center|decimal", leader: "enum:dot|hyphen|underscore|none" }, selector: true, needsOneOf: ["position", "align", "leader"] },
+    "controls.filled":      { params: {} },
+    "merge.is":             { params: { type: "enum:letters|labels|envelopes|directory|email", source: "bool" }, needsOneOf: ["type", "source"] },
+    // ----- Week 5: collaboration and shipping -----
+    "comment.count":        { params: { min: "int", max: "int" } },
+    "comment.is":           { params: { says: "string", anchor: "string", author: "string", state: "enum:present|absent|replied|resolved|open" }, needsOneOf: ["says", "anchor", "author"] },
+    "revision.count":       { params: { kind: "enum:any|insert|delete|format|move", author: "string", min: "int", max: "int" } },
+    "doc.is":               { params: { tracking: "bool", protection: "enum:none|readOnly|comments|trackedChanges|forms", password: "bool", compatMode: "int", personalInfo: "enum:kept|removed" }, needsOneOf: ["tracking", "protection", "password", "compatMode", "personalInfo"] },
+    "text.hidden":          { params: { max: "int" } },
+    "access.is":            { params: { rules: "string" } },
   };
 
-  const DIRECTIVES = ["video", "callout", "platform", "quiz", "drill", "skillcheck", "preflight", "rubric"];
+  // ----- Excel (excel/tools/excel-checker.js) -----
+  // Excel checks point at cells with cell=B2 or range=B2:B9 (optionally
+  // "June!B2"), plus sheet=June. Those two are the Excel selectors.
+  const EXCEL_SELECTORS = ["cell", "range"];
+  const XS = "string";   // short names to keep the table below readable
+  const EXCEL_CHECKS = {
+    "file.name":        { params: { pattern: "string!" } },
+    "text.present":     { params: { value: "string!", sheet: XS, min: "int", max: "int", case: "enum:sensitive|insensitive" }, selector: true },
+    "text.absent":      { params: { value: "string!", sheet: XS, case: "enum:sensitive|insensitive" }, selector: true },
+    "props.is":         { params: { title: XS, author: XS, keywords: XS }, needsOneOf: ["title", "author", "keywords"] },
+    "self.attest":      { params: { label: "string!" }, notInSkillCheck: true },
+    "sheet.is":         { params: { name: "string!", exists: "bool", index: "int", after: XS, tabColor: XS, hidden: "bool", kind: "enum:worksheet|chart" } },
+    "sheet.count":      { params: { min: "int", max: "int", visible: "bool" } },
+    "cell.is":          { params: { sheet: XS, value: XS, contains: XS, number: "number", tolerance: "number", date: XS,
+                          type: "enum:number|text|date|blank|formula|logical|error", blank: "bool",
+                          numFmt: "enum:general|number|currency|accounting|percent|date|time|datetime|fraction|scientific|text", decimals: "int", strict: "bool",
+                          bold: "bool", italic: "bool", underline: "bool", fontSize: "number", font: XS, fontColor: XS, fill: XS,
+                          align: "enum:left|center|right|general|justify|centerContinuous|fill|distributed", valign: "enum:top|center|bottom|justify|distributed",
+                          wrap: "bool", indent: XS, rotation: XS, border: "enum:any|none|left|right|top|bottom", style: XS, locked: "bool", clean: "bool", sameAs: XS, merged: "bool" },
+                          selector: true, needsSelector: true },
+    "formula.is":       { params: { sheet: XS, uses: XS, contains: XS, lacks: XS, result: XS, filled: "bool", spill: "bool", hasFormula: "bool", refs: "bool", structured: "bool", external: XS, min: "number", max: "number" }, selector: true, needsSelector: true },
+    "col.is":           { params: { sheet: XS, col: "string!", width: "number", minWidth: "number", maxWidth: "number", hidden: "bool" }, needsOneOf: ["width", "minWidth", "maxWidth", "hidden"] },
+    "row.is":           { params: { sheet: XS, row: "string!", height: "number", minHeight: "number", hidden: "bool" }, needsOneOf: ["height", "minHeight", "hidden"] },
+    "view.is":          { params: { sheet: XS, frozen: XS, view: "enum:normal|pageLayout|pageBreakPreview", showFormulas: "bool", split: "bool", gridlines: "bool" }, needsOneOf: ["frozen", "view", "showFormulas", "split", "gridlines"] },
+    "window.count":     { params: { min: "int!" } },
+    "page.is":          { params: { sheet: XS, orientation: "enum:portrait|landscape", size: "enum:letter|legal|a4", fitWide: "int", fitTall: "int", scale: "int",
+                          margins: "length", top: "length", bottom: "length", left: "length", right: "length", centerH: "bool", gridlines: "bool", printArea: XS, printTitles: XS },
+                          needsOneOf: ["orientation", "size", "fitWide", "fitTall", "scale", "margins", "top", "bottom", "left", "right", "centerH", "gridlines", "printArea", "printTitles"] },
+    "header.is":        { params: { sheet: XS, part: "enum:header|footer!", says: XS, field: "enum:page|pages|sheet|file|date|time|path", position: "enum:left|center|right" } },
+    "name.is":          { params: { name: "string!", refersTo: XS, scope: XS, exists: "bool" } },
+    "link.present":     { params: { sheet: XS, url: XS, location: XS, label: XS, min: "int", max: "int", descriptive: "bool" }, selector: true },
+    "table.is":         { params: { sheet: XS, name: XS, contains: XS, exists: "bool", style: XS, bandedRows: "bool", bandedColumns: "bool", firstColumn: "bool", lastColumn: "bool",
+                          headerRow: "bool", totalRow: "bool", total: XS, totalFunction: "enum:sum|average|count|countNums|max|min|stdDev|var|custom",
+                          hasColumn: XS, lacksColumn: XS, rows: "int", minRows: "int", columns: "int", noBlankRows: "bool" } },
+    "table.count":      { params: { sheet: XS, contains: XS, min: "int", max: "int" } },
+    "sort.is":          { params: { sheet: XS, table: XS, by: "string!", order: "enum:asc|desc", then: XS, thenOrder: "enum:asc|desc" }, selector: true },
+    "filter.is":        { params: { sheet: XS, table: XS, column: XS, active: "bool", shows: XS, only: "bool" }, selector: true },
+    "cf.is":            { params: { sheet: XS, type: "enum:dataBar|colorScale|iconSet|cellIs|top10|aboveAverage|duplicateValues|containsText|timePeriod|expression|any",
+                          operator: "enum:greaterThan|lessThan|between|equal|greaterThanOrEqual|lessThanOrEqual|notEqual|notBetween", value: XS, exists: "bool", covers: "bool" }, selector: true },
+    "cf.count":         { params: { sheet: XS, min: "int", max: "int" }, selector: true },
+    "sparkline.is":     { params: { sheet: XS, location: XS, type: "enum:line|column|winloss", source: XS, high: "bool", markers: "bool", min: "int" } },
+    "chart.is":         { params: { sheet: XS, index: "int", chartSheet: "bool", type: "enum:column|bar|line|pie|doughnut|area|scatter|combo|any",
+                          grouping: "enum:clustered|stacked|percentStacked|standard", series: "int", minSeries: "int", seriesName: XS, plotBy: "enum:rows|columns",
+                          hasTitle: "bool", title: XS, axisTitles: "bool", dataLabels: "bool", legend: "enum:bottom|top|left|right|topRight|none", dataTable: "bool",
+                          styleChanged: "bool", alt: "bool", altSays: XS, values: XS, covers: XS } },
+    "chart.count":      { params: { sheet: XS, min: "int", max: "int", chartSheet: "bool" } },
+    "object.is":        { params: { sheet: XS, kind: "enum:picture|icon|shape|textbox|smartart|any!", index: "int", name: XS, says: XS, alt: "bool", decorative: "bool", items: "int" } },
+    "object.count":     { params: { sheet: XS, kind: "enum:picture|icon|shape|textbox|smartart|any!", min: "int", max: "int" } },
+    "scenario.is":      { params: { sheet: XS, names: XS, min: "int", changing: XS } },
+    "datatable.is":     { params: { sheet: XS, input: XS }, selector: true },
+    "consolidate.is":   { params: { sheet: XS, function: "enum:sum|average|count|countNums|max|min|product|stdDev|stdDevp|var|varp", sources: "int", labels: "bool", links: "bool" } },
+    "comment.is":       { params: { sheet: XS, kind: "enum:comment|note!", says: XS, author: XS, state: "enum:present|absent|replied|resolved|open" }, selector: true },
+    "comment.count":    { params: { sheet: XS, kind: "enum:comment|note|any", min: "int", max: "int" }, selector: true },
+    "protect.is":       { params: { sheet: XS, sheetProtected: "bool", password: "bool", structure: "bool", structurePassword: "bool", unlocked: XS }, needsOneOf: ["sheetProtected", "structure", "unlocked"] },
+    "validation.is":    { params: { sheet: XS, type: "enum:list|whole|decimal|date|time|textLength|custom|any", list: XS, exists: "bool" }, selector: true },
+    "doc.is":           { params: { personalInfo: "enum:kept|removed", hiddenSheets: "int" }, needsOneOf: ["personalInfo", "hiddenSheets"] },
+    "access.is":        { params: { rules: XS } },
+    "data.is":          { params: { sheet: XS, table: XS, headers: XS, rows: "int", minRows: "int", maxRows: "int", noDuplicates: "bool" }, selector: true },
+    "connection.count": { params: { min: "int", max: "int" } },
+    "theme.is":         { params: { name: XS, changed: "bool", colors: XS }, needsOneOf: ["name", "changed", "colors"] },
+    "cellstyle.is":     { params: { name: "string!", exists: "bool", custom: "bool" } },
+  };
+
+  // ----- PowerPoint (powerpoint/tools/ppt-checker.js) -----
+  // PowerPoint checks point at a slide with slide=3 (or first, last, all), or at
+  // slides whose title contains some text with title="Our prices". slide= is the
+  // selector; title= is an ordinary parameter (props.is uses title= for the Title property).
+  const PPT_SELECTORS = ["slide"];
+  const PS = "string";
+  const PPT_KINDS = "enum:picture|icon|shape|textbox|placeholder|actionButton|line|video|audio|media|image|table|chart|smartart|model3d|zoom|ink|group|text|graphic|any";
+  const POWERPOINT_CHECKS = {
+    "file.name":      { params: { pattern: "string!" } },
+    "props.is":       { params: { title: PS, author: PS, keywords: PS, subject: PS }, needsOneOf: ["title", "author", "keywords", "subject"] },
+    "self.attest":    { params: { label: "string!" }, notInSkillCheck: true },
+    "text.present":   { params: { value: "string!", title: PS, in: "enum:slides|notes", min: "int" }, selector: true },
+    "text.absent":    { params: { value: "string!", title: PS, in: "enum:slides|notes" }, selector: true },
+    "slide.count":    { params: { is: "int", min: "int", max: "int", title: PS, visible: "bool" }, needsOneOf: ["is", "min", "max"] },
+    "slide.is":       { params: { title: PS, exists: "bool", number: "int", after: PS, layout: PS, hidden: "bool", section: PS, background: "enum:any|none|picture|gradient|solid|pattern",
+                        notes: PS, hasNotes: "bool", titleIs: PS }, selector: true },
+    "notes.count":    { params: { min: "int", max: "int" }, needsOneOf: ["min", "max"] },
+    "section.is":     { params: { name: "string!", exists: "bool", index: "int", slides: "int", minSlides: "int", starts: PS, contains: PS } },
+    "section.count":  { params: { min: "int", max: "int" }, needsOneOf: ["min", "max"] },
+    "size.is":        { params: { ratio: "enum:16:9|4:3|widescreen|standard!" } },
+    "view.is":        { params: { view: "enum:normal|outline|sorter|notes|master|notesMaster|handoutMaster", guides: "bool" }, needsOneOf: ["view", "guides"] },
+    "text.is":        { params: { title: PS, says: PS, kind: PPT_KINDS, phType: "enum:title|ctrTitle|subTitle|body|obj", bold: "bool", italic: "bool", underline: "bool",
+                        size: "number", minSize: "number", font: PS, notFont: PS, wordart: "bool", color: PS, colorChanged: "bool", columns: "int", align: "enum:left|center|right|justify", minContrast: "number" }, selector: true },
+    "list.is":        { params: { title: PS, says: PS, items: PS, kind: "enum:bullet|number", level: "int", levels: "int", maxItems: "int" }, selector: true },
+    "footer.is":      { params: { slideNumbers: "bool", footer: PS, skipTitle: "bool", date: "bool" }, needsOneOf: ["slideNumbers", "footer", "skipTitle", "date"] },
+    "theme.is":       { params: { name: PS, changed: "bool", fonts: PS, fontsChanged: "bool", colors: PS, variant: "bool" }, needsOneOf: ["name", "changed", "fonts", "fontsChanged", "colors", "variant"] },
+    "master.is":      { params: { kind: "enum:slide|notes|handout", background: "enum:any|picture|gradient|solid", titleFont: PS, picture: "bool", says: PS, phSays: PS, lacks: "enum:hdr|ftr|dt|sldNum" } },
+    "layout.is":      { params: { name: "string!", exists: "bool", custom: "bool", placeholder: PS, lacks: "enum:ftr|dt|sldNum|title|body|pic", used: "bool" } },
+    "object.count":   { params: { kind: PPT_KINDS + "!", title: PS, says: PS, name: PS, min: "int", max: "int" }, selector: true },
+    "object.is":      { params: { kind: PPT_KINDS, title: PS, says: PS, name: PS, index: "int", alt: "bool", decorative: "bool", width: "length", height: "length", minWidth: "length",
+                        cropped: "bool", square: "bool", stretched: "bool", styled: "bool", effects: "bool", styleChanged: "bool", geom: PS, front: "bool", grouped: "bool", rotated: "bool",
+                        items: "int", layout: PS, notLayout: PS, colorsChanged: "bool" }, selector: true },
+    "align.is":       { params: { kind: PPT_KINDS, title: PS, says: PS, name: PS, edge: "enum:top|bottom|middle|left|right|center", distributed: "enum:horizontal|vertical" }, selector: true, needsOneOf: ["edge", "distributed"] },
+    "table.is":       { params: { title: PS, says: PS, rows: "int", cols: "int", styleChanged: "bool", headerRow: "bool", lacks: PS, has: PS }, selector: true },
+    "chart.is":       { params: { title: PS, chartTitle: PS, type: "enum:column|bar|line|pie|doughnut|area|scatter|combo", notType: "enum:column|bar|line|pie|doughnut|area|scatter|combo", grouping: "enum:clustered|stacked|percentStacked|standard",
+                        minSeries: "int", dataLabels: "bool", alt: "bool" }, selector: true },
+    "media.is":       { params: { kind: "enum:video|audio|media", title: PS, name: PS, trimmed: "bool", fadeIn: "bool", start: "enum:auto|click", loop: "bool", acrossSlides: "bool", alt: "bool" }, selector: true },
+    "transition.is":  { params: { title: PS, exists: "bool", type: PS, kind: "enum:3d|basic", optionChanged: "bool", duration: "number", advanceAfter: "number", onClick: "bool", sound: "bool" }, selector: true },
+    "anim.is":        { params: { title: PS, says: PS, kind: PPT_KINDS, name: PS, class: "enum:entrance|emphasis|exit|path", effect: PS, byParagraph: "bool", start: "enum:onClick|with|after",
+                        minDelay: "number", duration: "number", first: "bool", pathDir: "enum:left|right|up|down" }, selector: true },
+    "anim.count":     { params: { title: PS, says: PS, kind: PPT_KINDS, name: PS, class: "enum:entrance|emphasis|exit|path", min: "int", max: "int" }, selector: true, needsOneOf: ["min", "max"] },
+    "link.present":   { params: { title: PS, url: PS, toSlide: PS, says: PS, button: "bool" }, selector: true },
+    "zoom.is":        { params: { title: PS, kind: "enum:summary|section|slide", returnToZoom: "bool" }, selector: true },
+    "show.is":        { params: { loop: "bool", kiosk: "bool", narration: "bool", useTimings: "bool", customShow: PS, slides: "int", includes: PS, excludes: PS, timings: "bool" } },
+    "comment.is":     { params: { title: PS, says: PS, author: PS, state: "enum:present|absent|replied|resolved" }, selector: true },
+    "comment.count":  { params: { title: PS, says: PS, author: PS, min: "int", max: "int" }, selector: true, needsOneOf: ["min", "max"] },
+    "doc.is":         { params: { personalInfo: "enum:removed", fontsEmbedded: "bool", final: "bool", modifyPassword: "bool", notes: "enum:none", offSlide: "enum:none" },
+                        needsOneOf: ["personalInfo", "fontsEmbedded", "final", "modifyPassword", "notes", "offSlide"] },
+    "access.is":      { params: { rules: PS } },
+  };
+
+  // Which catalog a course uses. course.config.md says "app: excel"; Word is the default.
+  const CHECK_SETS = {
+    word: { checks: CHECKS, selectors: SELECTORS, starter: /^starters\/[\w\-./]+\.(docx|dotx)$/i, starterExample: "starters/week-01/W1-L2-letter.docx", appName: "Word" },
+    excel: { checks: EXCEL_CHECKS, selectors: EXCEL_SELECTORS, starter: /^starters\/[\w\-./]+\.(xlsx|xltx|xlsm|csv|txt)$/i, starterExample: "starters/week-01/E1-L1-rentals.xlsx", appName: "Excel" },
+    powerpoint: { checks: POWERPOINT_CHECKS, selectors: PPT_SELECTORS, starter: /^starters\/[\w\-./]+\.(pptx|potx)$/i, starterExample: "starters/week-01/P1-L1-welcome.pptx", appName: "PowerPoint" },
+  };
+  /** The catalog for an app name ("excel"), falling back to Word. */
+  function checkSet(app) { return CHECK_SETS[String(app || "word").toLowerCase()] || CHECK_SETS.word; }
+
+  const DIRECTIVES = ["video", "callout", "platform", "quiz", "drill", "skillcheck", "preflight", "rubric",
+    // used only in content/outline.md:
+    "week", "outcomes", "certification",
+    // used only in section files (sections/<CODE>.md):
+    "replace-video", "add-video"];
   const CALLOUT_KINDS = ["tip", "note", "warning", "why", "ai", "privacy"];
   const PLATFORMS = ["web", "desktop", "windows", "mac"];
-  const FILE_TYPES = ["lesson", "skillcheck", "project", "config"];
+  const FILE_TYPES = ["lesson", "skillcheck", "project", "capstone", "config", "info", "outline", "section"];
+
+  // Video ids are permanent names for a video slot, such as "w1-l2-show-hide".
+  // Section files point at them, so never rename one once a section uses it.
+  const VIDEO_ID = /^[a-z0-9][a-z0-9-]{2,48}$/;
+  // Section codes, such as "WRD-7K3Q". The section file is sections/<CODE>.md
+  const SECTION_CODE = /^[A-Z0-9]{2,6}-[A-Z0-9]{3,8}$/;
+
+  // How an activity is assessed. Shown to learners BEFORE they start it.
+  //   auto       - the trainer checks the document
+  //   screenshot - the learner shows their screen; an instructor marks it (or, in
+  //                practice mode, the learner compares it with an example)
+  //   instructor - an instructor grades it with a rubric (self-check in practice mode)
+  //   practice   - never graded, in any mode
+  const ASSESS_KINDS = ["auto", "screenshot", "instructor", "practice"];
+  const ASSESS_LABELS = {
+    auto: { section: "Auto-checked", practice: "Auto-checked" },
+    screenshot: { section: "Screenshot for your instructor", practice: "Screenshot: compare with the example" },
+    instructor: { section: "Graded by your instructor", practice: "Self-check with the rubric" },
+    practice: { section: "Practice only", practice: "Practice only" },
+  };
+  const COURSE_MODES = ["practice", "section"];
+
+  // Step keys allowed inside drills, skill checks and preflights, and inside outline weeks.
+  const STEP_KEYS = ["check", "hint", "web", "desktop", "video", "points", "answer", "platform", "screenshot", "example", "describe"];
+  const ITEM_KEYS = ["file", "kind", "minutes", "goals", "drills"];
+  const ITEM_KINDS = ["start", "lesson", "skillcheck", "project", "capstone"];
+
+  // One color per week, used by the roadmap lines and the badges.
+  // Each clears 4.5:1 against white for the white text drawn on it.
+  const WEEK_COLORS = { 1: "#0046ad", 2: "#305305", 3: "#a23108", 4: "#6b21a8", 5: "#374151" };
 
   // -------------------------------------------------------------------------
   // Small helpers
@@ -150,7 +337,7 @@
 
     while (i < lines.length) {
       const line = lines[i];
-      const open = /^:::\s*([a-z]+)\s*(.*)$/.exec(line.trim());
+      const open = /^:::\s*([a-z][a-z-]*)\s*(.*)$/.exec(line.trim());
       if (open && line.trim() !== ":::") {
         flushMd();
         const start = i + 1;
@@ -183,6 +370,17 @@
 
     // Free-text directives: their inside is Markdown.
     if (name === "callout" || name === "platform") { block.md = inner; return block; }
+
+    // Outcomes and certification lists (outline file only): "- id | text"
+    if (name === "outcomes" || name === "certification") {
+      inner.forEach((l, k) => {
+        if (!l.trim()) return;
+        const m = /^-\s*([^|]+)\|\s*(.+)$/.exec(l.trim());
+        if (!m) { issues.push(issue("error", start + k + 1, 'List lines look like "- CLO1 | Create, save, format and print documents".')); return; }
+        block.items.push({ id: m[1].trim(), text: m[2].trim(), line: start + k + 1 });
+      });
+      return block;
+    }
 
     // Rubric: "- id | points | CLOs | description"
     if (name === "rubric") {
@@ -223,15 +421,17 @@
       return block;
     }
 
-    if (name === "video") return block;
+    if (name === "video" || name === "replace-video" || name === "add-video") return block;
 
     // drill / skillcheck / preflight: intro Markdown, then "- step:" or "- task:" items
-    const stepWord = name === "skillcheck" ? "task" : "step";
+    // week (outline only): "- item:" entries, one per station on the roadmap
+    const stepWord = name === "skillcheck" ? "task" : name === "week" ? "item" : "step";
+    const allowedKeys = name === "week" ? ITEM_KEYS : STEP_KEYS;
     let current = null;
     for (; k < inner.length; k++) {
       const raw = inner[k];
       const lineNo = start + k + 1;
-      const stepStart = new RegExp("^-\\s*(step|task)\\s*:\\s*(.*)$").exec(raw.trim());
+      const stepStart = new RegExp("^-\\s*(step|task|item)\\s*:\\s*(.*)$").exec(raw.trim());
       if (stepStart && !/^\s/.test(raw)) {
         if (stepStart[1] !== stepWord) issues.push(issue("error", lineNo, `Use "- ${stepWord}:" inside a ${name} block.`));
         current = { text: stepStart[2], checks: [], hints: [], line: lineNo, extra: {} };
@@ -242,10 +442,10 @@
         const m = /^\s+([A-Za-z]+)\s*:\s*(.*)$/.exec(raw);
         if (!m) { issues.push(issue("error", lineNo, 'Step details are indented "key: value" lines, such as "  check: text.absent value=\\"Acme\\"".')); continue; }
         const key = m[1], val = m[2].trim();
-        if (key === "check") current.checks.push(Object.assign(parseCheck(val, lineNo, issues), { line: lineNo }));
-        else if (key === "hint") current.hints.push(val);
-        else if (["web", "desktop", "video", "points", "answer", "platform"].includes(key)) current.extra[key] = val;
-        else issues.push(issue("error", lineNo, `Unknown step key "${key}". Use check, hint, web, desktop, video, points, answer or platform.`));
+        if (key === "check" && name !== "week") current.checks.push(Object.assign(parseCheck(val, lineNo, issues), { line: lineNo }));
+        else if (key === "hint" && name !== "week") current.hints.push(val);
+        else if (allowedKeys.includes(key) && key !== "check" && key !== "hint") current.extra[key] = val;
+        else issues.push(issue("error", lineNo, `Unknown key "${key}" here. Use ${allowedKeys.join(", ")}.`));
         continue;
       }
       if (current && raw.trim()) {
@@ -268,7 +468,7 @@
     out.name = nameMatch[1];
     let rest = nameMatch[2];
     // Tokens: key=value or key="value with spaces" (\" for a quote inside)
-    const re = /\s*([A-Za-z]+)=("((?:[^"\\]|\\.)*)"|[^\s"]+)/y;
+    const re = /\s*([A-Za-z][A-Za-z0-9]*)=("((?:[^"\\]|\\.)*)"|[^\s"]+)/y;
     let pos = 0;
     while (pos < rest.length) {
       if (!rest.slice(pos).trim()) break;
@@ -293,6 +493,7 @@
    */
   function validate(doc, ctx) {
     ctx = ctx || {};
+    const set = checkSet(ctx.app);   // which checks this course's lessons may use
     const issues = doc.issues.slice();
     const add = (level, line, message) => issues.push(issue(level, line, message));
     const meta = doc.meta;
@@ -302,7 +503,20 @@
     // --- front matter ---
     const type = meta.type;
     if (!FILE_TYPES.includes(type)) add("error", 1, `type must be one of ${FILE_TYPES.join(", ")}.`);
-    if (type !== "config") {
+    const isActivityFile = ["lesson", "skillcheck", "project", "capstone"].includes(type);
+    if (type === "section") {
+      if (!SECTION_CODE.test(String(meta.id || ""))) add("error", 1, 'A section id is its code, such as "WRD-7K3Q" (capitals, numbers, one hyphen).');
+      ["title", "instructor"].forEach(k => { if (!meta[k]) add("error", 1, `Front matter is missing "${k}".`); });
+      if (ctx.fileName && meta.id && ctx.fileName.replace(/\.md$/, "") !== meta.id) add("error", 1, `Name this file ${meta.id}.md so the trainer can find it by its code.`);
+    }
+    if (type === "info" || type === "outline") {
+      ["id", "title"].forEach(k => { if (!meta[k]) add("error", 1, `Front matter is missing "${k}".`); });
+    }
+    if (type === "config") {
+      if (meta.mode && !COURSE_MODES.includes(meta.mode)) add("error", 1, `mode is "practice" or "section".`);
+      if (meta.certificateEach && !["lesson", "week", "course", "none"].includes(meta.certificateEach)) add("error", 1, 'certificateEach is "lesson", "week", "course" or "none".');
+    }
+    if (isActivityFile) {
       ["id", "week", "order", "title", "objectives"].forEach(k => { if (meta[k] === undefined || meta[k] === "") add("error", 1, `Front matter is missing "${k}".`); });
       splitList(meta.objectives).forEach(o => { if (!/^W[1-5]\.[1-9]$/.test(o)) add("warning", 1, `Objective "${o}" is not in the course map (expected W1.1 to W5.6).`); });
       splitList(meta.clos).forEach(c => { if (!/^CLO[1-8]$/.test(c)) add("warning", 1, `"${c}" is not a course learning outcome (CLO1 to CLO8).`); });
@@ -317,7 +531,11 @@
       const h = b.header;
       const need = (key, why) => { if (!h[key]) add("error", b.line, `::: ${b.name} needs "${key}:"${why ? " (" + why + ")" : ""}.`); };
 
-      if (["quiz", "drill", "skillcheck", "preflight", "rubric"].includes(b.name)) {
+      // Outline-only blocks
+      if (["week", "outcomes", "certification"].includes(b.name) && type !== "outline") {
+        add("error", b.line, `::: ${b.name} belongs in content/outline.md only.`); continue;
+      }
+      if (["quiz", "drill", "skillcheck", "preflight", "rubric", "week"].includes(b.name)) {
         if (!b.arg) add("error", b.line, `::: ${b.name} needs an id, for example "::: ${b.name} ${b.name === "quiz" ? "Q1.1" : "D1.01"}".`);
         else if (ids.has(b.arg)) add("error", b.line, `The id "${b.arg}" is used twice in this file.`);
         else ids.add(b.arg);
@@ -325,16 +543,24 @@
 
       switch (b.name) {
         case "video": {
-          need("url"); need("title", "it names the player for screen readers"); need("captions");
-          const url = h.url || "";
-          if (url === "TODO") add(ready ? "error" : "warning", b.headerLines.url || b.line, `Video "${h.title || ""}" has no URL yet.`);
-          else if (url) {
-            const host = hostOf(url);
-            if (!host) add("error", b.headerLines.url, "Video url must be a full https:// address.");
-            else if (!hosts.includes(host) && !(host === "youtu.be" && hosts.includes("www.youtube.com"))) add("error", b.headerLines.url, `Video host "${host}" is not on the approved list (${hosts.join(", ")}).`);
-          }
-          if (h.captions && !["verified", "auto", "none"].includes(h.captions)) add("error", b.headerLines.captions, 'captions is "verified", "auto" or "none".');
-          if (h.captions && h.captions !== "verified") add(ready ? "error" : "warning", b.headerLines.captions || b.line, `Video "${h.title || ""}" needs human-verified captions before this file is ready (ADA Title II, WCAG 1.2.2).`);
+          videoChecks(b, need, add, hosts, ready);
+          if (!h.id) add("error", b.line, 'Give this video a permanent id, such as "id: w1-l2-show-hide". Section files use it to swap in an instructor\'s video.');
+          else if (!VIDEO_ID.test(h.id)) add("error", b.headerLines.id, "A video id uses lowercase letters, numbers and hyphens (3 to 49 characters).");
+          else if (ids.has("video:" + h.id)) add("error", b.headerLines.id, `The video id "${h.id}" is used twice in this file.`);
+          else ids.add("video:" + h.id);
+          break;
+        }
+        case "replace-video": case "add-video": {
+          if (type !== "section") { add("error", b.line, `::: ${b.name} belongs in a section file (sections/<CODE>.md).`); break; }
+          videoChecks(b, need, add, hosts, ready);
+          if (!b.arg) add("error", b.line, b.name === "replace-video" ? "Name the video to replace: ::: replace-video w1-l2-show-hide" : "Name where the video goes: ::: add-video after D1.03 (a video id or an activity id).");
+          const target = b.name === "add-video" ? b.arg.replace(/^after\s+/, "") : b.arg;
+          if (b.name === "replace-video") {
+            if (ctx.videoIds && target && !ctx.videoIds.has(target)) add("error", b.line, `There's no course video with the id "${target}".`);
+            if (ids.has("replace:" + target)) add("error", b.line, `"${target}" is replaced twice in this file.`);
+            ids.add("replace:" + target);
+          } else if (ctx.anchorIds && target && !ctx.anchorIds.has(target)) add("error", b.line, `There's no course video or activity with the id "${target}" to place this after.`);
+          if (h.note && h.note.length > 280) add("warning", b.headerLines.note, "Keep the note under 280 characters; it sits above the video.");
           break;
         }
         case "callout":
@@ -365,20 +591,28 @@
           need("title");
           if (b.name !== "preflight") need("starter", "checks are written against it");
           need("platform");
-          if (h.platform && !["web", "desktop"].includes(h.platform)) add("error", b.headerLines.platform, 'platform is "web" (works in both) or "desktop" (needs desktop Word).');
+          if (h.platform && !["web", "desktop"].includes(h.platform)) add("error", b.headerLines.platform, 'platform is "web" (works in both) or "desktop" (needs desktop ' + set.appName + ').');
           if (h.starter && h.starter !== "none") {
-            if (!/^starters\/[\w\-./]+\.docx$/.test(h.starter) || h.starter.includes("..")) add("error", b.headerLines.starter, 'starter should be a path like "starters/week-01/W1-L2-letter.docx".');
+            if (!set.starter.test(h.starter) || h.starter.includes("..")) add("error", b.headerLines.starter, 'starter should be a path like "' + set.starterExample + '".');
             else if (ctx.starterExists) {
               const found = ctx.starterExists(h.starter);
               if (found === false) add(ready ? "error" : "warning", b.headerLines.starter, `Starter file not found: ${h.starter}`);
             }
           }
+          // files: other downloads a drill needs (a photo to insert, a recipient list, a second version to compare)
+          splitList(h.files).forEach((f) => {
+            if (!/^starters\/[\w\-./]+\.(docx|dotx|xlsx|xltx|pptx|potx|csv|txt|png|jpg|jpeg|svg|glb|mp4|m4a|mp3|wav)$/i.test(f) || f.includes("..")) add("error", b.headerLines.files, `files: "${f}" should be a path like "starters/week-03/kayak.jpg".`);
+            else if (ctx.starterExists && ctx.starterExists(f) === false) add(ready ? "error" : "warning", b.headerLines.files, `File not found: ${f}`);
+          });
           if (b.name === "skillcheck") {
             ["timeLimit", "attempts", "passing"].forEach(key => { if (h[key] && isNaN(Number(h[key]))) add("error", b.headerLines[key], `${key} must be a number.`); });
             need("timeLimit");
           }
+          if (h.assess) splitList(h.assess).forEach(a => { if (!ASSESS_KINDS.includes(a)) add("error", b.headerLines.assess, `assess is one or more of ${ASSESS_KINDS.join(", ")}.`); });
+          if (h.badge !== undefined && !h.badge.trim()) add("error", b.headerLines.badge, "badge needs a short name, or leave the line out to use the drill title.");
+          if (h.badge && h.badge.length > 40) add("warning", b.headerLines.badge, "Badge names longer than 40 characters get cut off on the certificate.");
           if (!b.steps.length) add("error", b.line, `::: ${b.name} ${b.arg} has no steps.`);
-          let checked = 0;
+          let checked = 0, shots = 0;
           b.steps.forEach(s => {
             if (!s.text) add("error", s.line, "This step has no text.");
             if (s.checks.length || s.extra.answer !== undefined) checked++;
@@ -388,14 +622,44 @@
             }
             if (s.extra.platform && !["web", "desktop"].includes(s.extra.platform)) add("error", s.line, 'A step platform is "web" or "desktop".');
             if (s.extra.points && isNaN(Number(s.extra.points))) add("error", s.line, "points must be a number.");
+            if (s.extra.screenshot !== undefined) {
+              shots++;
+              if (b.name === "skillcheck") add("error", s.line, "Skill checks are auto-checked only; move screenshot steps to a drill.");
+              if (!s.extra.screenshot.trim()) add("error", s.line, "screenshot: says what the screenshot must show.");
+              if (s.checks.length) add("warning", s.line, "This step has both a check and a screenshot; the check alone is usually enough.");
+              const ex = s.extra.example;
+              if (!ex) add("warning", s.line, "Add example: with an image of a correct screenshot, so practice-mode learners can compare.");
+              else if (ex === "TODO") add(ready ? "error" : "warning", s.line, "The example screenshot hasn't been captured yet.");
+              else if (!/^images\/[\w\-./]+\.(png|jpg|jpeg|webp)$/i.test(ex) || ex.includes("..")) add("error", s.line, 'example should be a path like "images/week-01/qat.png".');
+            } else if (s.extra.example || s.extra.describe) add("error", s.line, "example: and describe: go with a screenshot: step.");
             if (s.extra.video) checkUrl(s.extra.video, s.line, add, hosts, true);
-            s.checks.forEach(c => validateCheck(c, b.name, add));
+            s.checks.forEach(c => validateCheck(c, b.name, add, set));
             [s.text].concat(s.hints, s.extra.web || [], s.extra.desktop || []).forEach(t => checkInline(t, s.line, add));
           });
-          if (b.name === "drill" && !checked) add("warning", b.line, `Drill ${b.arg} has no checked steps, so the trainer can't give feedback.`);
+          if (b.name === "drill" && !checked && !shots && !splitList(h.assess).includes("practice")) add("warning", b.line, `Drill ${b.arg} has no checked or screenshot steps. Add "assess: practice" if that's on purpose.`);
           validateMarkdown({ lines: b.intro, line: b.line + 1 }, add);
           break;
         }
+        case "week": {
+          if (!/^W[1-9]$/.test(b.arg || "")) add("error", b.line, 'A week id looks like "::: week W1".');
+          need("title");
+          if (h.color && !/^#[0-9A-Fa-f]{6}$/.test(h.color)) add("error", b.headerLines.color, "color is a hex value like #0046ad.");
+          b.steps.forEach(it => {
+            const e = it.extra;
+            if (!it.text) add("error", it.line, "Each item needs a title.");
+            if (!e.kind || !ITEM_KINDS.includes(e.kind)) add("error", it.line, `kind is one of ${ITEM_KINDS.join(", ")}.`);
+            if (e.minutes && isNaN(Number(e.minutes))) add("error", it.line, "minutes must be a number.");
+            if (e.file) {
+              if (!/^content\/[\w\-./]+\.md$/.test(e.file) || e.file.includes("..")) add("error", it.line, 'file is a path like "content/week-01/01-meet-word.md".');
+              else if (ctx.fileExists && ctx.fileExists(e.file) === false) add("error", it.line, `File not found: ${e.file}`);
+            }
+            if (!e.goals) add("warning", it.line, 'Add "goals:" - one sentence on what learners will be able to do.');
+          });
+          break;
+        }
+        case "outcomes": case "certification":
+          if (!b.items.length) add("error", b.line, `::: ${b.name} is empty.`);
+          break;
         case "rubric": {
           const total = b.items.reduce((sum, it) => sum + (isNaN(it.points) ? 0 : it.points), 0);
           b.items.forEach(it => { if (isNaN(it.points)) add("error", it.line, "Rubric points must be a number."); });
@@ -405,28 +669,90 @@
       }
     }
     if (type === "lesson" && !drillCount) add("warning", 1, "This lesson has no drills.");
+    if (type === "outline" && !doc.blocks.some(b => b.name === "week")) add("error", 1, "The outline needs at least one ::: week block.");
     return issues.sort((a, b) => a.line - b.line);
   }
 
+  /** Checks every kind of video block shares: url, approved host, title, captions. */
+  function videoChecks(b, need, add, hosts, ready) {
+    const h = b.header;
+    need("url"); need("title", "it names the player for screen readers"); need("captions");
+    const url = h.url || "";
+    if (url === "TODO") add(ready ? "error" : "warning", b.headerLines.url || b.line, `Video "${h.title || ""}" has no URL yet.`);
+    else if (url) {
+      const host = hostOf(url);
+      if (!host) add("error", b.headerLines.url, "Video url must be a full https:// address.");
+      else if (!hosts.includes(host) && !(host === "youtu.be" && hosts.includes("www.youtube.com"))) add("error", b.headerLines.url, `Video host "${host}" is not on the approved list (${hosts.join(", ")}).`);
+    }
+    if (h.captions && !["verified", "auto", "none"].includes(h.captions)) add("error", b.headerLines.captions, 'captions is "verified", "auto" or "none".');
+    if (h.captions && h.captions !== "verified") add(ready ? "error" : "warning", b.headerLines.captions || b.line, `Video "${h.title || ""}" needs human-verified captions before this file is ready (ADA Title II, WCAG 1.2.2).`);
+  }
+
+  /**
+   * Course index for section files: every video id and every activity id
+   * (drills, quizzes, skill checks), from a list of parsed lesson files.
+   */
+  function courseIndex(docs) {
+    const videos = [], videoIds = new Set(), anchorIds = new Set();
+    for (const d of docs) for (const b of d.blocks) {
+      if (b.name === "video" && b.header.id) {
+        videoIds.add(b.header.id); anchorIds.add(b.header.id);
+        videos.push({ id: b.header.id, title: b.header.title || "", lesson: d.meta.title || "", lessonId: d.meta.id || "", url: b.header.url || "" });
+      }
+      if (["drill", "quiz", "skillcheck", "preflight", "rubric"].includes(b.name) && b.arg) anchorIds.add(b.arg);
+    }
+    return { videos, videoIds, anchorIds };
+  }
+
+  /**
+   * Apply one section file to one lesson: swap replaced videos and insert
+   * added ones. Returns a NEW document; the lesson itself is never changed.
+   * Each instructor video remembers the stock one (stockUrl) so learners can
+   * still choose the standard video.
+   */
+  function applyOverrides(doc, section) {
+    if (!section) return doc;
+    const replace = {}, after = {};
+    for (const b of section.blocks) {
+      if (b.name === "replace-video" && b.arg) replace[b.arg] = b;
+      if (b.name === "add-video" && b.arg) (after[b.arg.replace(/^after\s+/, "")] = after[b.arg.replace(/^after\s+/, "")] || []).push(b);
+    }
+    const who = section.meta.instructor || "your instructor";
+    const asVideo = (o, stock) => ({ kind: "directive", name: "video", arg: "", line: o.line, header: Object.assign({}, o.header, { id: stock ? stock.header.id : "" }),
+      headerLines: {}, intro: [], steps: [], body: [], items: [],
+      source: "instructor", instructor: who, stockUrl: stock ? stock.header.url : null, stockTitle: stock ? stock.header.title : null });
+    const blocks = [];
+    for (const b of doc.blocks) {
+      const vid = b.name === "video" ? b.header.id : null;
+      blocks.push(vid && replace[vid] ? asVideo(replace[vid], b) : b);
+      const anchor = vid || (b.kind === "directive" ? b.arg : null);
+      if (anchor && after[anchor]) after[anchor].forEach(o => blocks.push(asVideo(o, null)));
+    }
+    return Object.assign({}, doc, { blocks });
+  }
+
   /** Check one parsed "check:" against the catalog. */
-  function validateCheck(c, where, add) {
-    const def = CHECKS[c.name];
+  function validateCheck(c, where, add, set) {
+    set = set || checkSet("word");
+    const CATALOG = set.checks, SEL = set.selectors;
+    const def = CATALOG[c.name];
     if (!c.name) return;
-    if (!def) { add("error", c.line, `Unknown check "${c.name}". Known checks: ${Object.keys(CHECKS).join(", ")}.`); return; }
+    if (!def) { add("error", c.line, `Unknown check "${c.name}". Known checks: ${Object.keys(CATALOG).join(", ")}.`); return; }
     if (def.notInSkillCheck && where === "skillcheck") add("error", c.line, `${c.name} can't be used in a skill check.`);
     const used = Object.keys(c.params);
-    const sel = used.filter(k => SELECTORS.includes(k));
+    const sel = used.filter(k => SEL.includes(k));
     if (sel.length && !def.selector) add("error", c.line, `${c.name} doesn't take a selector (${sel.join(", ")}).`);
     if (sel.length > 1) add("error", c.line, `Use only one selector; found ${sel.join(" and ")}.`);
-    if (c.params.in && !["body", "header", "footer", "document"].includes(c.params.in)) add("error", c.line, 'in= is body, header, footer or document.');
+    if (def.needsSelector && !sel.length) add("error", c.line, `${c.name} needs ${SEL.join("= or ")}= to say which cells to check.`);
+    if (SEL.includes("in") && c.params.in && !["body", "header", "footer", "document"].includes(c.params.in)) add("error", c.line, 'in= is body, header, footer or document.');
     for (const [key, type] of Object.entries(def.params)) {
       if (type.endsWith("!") && c.params[key] === undefined) add("error", c.line, `${c.name} needs ${key}=...`);
     }
     if (def.needsOneOf && !def.needsOneOf.some(k => c.params[k] !== undefined)) add("error", c.line, `${c.name} needs at least one of: ${def.needsOneOf.join(", ")}.`);
     for (const key of used) {
-      if (SELECTORS.includes(key)) continue;
+      if (SEL.includes(key)) continue;
       const type = def.params[key];
-      if (!type) { add("error", c.line, `${c.name} has no parameter "${key}". It takes: ${Object.keys(def.params).concat(def.selector ? SELECTORS : []).join(", ") || "no parameters"}.`); continue; }
+      if (!type) { add("error", c.line, `${c.name} has no parameter "${key}". It takes: ${Object.keys(def.params).concat(def.selector ? SEL : []).join(", ") || "no parameters"}.`); continue; }
       const v = c.params[key];
       const base = type.replace("!", "");
       const bad = (msg) => add("error", c.line, `${c.name} ${key}=${v}: ${msg}`);
@@ -532,7 +858,7 @@
         const head = cells(line); i += 2;
         const rows = [];
         while (i < L.length && /^\|.*\|\s*$/.test(L[i].trim())) { rows.push(cells(L[i])); i++; }
-        out.push(`<div class="tm-table"><table><thead><tr>${head.map(h => `<th scope="col">${inline(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
+        out.push(`<div class="tm-table" tabindex="0" role="region" aria-label="Table (scroll sideways if it is wider than the panel)"><table><thead><tr>${head.map(h => `<th scope="col">${inline(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
         continue;
       }
       if (/^\s*([-*]|\d+\.)\s+/.test(line)) {
@@ -584,13 +910,99 @@
     return `${c.name}${p ? " " + p : ""}`;
   }
 
+  // -------------------------------------------------------------------------
+  // Activity labels, badges and record ids
+  // -------------------------------------------------------------------------
+
+  /**
+   * How an activity is assessed, as a list of ASSESS_KINDS.
+   * An explicit "assess:" header wins; otherwise it is worked out from the steps.
+   */
+  function activityKinds(b) {
+    if (b.header && b.header.assess) return splitList(b.header.assess).filter(k => ASSESS_KINDS.includes(k));
+    if (b.name === "rubric") return ["instructor"];
+    if (b.name === "preflight" || b.name === "quiz") return ["practice"];
+    const kinds = [];
+    // self.attest is the learner's own word, so it does not make an activity auto-checked
+    if ((b.steps || []).some(s => s.checks.some(c => c.name !== "self.attest") || s.extra.answer !== undefined)) kinds.push("auto");
+    if ((b.steps || []).some(s => s.extra.screenshot !== undefined)) kinds.push("screenshot");
+    return kinds.length ? kinds : ["practice"];
+  }
+  /** Learner-facing words for those kinds, in "practice" or "section" mode. */
+  function activityLabels(b, mode) {
+    return activityKinds(b).map(k => ({ kind: k, text: ASSESS_LABELS[k][mode === "section" ? "section" : "practice"] }));
+  }
+  /** The badge a drill, skill check or project awards. Default name = its title. */
+  function badgeFor(b, meta) {
+    const kindOf = { drill: "drill", skillcheck: "skillcheck" }[b.name] || "project";
+    return { id: b.arg, name: (b.header.badge || b.header.title || b.arg || "").trim(), week: Number(meta.week) || null,
+      kind: activityKinds(b).includes("screenshot") && !activityKinds(b).includes("auto") ? "screenshot" : kindOf };
+  }
+
+  /**
+   * Badge artwork as an SVG string: a hexagon in the week's color with a glyph
+   * for the kind of activity and its short code underneath.
+   * o = { week, kind: drill|screenshot|skillcheck|project|lesson|course, code, label, size }
+   */
+  function badgeSVG(o) {
+    const color = WEEK_COLORS[o.week] || "#374151";
+    const size = o.size || 72;
+    const glyphs = {
+      drill: '<path d="M34 50l11 11 21-23" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>',
+      screenshot: '<rect x="30" y="38" width="40" height="28" rx="5" fill="none" stroke="#fff" stroke-width="5"/><circle cx="50" cy="52" r="7" fill="none" stroke="#fff" stroke-width="5"/><path d="M41 38l4-6h10l4 6" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>',
+      skillcheck: '<path d="M50 29l6.5 13.2 14.5 2.1-10.5 10.2 2.5 14.5L50 62.2 37 69l2.5-14.5L29 44.3l14.5-2.1z" fill="#fff"/>',
+      project: '<path d="M36 30h20l10 10v28H36z" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><path d="M42 50h16M42 59h16" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
+      lesson: '<path d="M30 36h16a6 6 0 0 1 4 2 6 6 0 0 1 4-2h16v30H54a6 6 0 0 0-4 2 6 6 0 0 0-4-2H30z" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>',
+      course: '<circle cx="50" cy="46" r="13" fill="none" stroke="#fff" stroke-width="5"/><path d="M42 57l-5 14 8-3 5 6 3-14M58 57l5 14-8-3-5 6" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>',
+    };
+    const label = esc(o.label || o.code || "Badge");
+    return `<svg class="tm-badge-art" viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${label}">` +
+      `<polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="${color}"/>` +
+      `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>` +
+      (o.week ? `<text x="50" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" letter-spacing="1.2" fill="#fff">WEEK ${esc(o.week)}</text>` : "") +
+      (glyphs[o.kind] || glyphs.drill) +
+      (o.code ? `<text x="50" y="83" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#fff">${esc(o.code)}</text>` : "") +
+      `</svg>`;
+  }
+
+  /**
+   * A record id such as "OT-W1L2-2610-K7QM-9X3DP".
+   * 8 random characters (Crockford base32: no I, L, O or U, so it reads aloud
+   * cleanly) plus one check character that catches most typing mistakes.
+   * In practice mode the id is unique but NOT verifiable: see
+   * spec/badges-and-certificates.md.
+   */
+  const B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  function makeId(prefix, date) {
+    const d = date || new Date();
+    const yymm = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0");
+    const bytes = new Uint8Array(8);
+    (root.crypto || globalThis.crypto).getRandomValues(bytes);
+    const body = Array.from(bytes, n => B32[n % 32]).join("");
+    return `${prefix}-${yymm}-${body.slice(0, 4)}-${body.slice(4)}${checkChar(body)}`;
+  }
+  function checkChar(body) {
+    let sum = 0;
+    for (let i = 0; i < body.length; i++) sum += (i + 1) * B32.indexOf(body[i]);
+    return B32[sum % 32];
+  }
+  /** True when an id's check character matches (catches typos, NOT forgeries). */
+  function idLooksValid(id) {
+    const m = /-([0-9A-HJKMNP-TV-Z]{4})-([0-9A-HJKMNP-TV-Z]{4})([0-9A-HJKMNP-TV-Z])$/.exec(String(id || "").toUpperCase());
+    return !!m && checkChar(m[1] + m[2]) === m[3];
+  }
+
   /**
    * Render a parsed document to an HTML string.
    * opts: platform ("all" | "web" | "desktop" | "windows" | "mac"),
    *       showChecks (true for authors), videoHosts
    */
   function render(doc, opts) {
-    opts = Object.assign({ platform: "all", showChecks: true, videoHosts: DEFAULT_VIDEO_HOSTS }, opts || {});
+    // mode: "practice" (no section; nothing recorded) or "section" (graded course)
+    // assetBase: where images/ lives relative to the page showing the preview
+    opts = Object.assign({ platform: "all", showChecks: true, videoHosts: DEFAULT_VIDEO_HOSTS, mode: "practice", assetBase: "", appName: "Word" }, opts || {});
+    const APP = opts.appName;   // "Word" or "Excel": used in platform labels and screenshot tips
+    const labelPills = (b) => `<span class="tm-labels" aria-label="How this is assessed">${activityLabels(b, opts.mode).map(l => `<span class="tm-pill tm-assess tm-assess-${l.kind}">${esc(l.text)}</span>`).join(" ")}</span>`;
     const meta = doc.meta;
     const shows = (p) => opts.platform === "all" || p === opts.platform ||
       (p === "desktop" && (opts.platform === "windows" || opts.platform === "mac"));
@@ -607,18 +1019,21 @@
           break;
         }
         case "platform":
-          if (shows(b.arg)) parts.push(`<section class="tm-platform"><p class="tm-callout-label">${esc(platformName(b.arg))}</p>${markdown(b.md)}</section>`);
+          if (shows(b.arg)) parts.push(`<section class="tm-platform"><p class="tm-callout-label">${esc(platformName(b.arg, APP))}</p>${markdown(b.md)}</section>`);
           break;
         case "video": {
-          const url = h.url || "";
-          const host = hostOf(embedUrl(url));
-          const title = esc(h.title || "Video");
-          const capNote = h.captions === "verified" ? "Captions checked" : h.captions === "auto" ? "Automatic captions (not yet checked)" : "No captions yet";
-          if (url === "TODO" || !host || !opts.videoHosts.concat(["www.youtube-nocookie.com"]).includes(host)) {
-            parts.push(`<figure class="tm-video tm-video-empty"><div class="tm-video-box"><span>${url === "TODO" ? "Video coming soon" : "Video not shown: host not approved"}</span></div><figcaption><strong>${title}</strong>${h.duration ? " · " + esc(h.duration) : ""} · ${capNote}</figcaption></figure>`);
-          } else {
-            parts.push(`<figure class="tm-video"><div class="tm-video-box"><iframe src="${esc(embedUrl(url))}" title="${title}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><figcaption><strong>${title}</strong>${h.duration ? " · " + esc(h.duration) : ""} · ${capNote}${h.transcript && /^https:/.test(h.transcript) ? ` · <a href="${esc(h.transcript)}" target="_blank" rel="noopener noreferrer">Transcript</a>` : ""}</figcaption></figure>`);
+          // Instructor videos: say so, show the instructor's note, and keep the standard video one click away
+          if (b.source === "instructor") {
+            const stock = b.stockUrl && b.stockUrl !== "TODO" && /^https:/.test(b.stockUrl)
+              ? ` <a href="${esc(b.stockUrl)}" target="_blank" rel="noopener noreferrer">Watch the standard video instead<span class="tm-vh"> (opens in a new tab)</span></a>` : "";
+            parts.push(`<p class="tm-from"><span class="tm-pill tm-instructor-pill">From ${esc(b.instructor)}</span>${h.note ? " " + inline(h.note) : ""}${stock}</p>`);
           }
+          parts.push(videoFigure(h, opts));
+          break;
+        }
+        case "replace-video": case "add-video": {
+          const what = b.name === "replace-video" ? `Replaces the course video <code>${esc(b.arg)}</code>` : `Added after <code>${esc(b.arg.replace(/^after\s+/, ""))}</code>`;
+          parts.push(`<section class="tm-override"><p class="tm-callout-label">${b.name === "replace-video" ? "Replacement video" : "Added video"}</p><p>${what}</p>${h.note ? `<p class="tm-variant">Note to learners: ${inline(h.note)}</p>` : ""}${videoFigure(h, opts)}</section>`);
           break;
         }
         case "quiz": {
@@ -632,13 +1047,14 @@
           break;
         }
         case "drill": case "skillcheck": case "preflight": {
-          const label = { drill: "Practice drill", skillcheck: "Skill check", preflight: "Preflight check" }[b.name];
+          const label = meta.type === "capstone" && b.name === "skillcheck" ? "Practice exam" // the capstone's timed exam
+            : { drill: "Practice drill", skillcheck: "Skill check", preflight: "Preflight check" }[b.name];
           const facts = [];
           if (h.minutes) facts.push(`about ${esc(h.minutes)} min`);
           if (h.timeLimit) facts.push(`${esc(h.timeLimit)} min limit`);
           if (h.attempts) facts.push(`${esc(h.attempts)} attempts`);
           if (h.passing) facts.push(`pass at ${esc(h.passing)}%`);
-          const badge = h.platform === "desktop" ? '<span class="tm-pill tm-desktop">Desktop Word</span>' : '<span class="tm-pill tm-web">Web or desktop</span>';
+          const badge = h.platform === "desktop" ? '<span class="tm-pill tm-desktop">Desktop ' + esc(APP) + '</span>' : '<span class="tm-pill tm-web">Web or desktop</span>';
           const steps = b.steps.filter(s => !s.extra.platform || shows(s.extra.platform)).map(s => {
             const checked = s.checks.length || s.extra.answer !== undefined;
             const variants = [];
@@ -647,32 +1063,68 @@
             const hint = s.hints.length && b.name !== "skillcheck" ? `<details class="tm-hint"><summary>Hint</summary>${s.hints.map(x => `<p>${inline(x)}</p>`).join("")}</details>` : "";
             const answer = s.extra.answer !== undefined ? `<label class="tm-answer">Your answer <input type="text" inputmode="numeric"></label>` : "";
             const checks = opts.showChecks && s.checks.length ? `<ul class="tm-checks" aria-label="Checks (author view)">${s.checks.map(c => `<li><code>${esc(describeCheck(c))}</code></li>`).join("")}${s.extra.answer !== undefined ? `<li><code>answer = ${esc(s.extra.answer)}</code></li>` : ""}</ul>` : (opts.showChecks && s.extra.answer !== undefined ? `<ul class="tm-checks"><li><code>answer = ${esc(s.extra.answer)}</code></li></ul>` : "");
+            const shot = s.extra.screenshot !== undefined ? screenshotStep(s, opts) : "";
             const only = s.extra.platform ? ` <span class="tm-pill tm-${s.extra.platform === "desktop" ? "desktop" : "web"}">${s.extra.platform === "desktop" ? "Desktop only" : "Web only"}</span>` : "";
-            return `<li class="tm-step${checked ? " tm-checked" : ""}"><div class="tm-step-text">${inline(s.text)}${only}</div>${variants.join("")}${answer}${hint}${checks}<p class="tm-step-status">${checked ? '<span class="tm-status-dot" aria-hidden="true"></span> Checked by the trainer' : "Instruction only"}</p></li>`;
+            const status = checked ? '<span class="tm-status-dot" aria-hidden="true"></span> Checked by the trainer'
+              : s.extra.screenshot !== undefined ? (opts.mode === "section" ? "Screenshot for your instructor" : "Compare with the example") : "Instruction only";
+            return `<li class="tm-step${checked ? " tm-checked" : ""}${shot ? " tm-shot" : ""}"><div class="tm-step-text">${inline(s.text)}${only}</div>${variants.join("")}${answer}${shot}${hint}${checks}<p class="tm-step-status">${status}</p></li>`;
           }).join("");
-          parts.push(`<section class="tm-drill tm-${b.name}" aria-labelledby="h-${esc(b.arg)}"><div class="tm-drill-head"><p class="tm-callout-label">${label} ${esc(b.arg)}</p><h2 id="h-${esc(b.arg)}">${inline(h.title || "")}</h2><p class="tm-facts">${badge}${facts.length ? " · " + facts.join(" · ") : ""}</p></div>${markdown(b.intro)}<ol class="tm-steps">${steps}</ol><div class="tm-actions"><button type="button" class="tm-btn tm-primary">${b.name === "skillcheck" ? "Start" : "Check my work"}</button>${opts.showChecks && h.starter && h.starter !== "none" ? `<span class="tm-starter">Starter: <code>${esc(h.starter)}</code></span>` : ""}</div></section>`);
+          const award = b.name === "preflight" ? "" : (() => { const bd = badgeFor(b, meta); return `<p class="tm-award">${badgeSVG({ week: bd.week, kind: bd.kind, code: bd.id, label: "Badge: " + bd.name, size: 40 })}<span>Finish to earn the <strong>${esc(bd.name)}</strong> badge</span></p>`; })();
+          parts.push(`<section class="tm-drill tm-${b.name}" aria-labelledby="h-${esc(b.arg)}"><div class="tm-drill-head"><p class="tm-callout-label">${label} ${esc(b.arg)}</p><h2 id="h-${esc(b.arg)}">${inline(h.title || "")}</h2><p class="tm-facts">${labelPills(b)} ${badge}${facts.length ? " · " + facts.join(" · ") : ""}</p>${award}</div>${markdown(b.intro)}<ol class="tm-steps">${steps}</ol><div class="tm-actions"><button type="button" class="tm-btn tm-primary">${b.name === "skillcheck" ? "Start" : "Check my work"}</button>${opts.showChecks && h.starter && h.starter !== "none" ? `<span class="tm-starter">Starter: <code>${esc(h.starter)}</code></span>` : ""}</div></section>`);
           break;
         }
+        case "week": {
+          const color = /^#[0-9A-Fa-f]{6}$/.test(h.color || "") ? h.color : (WEEK_COLORS[Number((b.arg || "").slice(1))] || "#374151");
+          parts.push(`<section class="tm-week"><h2><span class="tm-line" style="background:${color}"></span>${esc(b.arg)} · ${inline(h.title || "")}</h2><ol class="tm-stations">${b.steps.map(it => `<li><strong>${inline(it.text)}</strong> <span class="tm-pill">${esc(it.extra.kind || "")}</span>${it.extra.minutes ? ` · ${esc(it.extra.minutes)} min` : ""}${it.extra.file ? "" : ' · <em>planned</em>'}${it.extra.goals ? `<br><span class="tm-goals">${inline(it.extra.goals)}</span>` : ""}</li>`).join("")}</ol></section>`);
+          break;
+        }
+        case "outcomes": case "certification":
+          parts.push(`<div class="tm-table" tabindex="0" role="region" aria-label="Table (scroll sideways if it is wider than the panel)"><table><caption>${b.name === "outcomes" ? "Course learning outcomes" : "Certification: " + esc(b.arg)}</caption><tbody>${b.items.map(it => `<tr><th scope="row">${esc(it.id)}</th><td>${inline(it.text)}</td></tr>`).join("")}</tbody></table></div>`);
+          break;
         case "rubric": {
           const total = b.items.reduce((s, it) => s + (it.points || 0), 0);
-          parts.push(`<div class="tm-table"><table class="tm-rubric"><caption>Rubric ${esc(b.arg)}</caption><thead><tr><th scope="col">Criterion</th><th scope="col">Points</th><th scope="col">Outcomes</th></tr></thead><tbody>${b.items.map(it => `<tr><td><strong>${esc(it.id)}</strong> ${inline(it.text)}</td><td>${esc(it.points)}</td><td>${esc(it.clos.join(", "))}</td></tr>`).join("")}<tr><td><strong>Total</strong></td><td><strong>${total}</strong></td><td></td></tr></tbody></table></div>`);
+          parts.push(`<p class="tm-facts">${labelPills(b)}</p><div class="tm-table" tabindex="0" role="region" aria-label="Rubric table"><table class="tm-rubric"><caption>Rubric ${esc(b.arg)}</caption><thead><tr><th scope="col">Criterion</th><th scope="col">Points</th><th scope="col">Outcomes</th></tr></thead><tbody>${b.items.map(it => `<tr><td><strong>${esc(it.id)}</strong> ${inline(it.text)}</td><td>${esc(it.points)}</td><td>${esc(it.clos.join(", "))}</td></tr>`).join("")}<tr><td><strong>Total</strong></td><td><strong>${total}</strong></td><td></td></tr></tbody></table></div>`);
           break;
         }
       }
     }
     return parts.join("\n");
   }
-  function labelFor(t) { return { lesson: "Lesson", skillcheck: "Skill check", project: "Project", config: "Course settings" }[t] || "Lesson"; }
-  function platformName(p) { return { web: "In Word for the web", desktop: "In desktop Word", windows: "On Windows", mac: "On a Mac" }[p] || p; }
+  function labelFor(t) { return { lesson: "Lesson", skillcheck: "Skill check", project: "Project", capstone: "Capstone", config: "Course settings", info: "Course guide", outline: "Course outline", section: "Section videos" }[t] || "Lesson"; }
+
+  /** The player (or a placeholder) for one video header. */
+  function videoFigure(h, opts) {
+    const url = h.url || "";
+    const host = hostOf(embedUrl(url));
+    const title = esc(h.title || "Video");
+    const capNote = h.captions === "verified" ? "Captions checked" : h.captions === "auto" ? "Automatic captions (not yet checked)" : "No captions yet";
+    if (url === "TODO" || !host || !opts.videoHosts.concat(["www.youtube-nocookie.com"]).includes(host)) {
+      return `<figure class="tm-video tm-video-empty"><div class="tm-video-box"><span>${url === "TODO" ? "Video coming soon" : "Video not shown: host not approved"}</span></div><figcaption><strong>${title}</strong>${h.duration ? " · " + esc(h.duration) : ""} · ${capNote}</figcaption></figure>`;
+    }
+    return `<figure class="tm-video"><div class="tm-video-box"><iframe src="${esc(embedUrl(url))}" title="${title}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><figcaption><strong>${title}</strong>${h.duration ? " · " + esc(h.duration) : ""} · ${capNote}${h.transcript && /^https:/.test(h.transcript) ? ` · <a href="${esc(h.transcript)}" target="_blank" rel="noopener noreferrer">Transcript</a>` : ""}</figcaption></figure>`;
+  }
+
+  /** The screenshot part of a step: what to capture, the example, and a text alternative. */
+  function screenshotStep(s, opts) {
+    const ex = s.extra.example && s.extra.example !== "TODO" ? `<details class="tm-example"><summary>See the example screenshot</summary><img src="${esc(opts.assetBase + s.extra.example)}" alt="${esc("Example: " + s.extra.screenshot)}" loading="lazy"></details>` : "";
+    const how = opts.mode === "section"
+      ? "Capture just the " + (opts.appName || "Word") + " window and add it to this week's evidence document for your instructor."
+      : "Capture just the " + (opts.appName || "Word") + " window, then compare it with the example. Nothing is uploaded.";
+    const alt = s.extra.describe || "Can't take or see a screenshot? Describe in a sentence or two what your screen shows instead.";
+    const keys = inline("[[key: Win+Shift+S / Cmd+Shift+4]]");
+    return `<div class="tm-screenshot"><p class="tm-callout-label">Screenshot</p><p><strong>Show:</strong> ${inline(s.extra.screenshot)}</p><p class="tm-variant">${esc(how)} ${keys}</p>${ex}<p class="tm-variant">${inline(alt)}</p></div>`;
+  }
+  function platformName(p, app) { const a = app || "Word"; return { web: "In " + a + " for the web", desktop: "In desktop " + a, windows: "On Windows", mac: "On a Mac" }[p] || p; }
 
   /** Quick counts for a status bar. */
   function summarize(doc) {
-    const s = { drills: 0, steps: 0, checked: 0, quizzes: 0, videos: 0, videosTodo: 0 };
+    const s = { drills: 0, steps: 0, checked: 0, screenshots: 0, quizzes: 0, videos: 0, videosTodo: 0 };
     doc.blocks.forEach(b => {
       if (b.name === "drill" || b.name === "skillcheck" || b.name === "preflight") {
         if (b.name === "drill") s.drills++;
         s.steps += b.steps.length;
         s.checked += b.steps.filter(x => x.checks.length || x.extra.answer !== undefined).length;
+        s.screenshots += b.steps.filter(x => x.extra.screenshot !== undefined).length;
       }
       if (b.name === "quiz") s.quizzes++;
       if (b.name === "video") { s.videos++; if ((b.header.url || "") === "TODO") s.videosTodo++; }
@@ -680,8 +1132,77 @@
     return s;
   }
 
+  /**
+   * The course map: weeks, and the stations (lessons, skill checks, projects)
+   * on each, worked out from content/outline.md and the lesson files.
+   * The roadmap, the certificate page and the add-in all use this, so they
+   * always agree about what's in the course and which badges each stop awards.
+   *   outline  parse(content/outline.md)
+   *   config   parse(course.config.md).meta
+   *   docs     { "content/week-01/01-meet-word.md": parse(that file), ... }
+   *            (files not written yet are simply missing)
+   */
+  function courseMap(outline, config, docs) {
+    const cfg = config || {};
+    const outcomes = (outline.blocks.find((b) => b.name === "outcomes") || {}).items || [];
+    const mosList = (outline.blocks.find((b) => b.name === "certification") || {}).items || [];
+    const slug = (x) => x.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
+
+    const weeks = outline.blocks.filter((b) => b.name === "week").map((w) => {
+      const n = Number(w.arg.slice(1));
+      const stations = w.steps.map((it) => {
+        const e = it.extra;
+        const st = {
+          sid: `w${n}-${slug(it.text)}`, title: it.text, kind: e.kind, minutes: Number(e.minutes) || null,
+          goals: e.goals || "", file: e.file || null, status: "planned", activities: [], clos: [], mos: [],
+          plannedDrills: e.drills ? e.drills.split(",").map((x) => x.trim()).filter(Boolean) : [],
+          certificate: e.kind === "lesson" && cfg.certificateEach === "lesson",
+        };
+        const doc = st.file && docs ? docs[st.file] : null;
+        if (doc) {
+          st.plannedDrills = []; // written: its real drills are in st.activities now
+          st.status = doc.meta.status === "ready" ? "ready" : "draft";
+          st.docId = doc.meta.id;
+          st.clos = Array.isArray(doc.meta.clos) ? doc.meta.clos : [];
+          const mos = new Set();
+          for (const b of doc.blocks) {
+            // practice items (quizzes, preflights) are counted, not badged
+            if (!["drill", "skillcheck", "rubric"].includes(b.name)) continue;
+            splitList(b.header.mos).forEach((c) => mos.add(c));
+            const badge = b.name === "rubric"
+              ? { id: b.arg, name: String(doc.meta.rubricBadge || String(doc.meta.title || b.arg).replace(/^Project \d+:\s*/, "")), week: n, kind: "project" }
+              : badgeFor(b, doc.meta);
+            st.activities.push({
+              id: b.arg, kind: b.name === "rubric" ? "project" : b.name,
+              title: b.name === "rubric" ? doc.meta.title : (b.header.title || b.arg),
+              assess: activityKinds(b), platform: b.header.platform || "web",
+              minutes: Number(b.header.minutes || b.header.timeLimit) || null, badge,
+              steps: b.steps.length, screenshots: b.steps.filter((x) => x.extra.screenshot !== undefined).length,
+            });
+          }
+          st.mos = [...mos].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+          st.quizzes = doc.blocks.filter((b) => b.name === "quiz").length;
+        }
+        return st;
+      });
+      return { id: w.arg, n, title: w.header.title, tagline: w.header.tagline || "", color: w.header.color || WEEK_COLORS[n], stations };
+    });
+
+    // The end of the line: the course certificate
+    if (cfg.courseCertificate === true || cfg.courseCertificate === "true") {
+      const last = weeks[weeks.length - 1];
+      if (last) last.stations.push({ sid: "course-complete", title: "Course Complete", kind: "course", minutes: null,
+        goals: "Earn the course certificate, with every badge and outcome from all five weeks on the back.",
+        file: null, status: "ready", activities: [], clos: outcomes.map((o) => o.id), mos: mosList.map((m) => m.id),
+        plannedDrills: [], certificate: true });
+    }
+    return { weeks, outcomes, mosNames: Object.fromEntries(mosList.map((i) => [i.id, i.text])) };
+  }
+
   const api = { VERSION, parse, validate, render, summarize, inline, markdown, esc, toPoints, fontStack, embedUrl,
-    FONT_STACKS, DEFAULT_FONTS, DEFAULT_VIDEO_HOSTS, CHECKS, DIRECTIVES, CALLOUT_KINDS };
+    activityKinds, activityLabels, badgeFor, badgeSVG, makeId, idLooksValid, courseIndex, applyOverrides, courseMap, splitListPublic: splitList, VIDEO_ID, SECTION_CODE,
+    FONT_STACKS, DEFAULT_FONTS, DEFAULT_VIDEO_HOSTS, CHECKS, EXCEL_CHECKS, POWERPOINT_CHECKS, CHECK_SETS, checkSet, DIRECTIVES, CALLOUT_KINDS,
+    ASSESS_KINDS, ASSESS_LABELS, COURSE_MODES, WEEK_COLORS };
   if (typeof module === "object" && module.exports) module.exports = api;
   root.TrainerMD = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

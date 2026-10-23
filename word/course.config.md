@@ -9,11 +9,32 @@ bodyFont: Atkinson Hyperlegible
 learnerCanChangeFonts: true
 videoHosts: [www.youtube-nocookie.com, www.youtube.com, player.vimeo.com]
 defaultPlatform: web
+mode: practice
+certificateEach: lesson
+courseCertificate: true
+issuer: Finger Lakes Community College, Computing Sciences
 ---
 
 ## Course settings
 
 These settings apply to every lesson in the course. Change a value above and rebuild; lesson files never repeat these settings.
+
+## Modes: practice or section
+
+`mode` sets what learners see when they have not joined a section.
+
+- **practice** (the default): the course is a set of exercises. Auto-checks give instant feedback, screenshot steps are compared with an example, and project rubrics become self-checks. Nothing leaves the learner's computer, and the "How this course works" page says so before they start.
+- **section**: a graded course. Auto-checks count toward grades, screenshots go to the instructor, and projects are graded with the rubric.
+
+Once sections exist (Phase 2), joining a section with a code switches that learner to section mode. Everyone else stays in practice mode.
+
+## Badges and certificates
+
+- Every drill, skill check and project awards a **badge** when it is finished. Its name is the activity's title unless the activity sets `badge:`.
+- `certificateEach: lesson` issues a **certificate** at the end of each lesson (chapter), with the lesson's badges and outcomes on the back. Other choices: `week`, `course` or `none`.
+- `courseCertificate: true` adds one more certificate when the whole course is finished.
+- `issuer` is printed on every certificate.
+- In practice mode, certificates are marked **Practice record**: each has a unique number, but nothing outside the learner's device records it. See `spec/badges-and-certificates.md`.
 
 ## Fonts
 
@@ -35,7 +56,7 @@ Each choice comes with a fallback chain so text still looks right on computers t
 | OpenDyslexic | OpenDyslexic, Atkinson Hyperlegible, Arial, sans-serif |
 | System default | system-ui, -apple-system, Segoe UI, Roboto, sans-serif |
 
-Comfortaa and Atkinson Hyperlegible load from Google Fonts. Every other choice uses fonts already on the learner's computer, so nothing else is downloaded. OpenDyslexic is used only if the learner has installed it.
+Comfortaa and Atkinson Hyperlegible are hosted with the course (assets/fonts), so the add-in, roadmap and certificate send nothing to a font service (only the editor loads them from Google Fonts). Every other choice uses fonts already on the learner's computer, so nothing else is downloaded. OpenDyslexic is used only if the learner has installed it.
 
 ## Video hosts
 

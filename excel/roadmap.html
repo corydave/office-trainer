@@ -1,0 +1,1722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Excel Course Roadmap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A subway-map view of the five-week Microsoft Excel course: every lesson, drill, badge and certificate.">
+<!-- Fonts are hosted with the course (assets/fonts, SIL Open Font License), so opening
+     this page sends nothing to a font service. -->
+<style>
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-style: normal; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-style: normal; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-style: italic; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Comfortaa"; font-weight: 500 600; font-style: normal; font-display: swap; src: url("../assets/fonts/comfortaa-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Comfortaa"; font-weight: 700; font-style: normal; font-display: swap; src: url("../assets/fonts/comfortaa-latin-700-normal.woff2") format("woff2"); }
+</style>
+<style>
+/* =====================================================================
+   WORD COURSE ROADMAP
+   Layout concept: a transit map. Each week is a colored line, each
+   lesson, skill check and project a stop. Wide screens show the map with
+   a details panel beside it; phones get a top-to-bottom route list.
+   Every color is a token, redefined for dark mode. Small text clears 7:1.
+   ===================================================================== */
+:root {
+  --bg: #f4f6fa; --surface: #ffffff; --surface-2: #eef1f7; --ink: #111a2e; --muted: #424a57; --line: #d3dae8;
+  --focus: #0046ad; --blue: #0046ad; --blue-soft: #e3ecfa; --orange: #8a2905; --orange-soft: #f8e6df; --green: #305305; --green-soft: #e8f0df;
+  /* one color per week (the "lines") */
+  --w1: #0046ad; --w2: #305305; --w3: #a23108; --w4: #6b21a8; --w5: #374151;
+  --on-line: #ffffff;   /* text drawn on a line color */
+  --font-body: "Atkinson Hyperlegible", Arial, Arimo, sans-serif;
+  --font-display: "Comfortaa", "Atkinson Hyperlegible", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1220; --surface: #131b2c; --surface-2: #1a2438; --ink: #e9eef8; --muted: #b4bfd3; --line: #2b3852;
+    --focus: #9cbcff; --blue: #9cbcff; --blue-soft: #1b2c4f; --orange: #ffab8a; --orange-soft: #3a2018; --green: #a6d585; --green-soft: #1d2e1a;
+    --w1: #7aa7ff; --w2: #8cc56a; --w3: #ff9a6b; --w4: #c79bf2; --w5: #b8c0cc; --on-line: #0c1220; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1220; --surface: #131b2c; --surface-2: #1a2438; --ink: #e9eef8; --muted: #b4bfd3; --line: #2b3852;
+  --focus: #9cbcff; --blue: #9cbcff; --blue-soft: #1b2c4f; --orange: #ffab8a; --orange-soft: #3a2018; --green: #a6d585; --green-soft: #1d2e1a;
+  --w1: #7aa7ff; --w2: #8cc56a; --w3: #ff9a6b; --w4: #c79bf2; --w5: #b8c0cc; --on-line: #0c1220; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; max-width: 68ch; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.eyebrow { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; color: var(--muted); }
+.muted { color: var(--muted); }
+
+/* ---------- header ---------- */
+header { padding-block: 28px 12px; }
+header .wrap { display: flex; flex-direction: column; gap: 14px; }
+.lede { font-size: 1.1rem; color: var(--muted); }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 0.95rem; }
+.stats b { font-family: var(--font-display); font-size: 1.15rem; margin-right: 4px; font-variant-numeric: tabular-nums; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 3px; }
+.seg button { font: inherit; font-size: 0.9rem; font-weight: 700; border: 0; background: none; color: var(--muted); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.seg-label { font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-right: 6px; }
+.theme { font: inherit; font-size: 0.85rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; cursor: pointer; margin-left: auto; }
+
+/* ---------- layout ---------- */
+main { padding-block: 8px 48px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 20px; align-items: start; }
+@media (max-width: 1080px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.map-card { padding: 12px; overflow: hidden; }
+#map svg { display: block; width: 100%; height: auto; }
+
+/* ---------- the map (SVG) ---------- */
+.route { fill: none; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+.transfer { fill: none; stroke: var(--muted); stroke-width: 3; stroke-dasharray: 2 9; stroke-linecap: round; opacity: .7; }
+.l1 { stroke: var(--w1); } .l2 { stroke: var(--w2); } .l3 { stroke: var(--w3); } .l4 { stroke: var(--w4); } .l5 { stroke: var(--w5); }
+.f1 { fill: var(--w1); } .f2 { fill: var(--w2); } .f3 { fill: var(--w3); } .f4 { fill: var(--w4); } .f5 { fill: var(--w5); }
+.stop-fill { fill: var(--surface); }
+.stop-ink { stroke: var(--ink); fill: var(--surface); }
+.planned .marker { stroke-dasharray: 4 3; }
+.station { cursor: pointer; outline: none; }
+.station .halo { fill: none; stroke: var(--focus); stroke-width: 3; opacity: 0; }
+.station:focus-visible .halo, .station[aria-current="true"] .halo { opacity: 1; }
+.station[aria-current="true"] .halo { stroke-dasharray: none; }
+.st-label { font-size: 15px; font-weight: 700; fill: var(--ink); }
+.st-meta { font-size: 13.5px; fill: var(--muted); }
+.planned .st-label { fill: var(--muted); font-weight: 400; }
+.wk-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; fill: var(--ink); }
+.wk-num { font-family: var(--font-display); font-size: 18px; font-weight: 700; fill: var(--on-line); }
+.wk-tag { font-size: 13.5px; fill: var(--muted); }
+
+/* ---------- legend ---------- */
+.legend { display: flex; flex-wrap: wrap; gap: 10px 22px; padding: 12px 8px 4px; font-size: 0.9rem; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend svg { flex: none; }
+
+/* ---------- route list (phones, and the List view) ---------- */
+.list { display: flex; flex-direction: column; gap: 18px; }
+.list section { padding: 16px; }
+.list h2 { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
+.bullet { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--on-line); font-family: var(--font-display); font-weight: 700; flex: none; }
+.b1 { background: var(--w1); } .b2 { background: var(--w2); } .b3 { background: var(--w3); } .b4 { background: var(--w4); } .b5 { background: var(--w5); }
+.list ol { list-style: none; margin: 12px 0 0; padding: 0; position: relative; }
+.list li { position: relative; padding-left: 40px; }
+.list li::before { content: ""; position: absolute; left: 13px; top: 0; bottom: 0; width: 6px; background: var(--rail); }
+.list li:first-child::before { top: 18px; }
+.list li:last-child::before { bottom: calc(100% - 18px); }
+.list li::after { content: ""; position: absolute; left: 6px; top: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 4px solid var(--rail); box-sizing: border-box; }
+.list li.k-project::after { border-radius: 6px; border-color: var(--ink); }
+.list li.k-skillcheck::after { box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 10px var(--rail); }
+.list li.planned::after { border-style: dashed; }
+.list button { all: unset; display: block; width: 100%; padding: 8px 10px; border-radius: 10px; cursor: pointer; box-sizing: border-box; }
+.list button:hover { background: var(--surface-2); }
+.list button:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; }
+.list button[aria-current="true"] { background: var(--blue-soft); }
+.list .t { font-weight: 700; display: block; }
+.list .m { font-size: 0.85rem; color: var(--muted); }
+
+/* ---------- details panel ---------- */
+.panel { padding: 20px; position: sticky; top: 12px; display: flex; flex-direction: column; gap: 14px; }
+@media (max-width: 1080px) { .panel { position: static; } }
+.panel h2 { font-size: 1.35rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); }
+.chip.auto { border-color: var(--blue); color: var(--blue); background: var(--surface); }
+.chip.screenshot { border-color: var(--orange); color: var(--orange); background: var(--surface); }
+.chip.instructor { border-color: var(--green); color: var(--green); background: var(--surface); }
+.chip.desktop { background: var(--orange-soft); color: var(--orange); border-color: transparent; }
+.chip.soon { background: var(--surface-2); color: var(--muted); }
+.cert-note { display: flex; gap: 12px; align-items: center; background: var(--green-soft); border-radius: 10px; padding: 10px 12px; font-size: 0.95rem; }
+.acts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.acts li { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: start; }
+.acts .name { font-weight: 700; }
+.acts .sub { font-size: 0.85rem; color: var(--muted); }
+details summary { cursor: pointer; font-weight: 700; }
+details ul { margin: 8px 0 0; padding-left: 1.1em; font-size: 0.9rem; }
+.nav { display: flex; gap: 8px; justify-content: space-between; }
+.btn { font: inherit; font-size: 0.9rem; font-weight: 700; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 7px 12px; border-radius: 8px; cursor: pointer; }
+.btn:hover:not([disabled]) { border-color: var(--blue); color: var(--blue); }
+.btn[disabled] { opacity: .45; cursor: default; }
+footer { padding-block: 0 32px; font-size: 0.85rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .station .halo { transition: opacity .15s; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <span class="eyebrow" id="college"></span>
+    <h1 id="title"></h1>
+    <p class="lede">Five weeks, five lines. Ride each one stop by stop: every lesson earns a certificate, and every drill, skill check and project earns a badge.</p>
+    <div class="stats" id="stats" aria-label="Course at a glance"></div>
+    <div class="controls">
+      <div><span class="seg-label" id="view-label">View</span>
+        <span class="seg" role="group" aria-labelledby="view-label">
+          <button type="button" data-view="map" aria-pressed="true">Map</button>
+          <button type="button" data-view="list" aria-pressed="false">List</button>
+        </span></div>
+      <div><span class="seg-label" id="mode-label">I'm taking it</span>
+        <span class="seg" role="group" aria-labelledby="mode-label">
+          <button type="button" data-mode="practice" aria-pressed="true">On my own</button>
+          <button type="button" data-mode="section" aria-pressed="false">In a class section</button>
+        </span></div>
+      <button type="button" class="theme" id="theme">Theme: system</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap layout">
+    <div>
+      <div class="card map-card" id="map-view">
+        <div id="map" role="group" aria-label="Course map. Use Tab or the arrow keys to move between stops, and Enter to open one."></div>
+        <div class="legend" id="legend" aria-label="Map key"></div>
+      </div>
+      <div class="list" id="list-view" hidden></div>
+    </div>
+    <aside class="card panel" id="panel" aria-live="polite" aria-label="Stop details"></aside>
+  </div>
+</main>
+<footer><div class="wrap" id="footer"></div></footer>
+
+<script>
+/* ===========================================================================
+   trainer-md.js - the Trainer Markdown parser, validator and renderer
+   ---------------------------------------------------------------------------
+   One file, no dependencies. The editor, the Word add-in and the command-line
+   validator all use this same code, so a lesson means the same thing everywhere.
+
+   What it does, in order:
+     1. parse(text)     -> turns a lesson file into a plain JavaScript object
+     2. validate(doc)   -> lists errors and warnings (with line numbers)
+     3. render(doc)     -> turns the object into safe HTML for a preview
+
+   Security rules this file enforces:
+     - Every piece of text is HTML-escaped before anything else happens.
+       Only tags this file writes itself ever reach the page.
+     - Raw HTML in a lesson file is reported as an error and shown as text.
+     - Links must be https:// (or a relative .md file); videos must come from
+       an approved host and render in a sandboxed frame.
+     - A lesson can only affect grading by NAMING a check in CHECKS below.
+       It can never supply code.
+   =========================================================================== */
+(function (root) {
+  "use strict";
+
+  const VERSION = "0.4.0";
+
+  // -------------------------------------------------------------------------
+  // Fonts: each choice expands to a fallback chain (see course.config.md).
+  // Look-alike fonts (Arimo, Tinos, Carlito) cover Chromebooks and Linux.
+  // -------------------------------------------------------------------------
+  const FONT_STACKS = {
+    "Comfortaa": '"Comfortaa", "Atkinson Hyperlegible", Arial, sans-serif',
+    "Atkinson Hyperlegible": '"Atkinson Hyperlegible", Arial, Arimo, sans-serif',
+    "Arial": 'Arial, Arimo, "Liberation Sans", Helvetica, sans-serif',
+    "Helvetica": 'Helvetica, "Helvetica Neue", Arial, Arimo, sans-serif',
+    "Verdana": 'Verdana, "DejaVu Sans", Arial, sans-serif',
+    "Calibri": 'Calibri, Carlito, Arial, sans-serif',
+    "Aptos": 'Aptos, Calibri, Carlito, Arial, sans-serif',
+    "Times New Roman": '"Times New Roman", Tinos, "Liberation Serif", Times, serif',
+    "Georgia": 'Georgia, Gelasio, "Times New Roman", Tinos, serif',
+    "OpenDyslexic": 'OpenDyslexic, "Atkinson Hyperlegible", Arial, sans-serif',
+    "System default": 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  };
+  const DEFAULT_FONTS = { heading: "Comfortaa", body: "Atkinson Hyperlegible" };
+  function fontStack(name, fallbackName) {
+    return FONT_STACKS[name] || FONT_STACKS[fallbackName] || FONT_STACKS["System default"];
+  }
+
+  // Hosts videos may load from unless course.config.md says otherwise.
+  const DEFAULT_VIDEO_HOSTS = ["www.youtube-nocookie.com", "www.youtube.com", "player.vimeo.com"];
+
+  // -------------------------------------------------------------------------
+  // The checker library catalog. Each entry lists the parameters a check
+  // accepts and their type. The real check code lives in the add-in; this
+  // list is what the validator uses to reject typos and unknown checks.
+  // -------------------------------------------------------------------------
+  const SELECTORS = ["in", "para", "paras", "text", "style"];
+  const CHECKS = {
+    "file.name":            { params: { pattern: "string!" } },
+    "text.present":         { params: { value: "string!", min: "int", max: "int", case: "enum:sensitive|insensitive" }, selector: true },
+    "text.absent":          { params: { value: "string!", case: "enum:sensitive|insensitive" }, selector: true },
+    "text.noDoubleSpaces":  { params: {}, selector: true },
+    "para.noEmpty":         { params: { max: "int", after: "string", before: "string" } },
+    "para.order":           { params: { first: "string!", then: "string!" } },
+    "font.is":              { params: { name: "string", size: "number", bold: "bool", italic: "bool", underline: "bool", color: "color" }, selector: true, needsOneOf: ["name", "size", "bold", "italic", "underline", "color"] },
+    "effect.present":       { params: { kind: "enum:shadow|glow|reflection|outline|any" }, selector: true },
+    "format.same":          { params: { a: "string!", b: "string!", props: "string" } },
+    "format.clean":         { params: {}, selector: true },
+    "para.is":              { params: { align: "enum:left|center|right|justify", lineSpacing: "lineSpacing", spaceBefore: "length", spaceAfter: "length", firstLineIndent: "length", leftIndent: "length", keepNext: "bool", dropCap: "bool" }, selector: true, needsOneOf: ["align", "lineSpacing", "spaceBefore", "spaceAfter", "firstLineIndent", "leftIndent", "keepNext", "dropCap"] },
+    "page.is":              { params: { margins: "length", top: "length", bottom: "length", left: "length", right: "length", size: "enum:letter|a4|legal", orientation: "enum:portrait|landscape" }, needsOneOf: ["margins", "top", "bottom", "left", "right", "size", "orientation"] },
+    "props.is":             { params: { title: "string", author: "string", keywords: "string" }, needsOneOf: ["title", "author", "keywords"] },
+    "lang.is":              { params: { value: "lang!" } },
+    "self.attest":          { params: { label: "string!" }, notInSkillCheck: true },
+    // ----- Week 2: styles, navigation, lists, headers, sections, references -----
+    "style.is":             { params: { name: "string!" }, selector: true },
+    "style.def":            { params: { name: "string!", font: "string", size: "number", bold: "bool", italic: "bool", color: "color", spaceBefore: "length", spaceAfter: "length", keepNext: "bool", align: "enum:left|center|right|justify", lineSpacing: "lineSpacing" }, needsOneOf: ["font", "size", "bold", "italic", "color", "spaceBefore", "spaceAfter", "keepNext", "align", "lineSpacing"] },
+    "bookmark.is":          { params: { name: "string!", at: "string" } },
+    "link.present":         { params: { label: "string", anchor: "string", url: "string", descriptive: "bool", min: "int" } },
+    "field.present":        { params: { code: "string!", min: "int", max: "int" }, selector: true },
+    "section.is":           { params: { index: "int", orientation: "enum:portrait|landscape", columns: "int", breakType: "enum:nextPage|continuous|evenPage|oddPage", firstPageDifferent: "bool", border: "bool" }, selector: true, needsOneOf: ["orientation", "columns", "breakType", "firstPageDifferent", "border"] },
+    "break.count":          { params: { kind: "enum:page|column|section!", min: "int", max: "int" } },
+    "list.is":              { params: { kind: "enum:bullet|number", level: "int", format: "enum:decimal|lowerLetter|upperLetter|lowerRoman|upperRoman|bullet", symbol: "string", pattern: "string", number: "int" }, selector: true, needsOneOf: ["kind", "level", "format", "symbol", "pattern", "number"] },
+    "notes.is":             { params: { kind: "enum:footnote|endnote!", min: "int", max: "int", format: "enum:decimal|lowerRoman|upperRoman|lowerLetter|upperLetter|chicago" } },
+    "toc.is":               { params: { levels: "int", includes: "string" } },
+    "citation.is":          { params: { citations: "int", sources: "int", bibliography: "bool", citeStyle: "enum:APA|MLA|Chicago|IEEE" }, needsOneOf: ["citations", "sources", "bibliography", "citeStyle"] },
+    // ----- Week 3: graphics, tables, page design -----
+    "object.count":         { params: { kind: "enum:any|picture|icon|shape|textbox|smartart|chart|model3d!", min: "int", max: "int" } },
+    "object.is":            { params: { kind: "enum:any|picture|icon|shape|textbox|smartart|chart|model3d!", index: "int", name: "string", any: "bool", contains: "string", alt: "bool", decorative: "bool", wrap: "enum:inline|square|tight|through|topAndBottom|behind|inFront", halign: "enum:left|center|right", valign: "enum:top|middle|bottom", pictureStyle: "bool", artistic: "bool", bgRemoved: "bool", fill: "string", outline: "string", says: "string", layout: "string", items: "int", colors: "bool", smartStyle: "bool", chartType: "enum:column|bar|line|pie" } },
+    "table.count":          { params: { contains: "string", min: "int", max: "int" } },
+    "table.is":             { params: { index: "int", contains: "string", lacks: "string", any: "bool", rows: "int", minRows: "int", cols: "int", headerRepeat: "bool", merged: "bool", sortedBy: "int", order: "enum:asc|desc", cellMargin: "length", cellSpacing: "length", col: "int", width: "length" }, needsOneOf: ["rows", "minRows", "cols", "headerRepeat", "merged", "sortedBy", "cellMargin", "cellSpacing", "width"] },
+    "theme.is":             { params: { colors: "string", accent1: "color", accent2: "color", accent3: "color", accent4: "color", accent5: "color", accent6: "color" }, needsOneOf: ["colors", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6"] },
+    "page.background":      { params: { watermark: "string", color: "string" }, needsOneOf: ["watermark", "color"] },
+    // ----- Week 4: templates, tabs, mail merge -----
+    "tabs.is":              { params: { position: "length", align: "enum:left|right|center|decimal", leader: "enum:dot|hyphen|underscore|none" }, selector: true, needsOneOf: ["position", "align", "leader"] },
+    "controls.filled":      { params: {} },
+    "merge.is":             { params: { type: "enum:letters|labels|envelopes|directory|email", source: "bool" }, needsOneOf: ["type", "source"] },
+    // ----- Week 5: collaboration and shipping -----
+    "comment.count":        { params: { min: "int", max: "int" } },
+    "comment.is":           { params: { says: "string", anchor: "string", author: "string", state: "enum:present|absent|replied|resolved|open" }, needsOneOf: ["says", "anchor", "author"] },
+    "revision.count":       { params: { kind: "enum:any|insert|delete|format|move", author: "string", min: "int", max: "int" } },
+    "doc.is":               { params: { tracking: "bool", protection: "enum:none|readOnly|comments|trackedChanges|forms", password: "bool", compatMode: "int", personalInfo: "enum:kept|removed" }, needsOneOf: ["tracking", "protection", "password", "compatMode", "personalInfo"] },
+    "text.hidden":          { params: { max: "int" } },
+    "access.is":            { params: { rules: "string" } },
+  };
+
+  // ----- Excel (excel/tools/excel-checker.js) -----
+  // Excel checks point at cells with cell=B2 or range=B2:B9 (optionally
+  // "June!B2"), plus sheet=June. Those two are the Excel selectors.
+  const EXCEL_SELECTORS = ["cell", "range"];
+  const XS = "string";   // short names to keep the table below readable
+  const EXCEL_CHECKS = {
+    "file.name":        { params: { pattern: "string!" } },
+    "text.present":     { params: { value: "string!", sheet: XS, min: "int", max: "int", case: "enum:sensitive|insensitive" }, selector: true },
+    "text.absent":      { params: { value: "string!", sheet: XS, case: "enum:sensitive|insensitive" }, selector: true },
+    "props.is":         { params: { title: XS, author: XS, keywords: XS }, needsOneOf: ["title", "author", "keywords"] },
+    "self.attest":      { params: { label: "string!" }, notInSkillCheck: true },
+    "sheet.is":         { params: { name: "string!", exists: "bool", index: "int", after: XS, tabColor: XS, hidden: "bool", kind: "enum:worksheet|chart" } },
+    "sheet.count":      { params: { min: "int", max: "int", visible: "bool" } },
+    "cell.is":          { params: { sheet: XS, value: XS, contains: XS, number: "number", tolerance: "number", date: XS,
+                          type: "enum:number|text|date|blank|formula|logical|error", blank: "bool",
+                          numFmt: "enum:general|number|currency|accounting|percent|date|time|datetime|fraction|scientific|text", decimals: "int", strict: "bool",
+                          bold: "bool", italic: "bool", underline: "bool", fontSize: "number", font: XS, fontColor: XS, fill: XS,
+                          align: "enum:left|center|right|general|justify|centerContinuous|fill|distributed", valign: "enum:top|center|bottom|justify|distributed",
+                          wrap: "bool", indent: XS, rotation: XS, border: "enum:any|none|left|right|top|bottom", style: XS, locked: "bool", clean: "bool", sameAs: XS, merged: "bool" },
+                          selector: true, needsSelector: true },
+    "formula.is":       { params: { sheet: XS, uses: XS, contains: XS, lacks: XS, result: XS, filled: "bool", spill: "bool", hasFormula: "bool", refs: "bool", structured: "bool", external: XS, min: "number", max: "number" }, selector: true, needsSelector: true },
+    "col.is":           { params: { sheet: XS, col: "string!", width: "number", minWidth: "number", maxWidth: "number", hidden: "bool" }, needsOneOf: ["width", "minWidth", "maxWidth", "hidden"] },
+    "row.is":           { params: { sheet: XS, row: "string!", height: "number", minHeight: "number", hidden: "bool" }, needsOneOf: ["height", "minHeight", "hidden"] },
+    "view.is":          { params: { sheet: XS, frozen: XS, view: "enum:normal|pageLayout|pageBreakPreview", showFormulas: "bool", split: "bool", gridlines: "bool" }, needsOneOf: ["frozen", "view", "showFormulas", "split", "gridlines"] },
+    "window.count":     { params: { min: "int!" } },
+    "page.is":          { params: { sheet: XS, orientation: "enum:portrait|landscape", size: "enum:letter|legal|a4", fitWide: "int", fitTall: "int", scale: "int",
+                          margins: "length", top: "length", bottom: "length", left: "length", right: "length", centerH: "bool", gridlines: "bool", printArea: XS, printTitles: XS },
+                          needsOneOf: ["orientation", "size", "fitWide", "fitTall", "scale", "margins", "top", "bottom", "left", "right", "centerH", "gridlines", "printArea", "printTitles"] },
+    "header.is":        { params: { sheet: XS, part: "enum:header|footer!", says: XS, field: "enum:page|pages|sheet|file|date|time|path", position: "enum:left|center|right" } },
+    "name.is":          { params: { name: "string!", refersTo: XS, scope: XS, exists: "bool" } },
+    "link.present":     { params: { sheet: XS, url: XS, location: XS, label: XS, min: "int", max: "int", descriptive: "bool" }, selector: true },
+    "table.is":         { params: { sheet: XS, name: XS, contains: XS, exists: "bool", style: XS, bandedRows: "bool", bandedColumns: "bool", firstColumn: "bool", lastColumn: "bool",
+                          headerRow: "bool", totalRow: "bool", total: XS, totalFunction: "enum:sum|average|count|countNums|max|min|stdDev|var|custom",
+                          hasColumn: XS, lacksColumn: XS, rows: "int", minRows: "int", columns: "int", noBlankRows: "bool" } },
+    "table.count":      { params: { sheet: XS, contains: XS, min: "int", max: "int" } },
+    "sort.is":          { params: { sheet: XS, table: XS, by: "string!", order: "enum:asc|desc", then: XS, thenOrder: "enum:asc|desc" }, selector: true },
+    "filter.is":        { params: { sheet: XS, table: XS, column: XS, active: "bool", shows: XS, only: "bool" }, selector: true },
+    "cf.is":            { params: { sheet: XS, type: "enum:dataBar|colorScale|iconSet|cellIs|top10|aboveAverage|duplicateValues|containsText|timePeriod|expression|any",
+                          operator: "enum:greaterThan|lessThan|between|equal|greaterThanOrEqual|lessThanOrEqual|notEqual|notBetween", value: XS, exists: "bool", covers: "bool" }, selector: true },
+    "cf.count":         { params: { sheet: XS, min: "int", max: "int" }, selector: true },
+    "sparkline.is":     { params: { sheet: XS, location: XS, type: "enum:line|column|winloss", source: XS, high: "bool", markers: "bool", min: "int" } },
+    "chart.is":         { params: { sheet: XS, index: "int", chartSheet: "bool", type: "enum:column|bar|line|pie|doughnut|area|scatter|combo|any",
+                          grouping: "enum:clustered|stacked|percentStacked|standard", series: "int", minSeries: "int", seriesName: XS, plotBy: "enum:rows|columns",
+                          hasTitle: "bool", title: XS, axisTitles: "bool", dataLabels: "bool", legend: "enum:bottom|top|left|right|topRight|none", dataTable: "bool",
+                          styleChanged: "bool", alt: "bool", altSays: XS, values: XS, covers: XS } },
+    "chart.count":      { params: { sheet: XS, min: "int", max: "int", chartSheet: "bool" } },
+    "object.is":        { params: { sheet: XS, kind: "enum:picture|icon|shape|textbox|smartart|any!", index: "int", name: XS, says: XS, alt: "bool", decorative: "bool", items: "int" } },
+    "object.count":     { params: { sheet: XS, kind: "enum:picture|icon|shape|textbox|smartart|any!", min: "int", max: "int" } },
+    "scenario.is":      { params: { sheet: XS, names: XS, min: "int", changing: XS } },
+    "datatable.is":     { params: { sheet: XS, input: XS }, selector: true },
+    "consolidate.is":   { params: { sheet: XS, function: "enum:sum|average|count|countNums|max|min|product|stdDev|stdDevp|var|varp", sources: "int", labels: "bool", links: "bool" } },
+    "comment.is":       { params: { sheet: XS, kind: "enum:comment|note!", says: XS, author: XS, state: "enum:present|absent|replied|resolved|open" }, selector: true },
+    "comment.count":    { params: { sheet: XS, kind: "enum:comment|note|any", min: "int", max: "int" }, selector: true },
+    "protect.is":       { params: { sheet: XS, sheetProtected: "bool", password: "bool", structure: "bool", structurePassword: "bool", unlocked: XS }, needsOneOf: ["sheetProtected", "structure", "unlocked"] },
+    "validation.is":    { params: { sheet: XS, type: "enum:list|whole|decimal|date|time|textLength|custom|any", list: XS, exists: "bool" }, selector: true },
+    "doc.is":           { params: { personalInfo: "enum:kept|removed", hiddenSheets: "int" }, needsOneOf: ["personalInfo", "hiddenSheets"] },
+    "access.is":        { params: { rules: XS } },
+    "data.is":          { params: { sheet: XS, table: XS, headers: XS, rows: "int", minRows: "int", maxRows: "int", noDuplicates: "bool" }, selector: true },
+    "connection.count": { params: { min: "int", max: "int" } },
+    "theme.is":         { params: { name: XS, changed: "bool", colors: XS }, needsOneOf: ["name", "changed", "colors"] },
+    "cellstyle.is":     { params: { name: "string!", exists: "bool", custom: "bool" } },
+  };
+
+  // ----- PowerPoint (powerpoint/tools/ppt-checker.js) -----
+  // PowerPoint checks point at a slide with slide=3 (or first, last, all), or at
+  // slides whose title contains some text with title="Our prices". slide= is the
+  // selector; title= is an ordinary parameter (props.is uses title= for the Title property).
+  const PPT_SELECTORS = ["slide"];
+  const PS = "string";
+  const PPT_KINDS = "enum:picture|icon|shape|textbox|placeholder|actionButton|line|video|audio|media|image|table|chart|smartart|model3d|zoom|ink|group|text|graphic|any";
+  const POWERPOINT_CHECKS = {
+    "file.name":      { params: { pattern: "string!" } },
+    "props.is":       { params: { title: PS, author: PS, keywords: PS, subject: PS }, needsOneOf: ["title", "author", "keywords", "subject"] },
+    "self.attest":    { params: { label: "string!" }, notInSkillCheck: true },
+    "text.present":   { params: { value: "string!", title: PS, in: "enum:slides|notes", min: "int" }, selector: true },
+    "text.absent":    { params: { value: "string!", title: PS, in: "enum:slides|notes" }, selector: true },
+    "slide.count":    { params: { is: "int", min: "int", max: "int", title: PS, visible: "bool" }, needsOneOf: ["is", "min", "max"] },
+    "slide.is":       { params: { title: PS, exists: "bool", number: "int", after: PS, layout: PS, hidden: "bool", section: PS, background: "enum:any|none|picture|gradient|solid|pattern",
+                        notes: PS, hasNotes: "bool", titleIs: PS }, selector: true },
+    "notes.count":    { params: { min: "int", max: "int" }, needsOneOf: ["min", "max"] },
+    "section.is":     { params: { name: "string!", exists: "bool", index: "int", slides: "int", minSlides: "int", starts: PS, contains: PS } },
+    "section.count":  { params: { min: "int", max: "int" }, needsOneOf: ["min", "max"] },
+    "size.is":        { params: { ratio: "enum:16:9|4:3|widescreen|standard!" } },
+    "view.is":        { params: { view: "enum:normal|outline|sorter|notes|master|notesMaster|handoutMaster", guides: "bool" }, needsOneOf: ["view", "guides"] },
+    "text.is":        { params: { title: PS, says: PS, kind: PPT_KINDS, phType: "enum:title|ctrTitle|subTitle|body|obj", bold: "bool", italic: "bool", underline: "bool",
+                        size: "number", minSize: "number", font: PS, notFont: PS, wordart: "bool", color: PS, colorChanged: "bool", columns: "int", align: "enum:left|center|right|justify", minContrast: "number" }, selector: true },
+    "list.is":        { params: { title: PS, says: PS, items: PS, kind: "enum:bullet|number", level: "int", levels: "int", maxItems: "int" }, selector: true },
+    "footer.is":      { params: { slideNumbers: "bool", footer: PS, skipTitle: "bool", date: "bool" }, needsOneOf: ["slideNumbers", "footer", "skipTitle", "date"] },
+    "theme.is":       { params: { name: PS, changed: "bool", fonts: PS, fontsChanged: "bool", colors: PS, variant: "bool" }, needsOneOf: ["name", "changed", "fonts", "fontsChanged", "colors", "variant"] },
+    "master.is":      { params: { kind: "enum:slide|notes|handout", background: "enum:any|picture|gradient|solid", titleFont: PS, picture: "bool", says: PS, phSays: PS, lacks: "enum:hdr|ftr|dt|sldNum" } },
+    "layout.is":      { params: { name: "string!", exists: "bool", custom: "bool", placeholder: PS, lacks: "enum:ftr|dt|sldNum|title|body|pic", used: "bool" } },
+    "object.count":   { params: { kind: PPT_KINDS + "!", title: PS, says: PS, name: PS, min: "int", max: "int" }, selector: true },
+    "object.is":      { params: { kind: PPT_KINDS, title: PS, says: PS, name: PS, index: "int", alt: "bool", decorative: "bool", width: "length", height: "length", minWidth: "length",
+                        cropped: "bool", square: "bool", stretched: "bool", styled: "bool", effects: "bool", styleChanged: "bool", geom: PS, front: "bool", grouped: "bool", rotated: "bool",
+                        items: "int", layout: PS, notLayout: PS, colorsChanged: "bool" }, selector: true },
+    "align.is":       { params: { kind: PPT_KINDS, title: PS, says: PS, name: PS, edge: "enum:top|bottom|middle|left|right|center", distributed: "enum:horizontal|vertical" }, selector: true, needsOneOf: ["edge", "distributed"] },
+    "table.is":       { params: { title: PS, says: PS, rows: "int", cols: "int", styleChanged: "bool", headerRow: "bool", lacks: PS, has: PS }, selector: true },
+    "chart.is":       { params: { title: PS, chartTitle: PS, type: "enum:column|bar|line|pie|doughnut|area|scatter|combo", notType: "enum:column|bar|line|pie|doughnut|area|scatter|combo", grouping: "enum:clustered|stacked|percentStacked|standard",
+                        minSeries: "int", dataLabels: "bool", alt: "bool" }, selector: true },
+    "media.is":       { params: { kind: "enum:video|audio|media", title: PS, name: PS, trimmed: "bool", fadeIn: "bool", start: "enum:auto|click", loop: "bool", acrossSlides: "bool", alt: "bool" }, selector: true },
+    "transition.is":  { params: { title: PS, exists: "bool", type: PS, kind: "enum:3d|basic", optionChanged: "bool", duration: "number", advanceAfter: "number", onClick: "bool", sound: "bool" }, selector: true },
+    "anim.is":        { params: { title: PS, says: PS, kind: PPT_KINDS, name: PS, class: "enum:entrance|emphasis|exit|path", effect: PS, byParagraph: "bool", start: "enum:onClick|with|after",
+                        minDelay: "number", duration: "number", first: "bool", pathDir: "enum:left|right|up|down" }, selector: true },
+    "anim.count":     { params: { title: PS, says: PS, kind: PPT_KINDS, name: PS, class: "enum:entrance|emphasis|exit|path", min: "int", max: "int" }, selector: true, needsOneOf: ["min", "max"] },
+    "link.present":   { params: { title: PS, url: PS, toSlide: PS, says: PS, button: "bool" }, selector: true },
+    "zoom.is":        { params: { title: PS, kind: "enum:summary|section|slide", returnToZoom: "bool" }, selector: true },
+    "show.is":        { params: { loop: "bool", kiosk: "bool", narration: "bool", useTimings: "bool", customShow: PS, slides: "int", includes: PS, excludes: PS, timings: "bool" } },
+    "comment.is":     { params: { title: PS, says: PS, author: PS, state: "enum:present|absent|replied|resolved" }, selector: true },
+    "comment.count":  { params: { title: PS, says: PS, author: PS, min: "int", max: "int" }, selector: true, needsOneOf: ["min", "max"] },
+    "doc.is":         { params: { personalInfo: "enum:removed", fontsEmbedded: "bool", final: "bool", modifyPassword: "bool", notes: "enum:none", offSlide: "enum:none" },
+                        needsOneOf: ["personalInfo", "fontsEmbedded", "final", "modifyPassword", "notes", "offSlide"] },
+    "access.is":      { params: { rules: PS } },
+  };
+
+  // Which catalog a course uses. course.config.md says "app: excel"; Word is the default.
+  const CHECK_SETS = {
+    word: { checks: CHECKS, selectors: SELECTORS, starter: /^starters\/[\w\-./]+\.(docx|dotx)$/i, starterExample: "starters/week-01/W1-L2-letter.docx", appName: "Word" },
+    excel: { checks: EXCEL_CHECKS, selectors: EXCEL_SELECTORS, starter: /^starters\/[\w\-./]+\.(xlsx|xltx|xlsm|csv|txt)$/i, starterExample: "starters/week-01/E1-L1-rentals.xlsx", appName: "Excel" },
+    powerpoint: { checks: POWERPOINT_CHECKS, selectors: PPT_SELECTORS, starter: /^starters\/[\w\-./]+\.(pptx|potx)$/i, starterExample: "starters/week-01/P1-L1-welcome.pptx", appName: "PowerPoint" },
+  };
+  /** The catalog for an app name ("excel"), falling back to Word. */
+  function checkSet(app) { return CHECK_SETS[String(app || "word").toLowerCase()] || CHECK_SETS.word; }
+
+  const DIRECTIVES = ["video", "callout", "platform", "quiz", "drill", "skillcheck", "preflight", "rubric",
+    // used only in content/outline.md:
+    "week", "outcomes", "certification",
+    // used only in section files (sections/<CODE>.md):
+    "replace-video", "add-video"];
+  const CALLOUT_KINDS = ["tip", "note", "warning", "why", "ai", "privacy"];
+  const PLATFORMS = ["web", "desktop", "windows", "mac"];
+  const FILE_TYPES = ["lesson", "skillcheck", "project", "capstone", "config", "info", "outline", "section"];
+
+  // Video ids are permanent names for a video slot, such as "w1-l2-show-hide".
+  // Section files point at them, so never rename one once a section uses it.
+  const VIDEO_ID = /^[a-z0-9][a-z0-9-]{2,48}$/;
+  // Section codes, such as "WRD-7K3Q". The section file is sections/<CODE>.md
+  const SECTION_CODE = /^[A-Z0-9]{2,6}-[A-Z0-9]{3,8}$/;
+
+  // How an activity is assessed. Shown to learners BEFORE they start it.
+  //   auto       - the trainer checks the document
+  //   screenshot - the learner shows their screen; an instructor marks it (or, in
+  //                practice mode, the learner compares it with an example)
+  //   instructor - an instructor grades it with a rubric (self-check in practice mode)
+  //   practice   - never graded, in any mode
+  const ASSESS_KINDS = ["auto", "screenshot", "instructor", "practice"];
+  const ASSESS_LABELS = {
+    auto: { section: "Auto-checked", practice: "Auto-checked" },
+    screenshot: { section: "Screenshot for your instructor", practice: "Screenshot: compare with the example" },
+    instructor: { section: "Graded by your instructor", practice: "Self-check with the rubric" },
+    practice: { section: "Practice only", practice: "Practice only" },
+  };
+  const COURSE_MODES = ["practice", "section"];
+
+  // Step keys allowed inside drills, skill checks and preflights, and inside outline weeks.
+  const STEP_KEYS = ["check", "hint", "web", "desktop", "video", "points", "answer", "platform", "screenshot", "example", "describe"];
+  const ITEM_KEYS = ["file", "kind", "minutes", "goals", "drills"];
+  const ITEM_KINDS = ["start", "lesson", "skillcheck", "project", "capstone"];
+
+  // One color per week, used by the roadmap lines and the badges.
+  // Each clears 4.5:1 against white for the white text drawn on it.
+  const WEEK_COLORS = { 1: "#0046ad", 2: "#305305", 3: "#a23108", 4: "#6b21a8", 5: "#374151" };
+
+  // -------------------------------------------------------------------------
+  // Small helpers
+  // -------------------------------------------------------------------------
+
+  /** Make text safe to put inside HTML (the most important function here). */
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  /** Convert "1in", "36pt", "2.54cm" to points. Returns null if it isn't a length. */
+  function toPoints(v) {
+    const m = /^(\d+(?:\.\d+)?)(in|pt|cm|mm)$/.exec(String(v).trim());
+    if (!m) return null;
+    const n = parseFloat(m[1]);
+    return { in: n * 72, pt: n, cm: n * 72 / 2.54, mm: n * 72 / 25.4 }[m[2]];
+  }
+
+  /** "[a, b, c]" -> ["a","b","c"]; "a, b" -> ["a","b"]; anything else -> the string. */
+  function parseValue(raw) {
+    const v = raw.trim();
+    if (/^\[.*\]$/.test(v)) return v.slice(1, -1).split(",").map(x => unquote(x.trim())).filter(Boolean);
+    if (v === "true") return true;
+    if (v === "false") return false;
+    return unquote(v);
+  }
+  function unquote(v) { return /^".*"$/.test(v) ? v.slice(1, -1) : v; }
+  function splitList(v) { return Array.isArray(v) ? v : String(v || "").split(",").map(x => x.trim()).filter(Boolean); }
+
+  // -------------------------------------------------------------------------
+  // 1. PARSE
+  // -------------------------------------------------------------------------
+
+  /**
+   * Parse a whole Trainer Markdown file.
+   * Returns { meta, blocks, issues } where issues are problems found while
+   * reading (validate() adds more).
+   */
+  function parse(text) {
+    const lines = String(text).replace(/\r\n?/g, "\n").split("\n");
+    const issues = [];
+    const meta = {};
+    let i = 0;
+
+    // --- front matter: between the first two "---" lines ---
+    if (lines[0] && lines[0].trim() === "---") {
+      i = 1;
+      while (i < lines.length && lines[i].trim() !== "---") {
+        const line = lines[i];
+        if (line.trim()) {
+          const m = /^([A-Za-z][\w-]*)\s*:\s*(.*)$/.exec(line);
+          if (m) meta[m[1]] = parseValue(m[2]);
+          else issues.push(issue("error", i + 1, `Front matter line is not "key: value": ${line.trim()}`));
+        }
+        i++;
+      }
+      if (i >= lines.length) issues.push(issue("error", 1, "Front matter is not closed with a --- line."));
+      i++; // skip closing ---
+    } else {
+      issues.push(issue("error", 1, "The file must start with front matter between two --- lines."));
+    }
+
+    // --- body: Markdown chunks and ::: directives ---
+    const blocks = [];
+    let mdBuffer = [];
+    let mdStart = i + 1;
+    const flushMd = () => {
+      if (mdBuffer.length) blocks.push({ kind: "md", lines: mdBuffer, line: mdStart });
+      mdBuffer = [];
+    };
+
+    while (i < lines.length) {
+      const line = lines[i];
+      const open = /^:::\s*([a-z][a-z-]*)\s*(.*)$/.exec(line.trim());
+      if (open && line.trim() !== ":::") {
+        flushMd();
+        const start = i + 1;
+        const inner = [];
+        i++;
+        while (i < lines.length && lines[i].trim() !== ":::") { inner.push(lines[i]); i++; }
+        if (i >= lines.length) issues.push(issue("error", start, `The ::: ${open[1]} block that starts here is never closed with :::`));
+        blocks.push(parseDirective(open[1], open[2].trim(), inner, start, issues));
+        i++;
+        mdStart = i + 1;
+        continue;
+      }
+      if (!mdBuffer.length) mdStart = i + 1;
+      mdBuffer.push(line);
+      i++;
+    }
+    flushMd();
+    return { meta, blocks, issues };
+  }
+
+  function issue(level, line, message) { return { level, line, message }; }
+
+  /** Parse what is inside a ::: block. `start` is the line number of the ::: line. */
+  function parseDirective(name, arg, inner, start, issues) {
+    const block = { kind: "directive", name, arg, line: start, header: {}, headerLines: {}, intro: [], steps: [], body: inner, items: [] };
+    if (!DIRECTIVES.includes(name)) {
+      issues.push(issue("error", start, `Unknown directive "::: ${name}". Use one of: ${DIRECTIVES.join(", ")}.`));
+      return block;
+    }
+
+    // Free-text directives: their inside is Markdown.
+    if (name === "callout" || name === "platform") { block.md = inner; return block; }
+
+    // Outcomes and certification lists (outline file only): "- id | text"
+    if (name === "outcomes" || name === "certification") {
+      inner.forEach((l, k) => {
+        if (!l.trim()) return;
+        const m = /^-\s*([^|]+)\|\s*(.+)$/.exec(l.trim());
+        if (!m) { issues.push(issue("error", start + k + 1, 'List lines look like "- CLO1 | Create, save, format and print documents".')); return; }
+        block.items.push({ id: m[1].trim(), text: m[2].trim(), line: start + k + 1 });
+      });
+      return block;
+    }
+
+    // Rubric: "- id | points | CLOs | description"
+    if (name === "rubric") {
+      inner.forEach((l, k) => {
+        if (!l.trim()) return;
+        const m = /^-\s*(.+)$/.exec(l.trim());
+        const parts = m ? m[1].split("|").map(s => s.trim()) : [];
+        if (parts.length !== 4) { issues.push(issue("error", start + k + 1, 'Rubric lines look like "- P1-a | 25 | CLO1 | Description".')); return; }
+        block.items.push({ id: parts[0], points: Number(parts[1]), clos: splitList(parts[2]), text: parts[3], line: start + k + 1 });
+      });
+      return block;
+    }
+
+    // Everything else: header keys, then (for drills) intro Markdown and steps.
+    let k = 0;
+    // header: contiguous "key: value" lines at the top
+    while (k < inner.length) {
+      const l = inner[k];
+      if (!l.trim()) { k++; if (Object.keys(block.header).length) break; continue; }
+      const m = /^([A-Za-z][\w-]*)\s*:\s*(.*)$/.exec(l);
+      if (!m || /^-\s/.test(l)) break;
+      block.header[m[1]] = m[2].trim();
+      block.headerLines[m[1]] = start + k + 1;
+      k++;
+    }
+
+    if (name === "quiz") {
+      for (; k < inner.length; k++) {
+        const l = inner[k].trim();
+        const lineNo = start + k + 1;
+        if (!l) continue;
+        const opt = /^-\s*\[( |x|X)\]\s*(.+)$/.exec(l);
+        const kv = /^([A-Za-z]+)\s*:\s*(.*)$/.exec(l);
+        if (opt) block.items.push({ correct: opt[1].toLowerCase() === "x", text: opt[2], line: lineNo });
+        else if (kv) { block.header[kv[1]] = kv[2].trim(); block.headerLines[kv[1]] = lineNo; }
+        else issues.push(issue("error", lineNo, 'Quiz lines are "key: value" or options like "- [x] Right answer".'));
+      }
+      return block;
+    }
+
+    if (name === "video" || name === "replace-video" || name === "add-video") return block;
+
+    // drill / skillcheck / preflight: intro Markdown, then "- step:" or "- task:" items
+    // week (outline only): "- item:" entries, one per station on the roadmap
+    const stepWord = name === "skillcheck" ? "task" : name === "week" ? "item" : "step";
+    const allowedKeys = name === "week" ? ITEM_KEYS : STEP_KEYS;
+    let current = null;
+    for (; k < inner.length; k++) {
+      const raw = inner[k];
+      const lineNo = start + k + 1;
+      const stepStart = new RegExp("^-\\s*(step|task|item)\\s*:\\s*(.*)$").exec(raw.trim());
+      if (stepStart && !/^\s/.test(raw)) {
+        if (stepStart[1] !== stepWord) issues.push(issue("error", lineNo, `Use "- ${stepWord}:" inside a ${name} block.`));
+        current = { text: stepStart[2], checks: [], hints: [], line: lineNo, extra: {} };
+        block.steps.push(current);
+        continue;
+      }
+      if (current && /^\s+\S/.test(raw)) {
+        const m = /^\s+([A-Za-z]+)\s*:\s*(.*)$/.exec(raw);
+        if (!m) { issues.push(issue("error", lineNo, 'Step details are indented "key: value" lines, such as "  check: text.absent value=\\"Acme\\"".')); continue; }
+        const key = m[1], val = m[2].trim();
+        if (key === "check" && name !== "week") current.checks.push(Object.assign(parseCheck(val, lineNo, issues), { line: lineNo }));
+        else if (key === "hint" && name !== "week") current.hints.push(val);
+        else if (allowedKeys.includes(key) && key !== "check" && key !== "hint") current.extra[key] = val;
+        else issues.push(issue("error", lineNo, `Unknown key "${key}" here. Use ${allowedKeys.join(", ")}.`));
+        continue;
+      }
+      if (current && raw.trim()) {
+        issues.push(issue("error", lineNo, "Text after a step must be indented under it, or start a new \"- " + stepWord + ":\"."));
+        continue;
+      }
+      if (!current) block.intro.push(raw);
+    }
+    return block;
+  }
+
+  /**
+   * Parse the part after "check:".
+   * Example: text.present value="Lakeshore Paddle Company" min=4 in=body
+   */
+  function parseCheck(src, lineNo, issues) {
+    const out = { name: "", params: {}, raw: src };
+    const nameMatch = /^([a-z]+\.[A-Za-z]+)(.*)$/.exec(src);
+    if (!nameMatch) { issues.push(issue("error", lineNo, `"${src}" is not a check. It should start with a name like text.absent.`)); return out; }
+    out.name = nameMatch[1];
+    let rest = nameMatch[2];
+    // Tokens: key=value or key="value with spaces" (\" for a quote inside)
+    const re = /\s*([A-Za-z][A-Za-z0-9]*)=("((?:[^"\\]|\\.)*)"|[^\s"]+)/y;
+    let pos = 0;
+    while (pos < rest.length) {
+      if (!rest.slice(pos).trim()) break;
+      re.lastIndex = pos;
+      const m = re.exec(rest);
+      if (!m) { issues.push(issue("error", lineNo, `Could not read "${rest.slice(pos).trim()}". Parameters look like key=value or key="two words".`)); break; }
+      out.params[m[1]] = m[3] !== undefined ? m[3].replace(/\\"/g, '"') : m[2];
+      pos = re.lastIndex;
+    }
+    return out;
+  }
+
+  // -------------------------------------------------------------------------
+  // 2. VALIDATE
+  // -------------------------------------------------------------------------
+
+  /**
+   * Validate a parsed document.
+   * ctx (all optional):
+   *   videoHosts: approved host list
+   *   starterExists(path) -> true | false | null (null = can't tell)
+   */
+  function validate(doc, ctx) {
+    ctx = ctx || {};
+    const set = checkSet(ctx.app);   // which checks this course's lessons may use
+    const issues = doc.issues.slice();
+    const add = (level, line, message) => issues.push(issue(level, line, message));
+    const meta = doc.meta;
+    const hosts = ctx.videoHosts || DEFAULT_VIDEO_HOSTS;
+    const ready = meta.status === "ready";
+
+    // --- front matter ---
+    const type = meta.type;
+    if (!FILE_TYPES.includes(type)) add("error", 1, `type must be one of ${FILE_TYPES.join(", ")}.`);
+    const isActivityFile = ["lesson", "skillcheck", "project", "capstone"].includes(type);
+    if (type === "section") {
+      if (!SECTION_CODE.test(String(meta.id || ""))) add("error", 1, 'A section id is its code, such as "WRD-7K3Q" (capitals, numbers, one hyphen).');
+      ["title", "instructor"].forEach(k => { if (!meta[k]) add("error", 1, `Front matter is missing "${k}".`); });
+      if (ctx.fileName && meta.id && ctx.fileName.replace(/\.md$/, "") !== meta.id) add("error", 1, `Name this file ${meta.id}.md so the trainer can find it by its code.`);
+    }
+    if (type === "info" || type === "outline") {
+      ["id", "title"].forEach(k => { if (!meta[k]) add("error", 1, `Front matter is missing "${k}".`); });
+    }
+    if (type === "config") {
+      if (meta.mode && !COURSE_MODES.includes(meta.mode)) add("error", 1, `mode is "practice" or "section".`);
+      if (meta.certificateEach && !["lesson", "week", "course", "none"].includes(meta.certificateEach)) add("error", 1, 'certificateEach is "lesson", "week", "course" or "none".');
+    }
+    if (isActivityFile) {
+      ["id", "week", "order", "title", "objectives"].forEach(k => { if (meta[k] === undefined || meta[k] === "") add("error", 1, `Front matter is missing "${k}".`); });
+      splitList(meta.objectives).forEach(o => { if (!/^W[1-5]\.[1-9]$/.test(o)) add("warning", 1, `Objective "${o}" is not in the course map (expected W1.1 to W5.6).`); });
+      splitList(meta.clos).forEach(c => { if (!/^CLO[1-8]$/.test(c)) add("warning", 1, `"${c}" is not a course learning outcome (CLO1 to CLO8).`); });
+      if (meta.status && !["draft", "ready"].includes(meta.status)) add("error", 1, 'status is "draft" or "ready".');
+    }
+
+    const ids = new Set();
+    let drillCount = 0;
+    for (const b of doc.blocks) {
+      if (b.kind === "md") { validateMarkdown(b, add); continue; }
+      if (!DIRECTIVES.includes(b.name)) continue;
+      const h = b.header;
+      const need = (key, why) => { if (!h[key]) add("error", b.line, `::: ${b.name} needs "${key}:"${why ? " (" + why + ")" : ""}.`); };
+
+      // Outline-only blocks
+      if (["week", "outcomes", "certification"].includes(b.name) && type !== "outline") {
+        add("error", b.line, `::: ${b.name} belongs in content/outline.md only.`); continue;
+      }
+      if (["quiz", "drill", "skillcheck", "preflight", "rubric", "week"].includes(b.name)) {
+        if (!b.arg) add("error", b.line, `::: ${b.name} needs an id, for example "::: ${b.name} ${b.name === "quiz" ? "Q1.1" : "D1.01"}".`);
+        else if (ids.has(b.arg)) add("error", b.line, `The id "${b.arg}" is used twice in this file.`);
+        else ids.add(b.arg);
+      }
+
+      switch (b.name) {
+        case "video": {
+          videoChecks(b, need, add, hosts, ready);
+          if (!h.id) add("error", b.line, 'Give this video a permanent id, such as "id: w1-l2-show-hide". Section files use it to swap in an instructor\'s video.');
+          else if (!VIDEO_ID.test(h.id)) add("error", b.headerLines.id, "A video id uses lowercase letters, numbers and hyphens (3 to 49 characters).");
+          else if (ids.has("video:" + h.id)) add("error", b.headerLines.id, `The video id "${h.id}" is used twice in this file.`);
+          else ids.add("video:" + h.id);
+          break;
+        }
+        case "replace-video": case "add-video": {
+          if (type !== "section") { add("error", b.line, `::: ${b.name} belongs in a section file (sections/<CODE>.md).`); break; }
+          videoChecks(b, need, add, hosts, ready);
+          if (!b.arg) add("error", b.line, b.name === "replace-video" ? "Name the video to replace: ::: replace-video w1-l2-show-hide" : "Name where the video goes: ::: add-video after D1.03 (a video id or an activity id).");
+          const target = b.name === "add-video" ? b.arg.replace(/^after\s+/, "") : b.arg;
+          if (b.name === "replace-video") {
+            if (ctx.videoIds && target && !ctx.videoIds.has(target)) add("error", b.line, `There's no course video with the id "${target}".`);
+            if (ids.has("replace:" + target)) add("error", b.line, `"${target}" is replaced twice in this file.`);
+            ids.add("replace:" + target);
+          } else if (ctx.anchorIds && target && !ctx.anchorIds.has(target)) add("error", b.line, `There's no course video or activity with the id "${target}" to place this after.`);
+          if (h.note && h.note.length > 280) add("warning", b.headerLines.note, "Keep the note under 280 characters; it sits above the video.");
+          break;
+        }
+        case "callout":
+          if (!CALLOUT_KINDS.includes(b.arg)) add("error", b.line, `Callout kind must be one of: ${CALLOUT_KINDS.join(", ")}.`);
+          validateMarkdown({ lines: b.md, line: b.line + 1 }, add);
+          break;
+        case "platform":
+          if (!PLATFORMS.includes(b.arg)) add("error", b.line, `Platform must be one of: ${PLATFORMS.join(", ")}.`);
+          validateMarkdown({ lines: b.md, line: b.line + 1 }, add);
+          break;
+        case "quiz": {
+          need("question");
+          const qtype = h.type || "single";
+          if (!["single", "multi", "number"].includes(qtype)) add("error", b.headerLines.type, 'Quiz type is "single", "multi" or "number".');
+          if (qtype === "number") {
+            if (h.answer === undefined || isNaN(Number(h.answer))) add("error", b.line, 'A number quiz needs "answer:" with a number.');
+          } else {
+            const right = b.items.filter(o => o.correct).length;
+            if (b.items.length < 2) add("error", b.line, "A quiz needs at least two options.");
+            if (qtype === "single" && right !== 1) add("error", b.line, "A single-answer quiz needs exactly one [x] option.");
+            if (qtype === "multi" && right < 1) add("error", b.line, "A multi-answer quiz needs at least one [x] option.");
+          }
+          if (!h.explain) add("warning", b.line, 'Add "explain:" so learners learn from a wrong answer.');
+          break;
+        }
+        case "drill": case "skillcheck": case "preflight": {
+          if (b.name === "drill") drillCount++;
+          need("title");
+          if (b.name !== "preflight") need("starter", "checks are written against it");
+          need("platform");
+          if (h.platform && !["web", "desktop"].includes(h.platform)) add("error", b.headerLines.platform, 'platform is "web" (works in both) or "desktop" (needs desktop ' + set.appName + ').');
+          if (h.starter && h.starter !== "none") {
+            if (!set.starter.test(h.starter) || h.starter.includes("..")) add("error", b.headerLines.starter, 'starter should be a path like "' + set.starterExample + '".');
+            else if (ctx.starterExists) {
+              const found = ctx.starterExists(h.starter);
+              if (found === false) add(ready ? "error" : "warning", b.headerLines.starter, `Starter file not found: ${h.starter}`);
+            }
+          }
+          // files: other downloads a drill needs (a photo to insert, a recipient list, a second version to compare)
+          splitList(h.files).forEach((f) => {
+            if (!/^starters\/[\w\-./]+\.(docx|dotx|xlsx|xltx|pptx|potx|csv|txt|png|jpg|jpeg|svg|glb|mp4|m4a|mp3|wav)$/i.test(f) || f.includes("..")) add("error", b.headerLines.files, `files: "${f}" should be a path like "starters/week-03/kayak.jpg".`);
+            else if (ctx.starterExists && ctx.starterExists(f) === false) add(ready ? "error" : "warning", b.headerLines.files, `File not found: ${f}`);
+          });
+          if (b.name === "skillcheck") {
+            ["timeLimit", "attempts", "passing"].forEach(key => { if (h[key] && isNaN(Number(h[key]))) add("error", b.headerLines[key], `${key} must be a number.`); });
+            need("timeLimit");
+          }
+          if (h.assess) splitList(h.assess).forEach(a => { if (!ASSESS_KINDS.includes(a)) add("error", b.headerLines.assess, `assess is one or more of ${ASSESS_KINDS.join(", ")}.`); });
+          if (h.badge !== undefined && !h.badge.trim()) add("error", b.headerLines.badge, "badge needs a short name, or leave the line out to use the drill title.");
+          if (h.badge && h.badge.length > 40) add("warning", b.headerLines.badge, "Badge names longer than 40 characters get cut off on the certificate.");
+          if (!b.steps.length) add("error", b.line, `::: ${b.name} ${b.arg} has no steps.`);
+          let checked = 0, shots = 0;
+          b.steps.forEach(s => {
+            if (!s.text) add("error", s.line, "This step has no text.");
+            if (s.checks.length || s.extra.answer !== undefined) checked++;
+            if (b.name === "skillcheck") {
+              if (s.hints.length) add("error", s.line, "Skill check tasks can't have hints.");
+              if (!s.checks.length && s.extra.answer === undefined) add("error", s.line, "Every skill check task needs a check or an answer.");
+            }
+            if (s.extra.platform && !["web", "desktop"].includes(s.extra.platform)) add("error", s.line, 'A step platform is "web" or "desktop".');
+            if (s.extra.points && isNaN(Number(s.extra.points))) add("error", s.line, "points must be a number.");
+            if (s.extra.screenshot !== undefined) {
+              shots++;
+              if (b.name === "skillcheck") add("error", s.line, "Skill checks are auto-checked only; move screenshot steps to a drill.");
+              if (!s.extra.screenshot.trim()) add("error", s.line, "screenshot: says what the screenshot must show.");
+              if (s.checks.length) add("warning", s.line, "This step has both a check and a screenshot; the check alone is usually enough.");
+              const ex = s.extra.example;
+              if (!ex) add("warning", s.line, "Add example: with an image of a correct screenshot, so practice-mode learners can compare.");
+              else if (ex === "TODO") add(ready ? "error" : "warning", s.line, "The example screenshot hasn't been captured yet.");
+              else if (!/^images\/[\w\-./]+\.(png|jpg|jpeg|webp)$/i.test(ex) || ex.includes("..")) add("error", s.line, 'example should be a path like "images/week-01/qat.png".');
+            } else if (s.extra.example || s.extra.describe) add("error", s.line, "example: and describe: go with a screenshot: step.");
+            if (s.extra.video) checkUrl(s.extra.video, s.line, add, hosts, true);
+            s.checks.forEach(c => validateCheck(c, b.name, add, set));
+            [s.text].concat(s.hints, s.extra.web || [], s.extra.desktop || []).forEach(t => checkInline(t, s.line, add));
+          });
+          if (b.name === "drill" && !checked && !shots && !splitList(h.assess).includes("practice")) add("warning", b.line, `Drill ${b.arg} has no checked or screenshot steps. Add "assess: practice" if that's on purpose.`);
+          validateMarkdown({ lines: b.intro, line: b.line + 1 }, add);
+          break;
+        }
+        case "week": {
+          if (!/^W[1-9]$/.test(b.arg || "")) add("error", b.line, 'A week id looks like "::: week W1".');
+          need("title");
+          if (h.color && !/^#[0-9A-Fa-f]{6}$/.test(h.color)) add("error", b.headerLines.color, "color is a hex value like #0046ad.");
+          b.steps.forEach(it => {
+            const e = it.extra;
+            if (!it.text) add("error", it.line, "Each item needs a title.");
+            if (!e.kind || !ITEM_KINDS.includes(e.kind)) add("error", it.line, `kind is one of ${ITEM_KINDS.join(", ")}.`);
+            if (e.minutes && isNaN(Number(e.minutes))) add("error", it.line, "minutes must be a number.");
+            if (e.file) {
+              if (!/^content\/[\w\-./]+\.md$/.test(e.file) || e.file.includes("..")) add("error", it.line, 'file is a path like "content/week-01/01-meet-word.md".');
+              else if (ctx.fileExists && ctx.fileExists(e.file) === false) add("error", it.line, `File not found: ${e.file}`);
+            }
+            if (!e.goals) add("warning", it.line, 'Add "goals:" - one sentence on what learners will be able to do.');
+          });
+          break;
+        }
+        case "outcomes": case "certification":
+          if (!b.items.length) add("error", b.line, `::: ${b.name} is empty.`);
+          break;
+        case "rubric": {
+          const total = b.items.reduce((sum, it) => sum + (isNaN(it.points) ? 0 : it.points), 0);
+          b.items.forEach(it => { if (isNaN(it.points)) add("error", it.line, "Rubric points must be a number."); });
+          if (total !== 100) add("error", b.line, `Rubric points total ${total}; they must total 100.`);
+          break;
+        }
+      }
+    }
+    if (type === "lesson" && !drillCount) add("warning", 1, "This lesson has no drills.");
+    if (type === "outline" && !doc.blocks.some(b => b.name === "week")) add("error", 1, "The outline needs at least one ::: week block.");
+    return issues.sort((a, b) => a.line - b.line);
+  }
+
+  /** Checks every kind of video block shares: url, approved host, title, captions. */
+  function videoChecks(b, need, add, hosts, ready) {
+    const h = b.header;
+    need("url"); need("title", "it names the player for screen readers"); need("captions");
+    const url = h.url || "";
+    if (url === "TODO") add(ready ? "error" : "warning", b.headerLines.url || b.line, `Video "${h.title || ""}" has no URL yet.`);
+    else if (url) {
+      const host = hostOf(url);
+      if (!host) add("error", b.headerLines.url, "Video url must be a full https:// address.");
+      else if (!hosts.includes(host) && !(host === "youtu.be" && hosts.includes("www.youtube.com"))) add("error", b.headerLines.url, `Video host "${host}" is not on the approved list (${hosts.join(", ")}).`);
+    }
+    if (h.captions && !["verified", "auto", "none"].includes(h.captions)) add("error", b.headerLines.captions, 'captions is "verified", "auto" or "none".');
+    if (h.captions && h.captions !== "verified") add(ready ? "error" : "warning", b.headerLines.captions || b.line, `Video "${h.title || ""}" needs human-verified captions before this file is ready (ADA Title II, WCAG 1.2.2).`);
+  }
+
+  /**
+   * Course index for section files: every video id and every activity id
+   * (drills, quizzes, skill checks), from a list of parsed lesson files.
+   */
+  function courseIndex(docs) {
+    const videos = [], videoIds = new Set(), anchorIds = new Set();
+    for (const d of docs) for (const b of d.blocks) {
+      if (b.name === "video" && b.header.id) {
+        videoIds.add(b.header.id); anchorIds.add(b.header.id);
+        videos.push({ id: b.header.id, title: b.header.title || "", lesson: d.meta.title || "", lessonId: d.meta.id || "", url: b.header.url || "" });
+      }
+      if (["drill", "quiz", "skillcheck", "preflight", "rubric"].includes(b.name) && b.arg) anchorIds.add(b.arg);
+    }
+    return { videos, videoIds, anchorIds };
+  }
+
+  /**
+   * Apply one section file to one lesson: swap replaced videos and insert
+   * added ones. Returns a NEW document; the lesson itself is never changed.
+   * Each instructor video remembers the stock one (stockUrl) so learners can
+   * still choose the standard video.
+   */
+  function applyOverrides(doc, section) {
+    if (!section) return doc;
+    const replace = {}, after = {};
+    for (const b of section.blocks) {
+      if (b.name === "replace-video" && b.arg) replace[b.arg] = b;
+      if (b.name === "add-video" && b.arg) (after[b.arg.replace(/^after\s+/, "")] = after[b.arg.replace(/^after\s+/, "")] || []).push(b);
+    }
+    const who = section.meta.instructor || "your instructor";
+    const asVideo = (o, stock) => ({ kind: "directive", name: "video", arg: "", line: o.line, header: Object.assign({}, o.header, { id: stock ? stock.header.id : "" }),
+      headerLines: {}, intro: [], steps: [], body: [], items: [],
+      source: "instructor", instructor: who, stockUrl: stock ? stock.header.url : null, stockTitle: stock ? stock.header.title : null });
+    const blocks = [];
+    for (const b of doc.blocks) {
+      const vid = b.name === "video" ? b.header.id : null;
+      blocks.push(vid && replace[vid] ? asVideo(replace[vid], b) : b);
+      const anchor = vid || (b.kind === "directive" ? b.arg : null);
+      if (anchor && after[anchor]) after[anchor].forEach(o => blocks.push(asVideo(o, null)));
+    }
+    return Object.assign({}, doc, { blocks });
+  }
+
+  /** Check one parsed "check:" against the catalog. */
+  function validateCheck(c, where, add, set) {
+    set = set || checkSet("word");
+    const CATALOG = set.checks, SEL = set.selectors;
+    const def = CATALOG[c.name];
+    if (!c.name) return;
+    if (!def) { add("error", c.line, `Unknown check "${c.name}". Known checks: ${Object.keys(CATALOG).join(", ")}.`); return; }
+    if (def.notInSkillCheck && where === "skillcheck") add("error", c.line, `${c.name} can't be used in a skill check.`);
+    const used = Object.keys(c.params);
+    const sel = used.filter(k => SEL.includes(k));
+    if (sel.length && !def.selector) add("error", c.line, `${c.name} doesn't take a selector (${sel.join(", ")}).`);
+    if (sel.length > 1) add("error", c.line, `Use only one selector; found ${sel.join(" and ")}.`);
+    if (def.needsSelector && !sel.length) add("error", c.line, `${c.name} needs ${SEL.join("= or ")}= to say which cells to check.`);
+    if (SEL.includes("in") && c.params.in && !["body", "header", "footer", "document"].includes(c.params.in)) add("error", c.line, 'in= is body, header, footer or document.');
+    for (const [key, type] of Object.entries(def.params)) {
+      if (type.endsWith("!") && c.params[key] === undefined) add("error", c.line, `${c.name} needs ${key}=...`);
+    }
+    if (def.needsOneOf && !def.needsOneOf.some(k => c.params[k] !== undefined)) add("error", c.line, `${c.name} needs at least one of: ${def.needsOneOf.join(", ")}.`);
+    for (const key of used) {
+      if (SEL.includes(key)) continue;
+      const type = def.params[key];
+      if (!type) { add("error", c.line, `${c.name} has no parameter "${key}". It takes: ${Object.keys(def.params).concat(def.selector ? SEL : []).join(", ") || "no parameters"}.`); continue; }
+      const v = c.params[key];
+      const base = type.replace("!", "");
+      const bad = (msg) => add("error", c.line, `${c.name} ${key}=${v}: ${msg}`);
+      if (base === "int" && !/^\d+$/.test(v)) bad("expected a whole number.");
+      if (base === "number" && isNaN(Number(v))) bad("expected a number.");
+      if (base === "bool" && !["true", "false"].includes(v)) bad("expected true or false.");
+      if (base === "length" && toPoints(v) === null) bad("expected a length with units, like 1in, 36pt or 2.54cm.");
+      if (base === "color" && !/^#[0-9A-Fa-f]{6}$/.test(v)) bad("expected a color like #0046AD.");
+      if (base === "lang" && !/^[a-z]{2}-[A-Z]{2}$/.test(v)) bad("expected a language tag like en-US.");
+      if (base === "lineSpacing" && !(["single", "1.15", "1.5", "double"].includes(v) || toPoints(v) !== null)) bad("expected single, 1.15, 1.5, double or an exact value like 14pt.");
+      if (base.startsWith("enum:") && !base.slice(5).split("|").includes(v)) bad(`expected one of ${base.slice(5).split("|").join(", ")}.`);
+    }
+  }
+
+  /** Markdown-level checks: H1, raw HTML, images, links, inline syntax. */
+  function validateMarkdown(b, add) {
+    let inCode = false;
+    (b.lines || []).forEach((l, k) => {
+      const lineNo = b.line + k;
+      if (/^```/.test(l.trim())) { inCode = !inCode; return; }
+      if (inCode) return;
+      if (/^#\s/.test(l)) add("error", lineNo, "Don't use a # heading; the title is the page's only H1. Start at ##.");
+      if (/^#{4,}\s/.test(l)) add("warning", lineNo, "Headings deeper than ### are hard to scan in the narrow add-in panel.");
+      checkInline(l, lineNo, add);
+    });
+  }
+
+  function checkInline(text, lineNo, add) {
+    const t = String(text || "");
+    const noCode = t.replace(/`[^`]*`/g, "");
+    if (/<\/?[A-Za-z][^>]*>/.test(noCode)) add("error", lineNo, "Raw HTML isn't allowed. It will be shown as text.");
+    let m;
+    const img = /!\[([^\]]*)\]\(([^)\s]+)\)(\{decorative\})?/g;
+    while ((m = img.exec(t))) {
+      if (!m[1].trim() && !m[3]) add("error", lineNo, "This image needs alt text, or {decorative} if it carries no information.");
+      if (/^https?:/i.test(m[2])) add("warning", lineNo, "External images load from another site; prefer a file in images/.");
+      else if (m[2].includes("..") || /^[a-z]+:/i.test(m[2])) add("error", lineNo, "Image paths must be relative, like images/indent.png.");
+    }
+    const link = /(?<!!)\[([^\]]+)\]\(([^)\s]+)\)/g;
+    while ((m = link.exec(t))) {
+      const href = m[2];
+      if (!/^https:\/\//i.test(href) && !/^[\w\-./]+\.md(#[\w-]+)?$/.test(href)) add("error", lineNo, `Link "${href}" must start with https:// or point to a lesson .md file.`);
+    }
+    const ext = /\[\[([a-z]+)\s*:([^\]]*)\]\]/g;
+    while ((m = ext.exec(t))) {
+      if (!["key", "path"].includes(m[1])) add("error", lineNo, `Unknown inline tag [[${m[1]}: ...]]. Use [[key: ...]] or [[path: ...]].`);
+    }
+  }
+
+  function hostOf(url) { const m = /^https:\/\/([^/:?#]+)/i.exec(url); return m ? m[1].toLowerCase() : null; }
+  function checkUrl(url, lineNo, add, hosts) {
+    const host = hostOf(url.split("#")[0]);
+    if (!host) add("error", lineNo, "Video links must be full https:// addresses.");
+    else if (!hosts.includes(host) && host !== "youtu.be") add("error", lineNo, `Video host "${host}" is not approved.`);
+  }
+
+  // -------------------------------------------------------------------------
+  // 3. RENDER (safe HTML string for previews)
+  // -------------------------------------------------------------------------
+
+  /** Inline Markdown on ONE line of text. Escapes first, then adds our own tags. */
+  function inline(text) {
+    // Pull out code spans first so nothing inside them is formatted.
+    const codes = [];
+    let s = String(text).replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return "\u0000" + (codes.length - 1) + "\u0000"; });
+    s = esc(s);
+    // [[key: Ctrl+S / Cmd+S]] -> <kbd> groups
+    s = s.replace(/\[\[key:\s*([^\]]+?)\s*\]\]/g, (_, keys) => keys.split(" / ").map((combo, n, all) =>
+      `<span class="tm-keys">${all.length > 1 ? `<span class="tm-keyos">${n === 0 ? "Win" : "Mac"}</span>` : ""}${combo.split("+").map(k => `<kbd>${k}</kbd>`).join("+")}</span>`).join(" "));
+    // [[path: Home &gt; Paragraph]] -> breadcrumb
+    s = s.replace(/\[\[path:\s*([^\]]+?)\s*\]\]/g, (_, p) => `<span class="tm-path">${p.split(" &gt; ").map(x => `<span>${x}</span>`).join('<span class="tm-sep" aria-hidden="true">›</span>')}</span>`);
+    // images, then links
+    s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)(\{decorative\})?/g, (_, alt, src, deco) =>
+      (/^https?:|^[a-z]+:|\.\./i.test(src.replace(/&amp;/g, "&")) && !/^https:/i.test(src)) ? "" :
+      `<img src="${src}" alt="${deco ? "" : alt}"${deco ? ' role="presentation"' : ""} loading="lazy">`);
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (all, label, href) =>
+      /^https:\/\//i.test(href) ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}<span class="tm-vh"> (opens in a new tab)</span></a>`
+        : /^[\w\-./]+\.md(#[\w-]+)?$/.test(href) ? `<a href="${href}" class="tm-lesson-link">${label}</a>` : label);
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
+    // Put code spans back (escaped).
+    s = s.replace(/\u0000(\d+)\u0000/g, (_, n) => `<code>${esc(codes[Number(n)])}</code>`);
+    return s;
+  }
+
+  /** Block Markdown: headings, paragraphs, lists (nested by indent), tables. */
+  function markdown(lines) {
+    const out = [];
+    let i = 0;
+    const L = lines || [];
+    while (i < L.length) {
+      const line = L[i];
+      if (!line.trim()) { i++; continue; }
+      let m;
+      if ((m = /^(#{2,3})\s+(.*)$/.exec(line))) { out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`); i++; continue; }
+      if (/^#\s/.test(line)) { out.push(`<p>${inline(line.replace(/^#\s/, ""))}</p>`); i++; continue; } // demoted: only one H1
+      if (/^```/.test(line.trim())) {
+        const code = []; i++;
+        while (i < L.length && !/^```/.test(L[i].trim())) { code.push(L[i]); i++; }
+        i++; out.push(`<pre><code>${esc(code.join("\n"))}</code></pre>`); continue;
+      }
+      if (/^\|.*\|\s*$/.test(line.trim()) && L[i + 1] && /^\|[\s:|-]+\|\s*$/.test(L[i + 1].trim())) {
+        const cells = r => r.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+        const head = cells(line); i += 2;
+        const rows = [];
+        while (i < L.length && /^\|.*\|\s*$/.test(L[i].trim())) { rows.push(cells(L[i])); i++; }
+        out.push(`<div class="tm-table" tabindex="0" role="region" aria-label="Table (scroll sideways if it is wider than the panel)"><table><thead><tr>${head.map(h => `<th scope="col">${inline(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
+        continue;
+      }
+      if (/^\s*([-*]|\d+\.)\s+/.test(line)) {
+        const items = [];
+        while (i < L.length && (/^\s*([-*]|\d+\.)\s+/.test(L[i]) || (/^\s{2,}\S/.test(L[i]) && items.length))) {
+          const lm = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(L[i]);
+          if (lm) items.push({ indent: lm[1].length, ordered: /\d/.test(lm[2]), text: lm[3] });
+          else items[items.length - 1].text += " " + L[i].trim();
+          i++;
+        }
+        out.push(listHtml(items, 0, items.length ? items[0].indent : 0).html);
+        continue;
+      }
+      const para = [];
+      while (i < L.length && L[i].trim() && !/^(#{1,3}\s|```|\s*([-*]|\d+\.)\s+|\|)/.test(L[i])) { para.push(L[i].trim()); i++; }
+      if (para.length) out.push(`<p>${inline(para.join(" "))}</p>`);
+      else { out.push(`<p>${inline(line)}</p>`); i++; }
+    }
+    return out.join("\n");
+  }
+  function listHtml(items, start, indent) {
+    const ordered = items[start] && items[start].ordered;
+    let html = ordered ? "<ol>" : "<ul>";
+    let i = start;
+    while (i < items.length && items[i].indent >= indent) {
+      if (items[i].indent > indent) {
+        const sub = listHtml(items, i, items[i].indent);
+        html = html.replace(/<\/li>$/, sub.html + "</li>");
+        i = sub.next; continue;
+      }
+      html += `<li>${inline(items[i].text)}</li>`;
+      i++;
+    }
+    return { html: html + (ordered ? "</ol>" : "</ul>"), next: i };
+  }
+
+  /** Turn a YouTube or Vimeo address into a privacy-friendly embed address. */
+  function embedUrl(url) {
+    let m;
+    if ((m = /^https:\/\/(?:www\.)?youtube\.com\/watch\?v=([\w-]{6,})/.exec(url)) || (m = /^https:\/\/youtu\.be\/([\w-]{6,})/.exec(url))
+      || (m = /^https:\/\/(?:www\.)?youtube(?:-nocookie)?\.com\/embed\/([\w-]{6,})/.exec(url))) return "https://www.youtube-nocookie.com/embed/" + m[1];
+    if ((m = /^https:\/\/(?:www\.)?vimeo\.com\/(\d+)/.exec(url))) return "https://player.vimeo.com/video/" + m[1];
+    return url;
+  }
+
+  /** Describe a check in plain words for the author view. */
+  function describeCheck(c) {
+    const p = Object.entries(c.params).map(([k, v]) => `${k}=${/\s/.test(v) ? `"${v}"` : v}`).join(" ");
+    return `${c.name}${p ? " " + p : ""}`;
+  }
+
+  // -------------------------------------------------------------------------
+  // Activity labels, badges and record ids
+  // -------------------------------------------------------------------------
+
+  /**
+   * How an activity is assessed, as a list of ASSESS_KINDS.
+   * An explicit "assess:" header wins; otherwise it is worked out from the steps.
+   */
+  function activityKinds(b) {
+    if (b.header && b.header.assess) return splitList(b.header.assess).filter(k => ASSESS_KINDS.includes(k));
+    if (b.name === "rubric") return ["instructor"];
+    if (b.name === "preflight" || b.name === "quiz") return ["practice"];
+    const kinds = [];
+    // self.attest is the learner's own word, so it does not make an activity auto-checked
+    if ((b.steps || []).some(s => s.checks.some(c => c.name !== "self.attest") || s.extra.answer !== undefined)) kinds.push("auto");
+    if ((b.steps || []).some(s => s.extra.screenshot !== undefined)) kinds.push("screenshot");
+    return kinds.length ? kinds : ["practice"];
+  }
+  /** Learner-facing words for those kinds, in "practice" or "section" mode. */
+  function activityLabels(b, mode) {
+    return activityKinds(b).map(k => ({ kind: k, text: ASSESS_LABELS[k][mode === "section" ? "section" : "practice"] }));
+  }
+  /** The badge a drill, skill check or project awards. Default name = its title. */
+  function badgeFor(b, meta) {
+    const kindOf = { drill: "drill", skillcheck: "skillcheck" }[b.name] || "project";
+    return { id: b.arg, name: (b.header.badge || b.header.title || b.arg || "").trim(), week: Number(meta.week) || null,
+      kind: activityKinds(b).includes("screenshot") && !activityKinds(b).includes("auto") ? "screenshot" : kindOf };
+  }
+
+  /**
+   * Badge artwork as an SVG string: a hexagon in the week's color with a glyph
+   * for the kind of activity and its short code underneath.
+   * o = { week, kind: drill|screenshot|skillcheck|project|lesson|course, code, label, size }
+   */
+  function badgeSVG(o) {
+    const color = WEEK_COLORS[o.week] || "#374151";
+    const size = o.size || 72;
+    const glyphs = {
+      drill: '<path d="M34 50l11 11 21-23" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>',
+      screenshot: '<rect x="30" y="38" width="40" height="28" rx="5" fill="none" stroke="#fff" stroke-width="5"/><circle cx="50" cy="52" r="7" fill="none" stroke="#fff" stroke-width="5"/><path d="M41 38l4-6h10l4 6" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>',
+      skillcheck: '<path d="M50 29l6.5 13.2 14.5 2.1-10.5 10.2 2.5 14.5L50 62.2 37 69l2.5-14.5L29 44.3l14.5-2.1z" fill="#fff"/>',
+      project: '<path d="M36 30h20l10 10v28H36z" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><path d="M42 50h16M42 59h16" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
+      lesson: '<path d="M30 36h16a6 6 0 0 1 4 2 6 6 0 0 1 4-2h16v30H54a6 6 0 0 0-4 2 6 6 0 0 0-4-2H30z" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>',
+      course: '<circle cx="50" cy="46" r="13" fill="none" stroke="#fff" stroke-width="5"/><path d="M42 57l-5 14 8-3 5 6 3-14M58 57l5 14-8-3-5 6" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>',
+    };
+    const label = esc(o.label || o.code || "Badge");
+    return `<svg class="tm-badge-art" viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${label}">` +
+      `<polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="${color}"/>` +
+      `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>` +
+      (o.week ? `<text x="50" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" letter-spacing="1.2" fill="#fff">WEEK ${esc(o.week)}</text>` : "") +
+      (glyphs[o.kind] || glyphs.drill) +
+      (o.code ? `<text x="50" y="83" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#fff">${esc(o.code)}</text>` : "") +
+      `</svg>`;
+  }
+
+  /**
+   * A record id such as "OT-W1L2-2610-K7QM-9X3DP".
+   * 8 random characters (Crockford base32: no I, L, O or U, so it reads aloud
+   * cleanly) plus one check character that catches most typing mistakes.
+   * In practice mode the id is unique but NOT verifiable: see
+   * spec/badges-and-certificates.md.
+   */
+  const B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  function makeId(prefix, date) {
+    const d = date || new Date();
+    const yymm = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0");
+    const bytes = new Uint8Array(8);
+    (root.crypto || globalThis.crypto).getRandomValues(bytes);
+    const body = Array.from(bytes, n => B32[n % 32]).join("");
+    return `${prefix}-${yymm}-${body.slice(0, 4)}-${body.slice(4)}${checkChar(body)}`;
+  }
+  function checkChar(body) {
+    let sum = 0;
+    for (let i = 0; i < body.length; i++) sum += (i + 1) * B32.indexOf(body[i]);
+    return B32[sum % 32];
+  }
+  /** True when an id's check character matches (catches typos, NOT forgeries). */
+  function idLooksValid(id) {
+    const m = /-([0-9A-HJKMNP-TV-Z]{4})-([0-9A-HJKMNP-TV-Z]{4})([0-9A-HJKMNP-TV-Z])$/.exec(String(id || "").toUpperCase());
+    return !!m && checkChar(m[1] + m[2]) === m[3];
+  }
+
+  /**
+   * Render a parsed document to an HTML string.
+   * opts: platform ("all" | "web" | "desktop" | "windows" | "mac"),
+   *       showChecks (true for authors), videoHosts
+   */
+  function render(doc, opts) {
+    // mode: "practice" (no section; nothing recorded) or "section" (graded course)
+    // assetBase: where images/ lives relative to the page showing the preview
+    opts = Object.assign({ platform: "all", showChecks: true, videoHosts: DEFAULT_VIDEO_HOSTS, mode: "practice", assetBase: "", appName: "Word" }, opts || {});
+    const APP = opts.appName;   // "Word" or "Excel": used in platform labels and screenshot tips
+    const labelPills = (b) => `<span class="tm-labels" aria-label="How this is assessed">${activityLabels(b, opts.mode).map(l => `<span class="tm-pill tm-assess tm-assess-${l.kind}">${esc(l.text)}</span>`).join(" ")}</span>`;
+    const meta = doc.meta;
+    const shows = (p) => opts.platform === "all" || p === opts.platform ||
+      (p === "desktop" && (opts.platform === "windows" || opts.platform === "mac"));
+    const parts = [];
+    parts.push(`<header class="tm-head"><p class="tm-eyebrow">${esc(`Week ${meta.week || "?"} · ${labelFor(meta.type)}${meta.minutes ? " · about " + meta.minutes + " min" : ""}`)}</p><h1>${esc(meta.title || "Untitled")}</h1></header>`);
+
+    for (const b of doc.blocks) {
+      if (b.kind === "md") { parts.push(markdown(b.lines)); continue; }
+      const h = b.header;
+      switch (b.name) {
+        case "callout": {
+          const label = { tip: "Tip", note: "Note", warning: "Watch out", why: "Why it matters", ai: "AI moment (optional)", privacy: "Privacy" }[b.arg] || "Note";
+          parts.push(`<aside class="tm-callout tm-${esc(b.arg)}"><p class="tm-callout-label">${label}</p>${markdown(b.md)}</aside>`);
+          break;
+        }
+        case "platform":
+          if (shows(b.arg)) parts.push(`<section class="tm-platform"><p class="tm-callout-label">${esc(platformName(b.arg, APP))}</p>${markdown(b.md)}</section>`);
+          break;
+        case "video": {
+          // Instructor videos: say so, show the instructor's note, and keep the standard video one click away
+          if (b.source === "instructor") {
+            const stock = b.stockUrl && b.stockUrl !== "TODO" && /^https:/.test(b.stockUrl)
+              ? ` <a href="${esc(b.stockUrl)}" target="_blank" rel="noopener noreferrer">Watch the standard video instead<span class="tm-vh"> (opens in a new tab)</span></a>` : "";
+            parts.push(`<p class="tm-from"><span class="tm-pill tm-instructor-pill">From ${esc(b.instructor)}</span>${h.note ? " " + inline(h.note) : ""}${stock}</p>`);
+          }
+          parts.push(videoFigure(h, opts));
+          break;
+        }
+        case "replace-video": case "add-video": {
+          const what = b.name === "replace-video" ? `Replaces the course video <code>${esc(b.arg)}</code>` : `Added after <code>${esc(b.arg.replace(/^after\s+/, ""))}</code>`;
+          parts.push(`<section class="tm-override"><p class="tm-callout-label">${b.name === "replace-video" ? "Replacement video" : "Added video"}</p><p>${what}</p>${h.note ? `<p class="tm-variant">Note to learners: ${inline(h.note)}</p>` : ""}${videoFigure(h, opts)}</section>`);
+          break;
+        }
+        case "quiz": {
+          const multi = h.type === "multi", num = h.type === "number";
+          const name = "q-" + esc(b.arg);
+          const body = num
+            ? `<label class="tm-answer">Your answer <input type="number" inputmode="numeric" data-answer="${esc(h.answer || "")}"></label>`
+            : `<fieldset><legend class="tm-vh">${inline(h.question || "")}</legend>${b.items.map((o, n) =>
+              `<label class="tm-opt"><input type="${multi ? "checkbox" : "radio"}" name="${name}" value="${n}" data-correct="${o.correct}"> <span>${inline(o.text)}</span></label>`).join("")}</fieldset>`;
+          parts.push(`<section class="tm-quiz" data-quiz="${esc(b.arg)}" data-type="${esc(h.type || "single")}"><p class="tm-callout-label">Quick check${multi ? " · select all that apply" : ""}</p><p class="tm-q">${inline(h.question || "")}</p>${body}<button type="button" class="tm-btn tm-quiz-check">Check answer</button><p class="tm-feedback" role="status" aria-live="polite"></p>${h.explain ? `<p class="tm-explain" hidden>${inline(h.explain)}</p>` : ""}</section>`);
+          break;
+        }
+        case "drill": case "skillcheck": case "preflight": {
+          const label = meta.type === "capstone" && b.name === "skillcheck" ? "Practice exam" // the capstone's timed exam
+            : { drill: "Practice drill", skillcheck: "Skill check", preflight: "Preflight check" }[b.name];
+          const facts = [];
+          if (h.minutes) facts.push(`about ${esc(h.minutes)} min`);
+          if (h.timeLimit) facts.push(`${esc(h.timeLimit)} min limit`);
+          if (h.attempts) facts.push(`${esc(h.attempts)} attempts`);
+          if (h.passing) facts.push(`pass at ${esc(h.passing)}%`);
+          const badge = h.platform === "desktop" ? '<span class="tm-pill tm-desktop">Desktop ' + esc(APP) + '</span>' : '<span class="tm-pill tm-web">Web or desktop</span>';
+          const steps = b.steps.filter(s => !s.extra.platform || shows(s.extra.platform)).map(s => {
+            const checked = s.checks.length || s.extra.answer !== undefined;
+            const variants = [];
+            if (s.extra.web && shows("web")) variants.push(`<p class="tm-variant"><span class="tm-pill tm-web">Web</span> ${inline(s.extra.web)}</p>`);
+            if (s.extra.desktop && shows("desktop")) variants.push(`<p class="tm-variant"><span class="tm-pill tm-desktop">Desktop</span> ${inline(s.extra.desktop)}</p>`);
+            const hint = s.hints.length && b.name !== "skillcheck" ? `<details class="tm-hint"><summary>Hint</summary>${s.hints.map(x => `<p>${inline(x)}</p>`).join("")}</details>` : "";
+            const answer = s.extra.answer !== undefined ? `<label class="tm-answer">Your answer <input type="text" inputmode="numeric"></label>` : "";
+            const checks = opts.showChecks && s.checks.length ? `<ul class="tm-checks" aria-label="Checks (author view)">${s.checks.map(c => `<li><code>${esc(describeCheck(c))}</code></li>`).join("")}${s.extra.answer !== undefined ? `<li><code>answer = ${esc(s.extra.answer)}</code></li>` : ""}</ul>` : (opts.showChecks && s.extra.answer !== undefined ? `<ul class="tm-checks"><li><code>answer = ${esc(s.extra.answer)}</code></li></ul>` : "");
+            const shot = s.extra.screenshot !== undefined ? screenshotStep(s, opts) : "";
+            const only = s.extra.platform ? ` <span class="tm-pill tm-${s.extra.platform === "desktop" ? "desktop" : "web"}">${s.extra.platform === "desktop" ? "Desktop only" : "Web only"}</span>` : "";
+            const status = checked ? '<span class="tm-status-dot" aria-hidden="true"></span> Checked by the trainer'
+              : s.extra.screenshot !== undefined ? (opts.mode === "section" ? "Screenshot for your instructor" : "Compare with the example") : "Instruction only";
+            return `<li class="tm-step${checked ? " tm-checked" : ""}${shot ? " tm-shot" : ""}"><div class="tm-step-text">${inline(s.text)}${only}</div>${variants.join("")}${answer}${shot}${hint}${checks}<p class="tm-step-status">${status}</p></li>`;
+          }).join("");
+          const award = b.name === "preflight" ? "" : (() => { const bd = badgeFor(b, meta); return `<p class="tm-award">${badgeSVG({ week: bd.week, kind: bd.kind, code: bd.id, label: "Badge: " + bd.name, size: 40 })}<span>Finish to earn the <strong>${esc(bd.name)}</strong> badge</span></p>`; })();
+          parts.push(`<section class="tm-drill tm-${b.name}" aria-labelledby="h-${esc(b.arg)}"><div class="tm-drill-head"><p class="tm-callout-label">${label} ${esc(b.arg)}</p><h2 id="h-${esc(b.arg)}">${inline(h.title || "")}</h2><p class="tm-facts">${labelPills(b)} ${badge}${facts.length ? " · " + facts.join(" · ") : ""}</p>${award}</div>${markdown(b.intro)}<ol class="tm-steps">${steps}</ol><div class="tm-actions"><button type="button" class="tm-btn tm-primary">${b.name === "skillcheck" ? "Start" : "Check my work"}</button>${opts.showChecks && h.starter && h.starter !== "none" ? `<span class="tm-starter">Starter: <code>${esc(h.starter)}</code></span>` : ""}</div></section>`);
+          break;
+        }
+        case "week": {
+          const color = /^#[0-9A-Fa-f]{6}$/.test(h.color || "") ? h.color : (WEEK_COLORS[Number((b.arg || "").slice(1))] || "#374151");
+          parts.push(`<section class="tm-week"><h2><span class="tm-line" style="background:${color}"></span>${esc(b.arg)} · ${inline(h.title || "")}</h2><ol class="tm-stations">${b.steps.map(it => `<li><strong>${inline(it.text)}</strong> <span class="tm-pill">${esc(it.extra.kind || "")}</span>${it.extra.minutes ? ` · ${esc(it.extra.minutes)} min` : ""}${it.extra.file ? "" : ' · <em>planned</em>'}${it.extra.goals ? `<br><span class="tm-goals">${inline(it.extra.goals)}</span>` : ""}</li>`).join("")}</ol></section>`);
+          break;
+        }
+        case "outcomes": case "certification":
+          parts.push(`<div class="tm-table" tabindex="0" role="region" aria-label="Table (scroll sideways if it is wider than the panel)"><table><caption>${b.name === "outcomes" ? "Course learning outcomes" : "Certification: " + esc(b.arg)}</caption><tbody>${b.items.map(it => `<tr><th scope="row">${esc(it.id)}</th><td>${inline(it.text)}</td></tr>`).join("")}</tbody></table></div>`);
+          break;
+        case "rubric": {
+          const total = b.items.reduce((s, it) => s + (it.points || 0), 0);
+          parts.push(`<p class="tm-facts">${labelPills(b)}</p><div class="tm-table" tabindex="0" role="region" aria-label="Rubric table"><table class="tm-rubric"><caption>Rubric ${esc(b.arg)}</caption><thead><tr><th scope="col">Criterion</th><th scope="col">Points</th><th scope="col">Outcomes</th></tr></thead><tbody>${b.items.map(it => `<tr><td><strong>${esc(it.id)}</strong> ${inline(it.text)}</td><td>${esc(it.points)}</td><td>${esc(it.clos.join(", "))}</td></tr>`).join("")}<tr><td><strong>Total</strong></td><td><strong>${total}</strong></td><td></td></tr></tbody></table></div>`);
+          break;
+        }
+      }
+    }
+    return parts.join("\n");
+  }
+  function labelFor(t) { return { lesson: "Lesson", skillcheck: "Skill check", project: "Project", capstone: "Capstone", config: "Course settings", info: "Course guide", outline: "Course outline", section: "Section videos" }[t] || "Lesson"; }
+
+  /** The player (or a placeholder) for one video header. */
+  function videoFigure(h, opts) {
+    const url = h.url || "";
+    const host = hostOf(embedUrl(url));
+    const title = esc(h.title || "Video");
+    const capNote = h.captions === "verified" ? "Captions checked" : h.captions === "auto" ? "Automatic captions (not yet checked)" : "No captions yet";
+    if (url === "TODO" || !host || !opts.videoHosts.concat(["www.youtube-nocookie.com"]).includes(host)) {
+      return `<figure class="tm-video tm-video-empty"><div class="tm-video-box"><span>${url === "TODO" ? "Video coming soon" : "Video not shown: host not approved"}</span></div><figcaption><strong>${title}</strong>${h.duration ? " · " + esc(h.duration) : ""} · ${capNote}</figcaption></figure>`;
+    }
+    return `<figure class="tm-video"><div class="tm-video-box"><iframe src="${esc(embedUrl(url))}" title="${title}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><figcaption><strong>${title}</strong>${h.duration ? " · " + esc(h.duration) : ""} · ${capNote}${h.transcript && /^https:/.test(h.transcript) ? ` · <a href="${esc(h.transcript)}" target="_blank" rel="noopener noreferrer">Transcript</a>` : ""}</figcaption></figure>`;
+  }
+
+  /** The screenshot part of a step: what to capture, the example, and a text alternative. */
+  function screenshotStep(s, opts) {
+    const ex = s.extra.example && s.extra.example !== "TODO" ? `<details class="tm-example"><summary>See the example screenshot</summary><img src="${esc(opts.assetBase + s.extra.example)}" alt="${esc("Example: " + s.extra.screenshot)}" loading="lazy"></details>` : "";
+    const how = opts.mode === "section"
+      ? "Capture just the " + (opts.appName || "Word") + " window and add it to this week's evidence document for your instructor."
+      : "Capture just the " + (opts.appName || "Word") + " window, then compare it with the example. Nothing is uploaded.";
+    const alt = s.extra.describe || "Can't take or see a screenshot? Describe in a sentence or two what your screen shows instead.";
+    const keys = inline("[[key: Win+Shift+S / Cmd+Shift+4]]");
+    return `<div class="tm-screenshot"><p class="tm-callout-label">Screenshot</p><p><strong>Show:</strong> ${inline(s.extra.screenshot)}</p><p class="tm-variant">${esc(how)} ${keys}</p>${ex}<p class="tm-variant">${inline(alt)}</p></div>`;
+  }
+  function platformName(p, app) { const a = app || "Word"; return { web: "In " + a + " for the web", desktop: "In desktop " + a, windows: "On Windows", mac: "On a Mac" }[p] || p; }
+
+  /** Quick counts for a status bar. */
+  function summarize(doc) {
+    const s = { drills: 0, steps: 0, checked: 0, screenshots: 0, quizzes: 0, videos: 0, videosTodo: 0 };
+    doc.blocks.forEach(b => {
+      if (b.name === "drill" || b.name === "skillcheck" || b.name === "preflight") {
+        if (b.name === "drill") s.drills++;
+        s.steps += b.steps.length;
+        s.checked += b.steps.filter(x => x.checks.length || x.extra.answer !== undefined).length;
+        s.screenshots += b.steps.filter(x => x.extra.screenshot !== undefined).length;
+      }
+      if (b.name === "quiz") s.quizzes++;
+      if (b.name === "video") { s.videos++; if ((b.header.url || "") === "TODO") s.videosTodo++; }
+    });
+    return s;
+  }
+
+  /**
+   * The course map: weeks, and the stations (lessons, skill checks, projects)
+   * on each, worked out from content/outline.md and the lesson files.
+   * The roadmap, the certificate page and the add-in all use this, so they
+   * always agree about what's in the course and which badges each stop awards.
+   *   outline  parse(content/outline.md)
+   *   config   parse(course.config.md).meta
+   *   docs     { "content/week-01/01-meet-word.md": parse(that file), ... }
+   *            (files not written yet are simply missing)
+   */
+  function courseMap(outline, config, docs) {
+    const cfg = config || {};
+    const outcomes = (outline.blocks.find((b) => b.name === "outcomes") || {}).items || [];
+    const mosList = (outline.blocks.find((b) => b.name === "certification") || {}).items || [];
+    const slug = (x) => x.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
+
+    const weeks = outline.blocks.filter((b) => b.name === "week").map((w) => {
+      const n = Number(w.arg.slice(1));
+      const stations = w.steps.map((it) => {
+        const e = it.extra;
+        const st = {
+          sid: `w${n}-${slug(it.text)}`, title: it.text, kind: e.kind, minutes: Number(e.minutes) || null,
+          goals: e.goals || "", file: e.file || null, status: "planned", activities: [], clos: [], mos: [],
+          plannedDrills: e.drills ? e.drills.split(",").map((x) => x.trim()).filter(Boolean) : [],
+          certificate: e.kind === "lesson" && cfg.certificateEach === "lesson",
+        };
+        const doc = st.file && docs ? docs[st.file] : null;
+        if (doc) {
+          st.plannedDrills = []; // written: its real drills are in st.activities now
+          st.status = doc.meta.status === "ready" ? "ready" : "draft";
+          st.docId = doc.meta.id;
+          st.clos = Array.isArray(doc.meta.clos) ? doc.meta.clos : [];
+          const mos = new Set();
+          for (const b of doc.blocks) {
+            // practice items (quizzes, preflights) are counted, not badged
+            if (!["drill", "skillcheck", "rubric"].includes(b.name)) continue;
+            splitList(b.header.mos).forEach((c) => mos.add(c));
+            const badge = b.name === "rubric"
+              ? { id: b.arg, name: String(doc.meta.rubricBadge || String(doc.meta.title || b.arg).replace(/^Project \d+:\s*/, "")), week: n, kind: "project" }
+              : badgeFor(b, doc.meta);
+            st.activities.push({
+              id: b.arg, kind: b.name === "rubric" ? "project" : b.name,
+              title: b.name === "rubric" ? doc.meta.title : (b.header.title || b.arg),
+              assess: activityKinds(b), platform: b.header.platform || "web",
+              minutes: Number(b.header.minutes || b.header.timeLimit) || null, badge,
+              steps: b.steps.length, screenshots: b.steps.filter((x) => x.extra.screenshot !== undefined).length,
+            });
+          }
+          st.mos = [...mos].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+          st.quizzes = doc.blocks.filter((b) => b.name === "quiz").length;
+        }
+        return st;
+      });
+      return { id: w.arg, n, title: w.header.title, tagline: w.header.tagline || "", color: w.header.color || WEEK_COLORS[n], stations };
+    });
+
+    // The end of the line: the course certificate
+    if (cfg.courseCertificate === true || cfg.courseCertificate === "true") {
+      const last = weeks[weeks.length - 1];
+      if (last) last.stations.push({ sid: "course-complete", title: "Course Complete", kind: "course", minutes: null,
+        goals: "Earn the course certificate, with every badge and outcome from all five weeks on the back.",
+        file: null, status: "ready", activities: [], clos: outcomes.map((o) => o.id), mos: mosList.map((m) => m.id),
+        plannedDrills: [], certificate: true });
+    }
+    return { weeks, outcomes, mosNames: Object.fromEntries(mosList.map((i) => [i.id, i.text])) };
+  }
+
+  const api = { VERSION, parse, validate, render, summarize, inline, markdown, esc, toPoints, fontStack, embedUrl,
+    activityKinds, activityLabels, badgeFor, badgeSVG, makeId, idLooksValid, courseIndex, applyOverrides, courseMap, splitListPublic: splitList, VIDEO_ID, SECTION_CODE,
+    FONT_STACKS, DEFAULT_FONTS, DEFAULT_VIDEO_HOSTS, CHECKS, EXCEL_CHECKS, POWERPOINT_CHECKS, CHECK_SETS, checkSet, DIRECTIVES, CALLOUT_KINDS,
+    ASSESS_KINDS, ASSESS_LABELS, COURSE_MODES, WEEK_COLORS };
+  if (typeof module === "object" && module.exports) module.exports = api;
+  root.TrainerMD = api;
+})(typeof globalThis !== "undefined" ? globalThis : this);
+
+</script>
+<script type="application/json" id="roadmap-data">{"course":{"title":"Microsoft Excel Course Roadmap","college":"Finger Lakes Community College","issuer":"Finger Lakes Community College, Computing Sciences","license":"CC BY 4.0","mode":"practice","certificateEach":"lesson"},"app":{"name":"Excel","fullName":"Microsoft Excel","exam":"MO-210"},"weeks":[{"id":"W1","n":1,"title":"The Working Spreadsheet","tagline":"Build, format and print a clean, readable workbook.","color":"#0046ad","stations":[{"sid":"w1-how-this-course-works","title":"How This Course Works","kind":"start","minutes":10,"goals":"Know how the course works, how you'll be assessed, and how badges and certificates are earned.","file":"content/00-start-here.md","status":"draft","activities":[],"clos":[],"mos":[],"plannedDrills":[],"certificate":false,"docId":"XL-START","quizzes":1},{"sid":"w1-meet-excel","title":"Meet Excel","kind":"lesson","minutes":45,"goals":"Find your way around Excel, and save, name and organize workbooks and sheets you can find again.","file":"content/week-01/01-meet-excel.md","status":"draft","activities":[{"id":"D1.01","kind":"drill","title":"Save the workbook with a clear name","assess":["auto"],"platform":"web","minutes":3,"badge":{"id":"D1.01","name":"File Namer","week":1,"kind":"drill"},"steps":1,"screenshots":0},{"id":"D1.02","kind":"drill","title":"Name, add, color and move sheets","assess":["auto"],"platform":"web","minutes":4,"badge":{"id":"D1.02","name":"Sheet Shaper","week":1,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D1.03","kind":"drill","title":"Customize the Quick Access Toolbar","assess":["screenshot"],"platform":"desktop","minutes":4,"badge":{"id":"D1.03","name":"Toolbar Tuner","week":1,"kind":"screenshot"},"steps":1,"screenshots":1},{"id":"D1.04","kind":"drill","title":"Freeze the headings and change the view","assess":["auto"],"platform":"desktop","minutes":6,"badge":{"id":"D1.04","name":"View Finder","week":1,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D1.05","kind":"drill","title":"Find and replace a boat name","assess":["auto"],"platform":"web","minutes":5,"badge":{"id":"D1.05","name":"Find and Replace","week":1,"kind":"drill"},"steps":2,"screenshots":0}],"clos":["CLO1","CLO2","CLO6"],"mos":["1.2.1","1.4.1","1.4.2","1.4.3","1.4.4"],"plannedDrills":[],"certificate":true,"docId":"XL1-L1","quizzes":1},{"sid":"w1-enter-and-edit-data","title":"Enter and Edit Data","kind":"lesson","minutes":50,"goals":"Enter, fill, move and fix data quickly, without retyping.","file":"content/week-01/02-enter-edit.md","status":"draft","activities":[{"id":"D1.06","kind":"drill","title":"Fill, insert and delete","assess":["auto"],"platform":"web","minutes":10,"badge":{"id":"D1.06","name":"Grid Builder","week":1,"kind":"drill"},"steps":5,"screenshots":0},{"id":"D1.07","kind":"drill","title":"Paste values and transpose","assess":["auto"],"platform":"web","minutes":5,"badge":{"id":"D1.07","name":"Paste Pro","week":1,"kind":"drill"},"steps":2,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":["2.1.1","2.1.2","2.1.3","2.1.4"],"plannedDrills":[],"certificate":true,"docId":"XL1-L2","quizzes":1},{"sid":"w1-format-cells","title":"Format Cells","kind":"lesson","minutes":55,"goals":"Make a sheet easy to read with number formats, alignment, borders and cell styles.","file":"content/week-01/03-format-cells.md","status":"draft","activities":[{"id":"D1.08","kind":"drill","title":"Format money, percentages and dates","assess":["auto"],"platform":"web","minutes":7,"badge":{"id":"D1.08","name":"Number Formatter","week":1,"kind":"drill"},"steps":4,"screenshots":0},{"id":"D1.09","kind":"drill","title":"Merge the title, wrap and angle labels, indent rows","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D1.09","name":"Alignment Ace","week":1,"kind":"drill"},"steps":4,"screenshots":0},{"id":"D1.10","kind":"drill","title":"Cell styles, Format Painter and Clear Formats","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D1.10","name":"Style Setter","week":1,"kind":"drill"},"steps":4,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":["2.2.1","2.2.2","2.2.3","2.2.4","2.2.5","2.2.6","2.2.7","2.2.8"],"plannedDrills":[],"certificate":true,"docId":"XL1-L3","quizzes":1},{"sid":"w1-rows-columns-printing-and-properties","title":"Rows, Columns, Printing and Properties","kind":"lesson","minutes":45,"goals":"Size rows and columns, set up the page, and print or export a clean copy.","file":"content/week-01/04-page-print.md","status":"draft","activities":[{"id":"D1.11","kind":"drill","title":"Set widths and heights on two sheets at once","assess":["auto"],"platform":"desktop","minutes":5,"badge":{"id":"D1.11","name":"Layout Grouper","week":1,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D1.12","kind":"drill","title":"Set up the June report to print on one page","assess":["auto"],"platform":"desktop","minutes":8,"badge":{"id":"D1.12","name":"Page Setter","week":1,"kind":"drill"},"steps":5,"screenshots":0},{"id":"D1.13","kind":"drill","title":"Add properties and export a PDF","assess":["auto","screenshot"],"platform":"desktop","minutes":5,"badge":{"id":"D1.13","name":"PDF and Properties","week":1,"kind":"drill"},"steps":2,"screenshots":1}],"clos":["CLO1","CLO6"],"mos":["1.3.1","1.3.2","1.3.3","1.4.5","1.5.1","1.5.2","1.5.3","2.2.9"],"plannedDrills":[],"certificate":true,"docId":"XL1-L4","quizzes":1},{"sid":"w1-skill-check-1-the-working-spreadsheet","title":"Skill Check 1: The Working Spreadsheet","kind":"skillcheck","minutes":30,"goals":"Show what you can do in a timed, exam-style set of tasks.","file":"content/week-01/05-skill-check-sc1.md","status":"draft","activities":[{"id":"SC1","kind":"skillcheck","title":"Gear inventory","assess":["auto"],"platform":"web","minutes":30,"badge":{"id":"SC1","name":"Skill Check 1","week":1,"kind":"skillcheck"},"steps":12,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":["1.2.1","1.3.1","1.3.2","1.3.3","1.4.3","1.4.5","1.5.1","2.1.1","2.1.2","2.1.3","2.2.1","2.2.2","2.2.4","2.2.5","2.2.7"],"plannedDrills":[],"certificate":false,"docId":"XL1-SC1","quizzes":0},{"sid":"w1-project-1-monthly-budget-workbook","title":"Project 1: Monthly Budget Workbook","kind":"project","minutes":180,"goals":"Build a monthly budget workbook for a real purpose of your own.","file":"content/week-01/06-project-p1.md","status":"draft","activities":[{"id":"P1","kind":"project","title":"Project 1: Monthly Budget Workbook","assess":["instructor"],"platform":"web","minutes":null,"badge":{"id":"P1","name":"Budget Builder","week":1,"kind":"project"},"steps":0,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":[],"plannedDrills":[],"certificate":false,"docId":"XL1-P1","quizzes":0}]},{"id":"W2","n":2,"title":"Formulas That Work","tagline":"Let Excel do the math: formulas, references, everyday functions and names.","color":"#305305","stations":[{"sid":"w2-formulas-and-cell-references","title":"Formulas and Cell References","kind":"lesson","minutes":55,"goals":"Write formulas that stay right when you copy them, with relative, absolute and mixed references.","file":"content/week-02/01-formulas-references.md","status":"draft","activities":[{"id":"D2.01","kind":"drill","title":"Line totals, a subtotal and a total","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D2.01","name":"Formula Starter","week":2,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D2.02","kind":"drill","title":"Tax from one rate cell","assess":["auto"],"platform":"web","minutes":5,"badge":{"id":"D2.02","name":"Anchor Setter","week":2,"kind":"drill"},"steps":1,"screenshots":0},{"id":"D2.03","kind":"drill","title":"A price grid with mixed references","assess":["auto"],"platform":"web","minutes":7,"badge":{"id":"D2.03","name":"Grid Master","week":2,"kind":"drill"},"steps":2,"screenshots":0},{"id":"D2.04","kind":"drill","title":"Find the typed total and fix the error","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D2.04","name":"Formula Detective","week":2,"kind":"drill"},"steps":3,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":["1.4.6","4.1.1"],"plannedDrills":[],"certificate":true,"docId":"XL2-L1","quizzes":1},{"sid":"w2-everyday-functions","title":"Everyday Functions","kind":"lesson","minutes":50,"goals":"Total, average, count and decide with SUM, AVERAGE, COUNT and IF.","file":"content/week-02/02-everyday-functions.md","status":"draft","activities":[{"id":"D2.05","kind":"drill","title":"Totals, averages, highs and lows","assess":["auto"],"platform":"web","minutes":8,"badge":{"id":"D2.05","name":"Function Finder","week":2,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D2.06","kind":"drill","title":"Count the sign-ups","assess":["auto"],"platform":"web","minutes":5,"badge":{"id":"D2.06","name":"Counter","week":2,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D2.07","kind":"drill","title":"Late or on time?","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D2.07","name":"Decision Maker","week":2,"kind":"drill"},"steps":1,"screenshots":0}],"clos":["CLO2"],"mos":["4.2.1","4.2.2","4.2.3"],"plannedDrills":[],"certificate":true,"docId":"XL2-L2","quizzes":1},{"sid":"w2-names-and-links","title":"Names and Links","kind":"lesson","minutes":35,"goals":"Name important cells so formulas read like sentences, and link to places and pages.","file":"content/week-02/03-names-links.md","status":"draft","activities":[{"id":"D2.08","kind":"drill","title":"Name the tax rate and use it","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D2.08","name":"Name Giver","week":2,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D2.09","kind":"drill","title":"Link the summary to the details and the web","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D2.09","name":"Link Maker","week":2,"kind":"drill"},"steps":3,"screenshots":0}],"clos":["CLO2"],"mos":["1.2.2","1.2.3","2.3.1","2.3.2"],"plannedDrills":[],"certificate":true,"docId":"XL2-L3","quizzes":1},{"sid":"w2-text-functions-and-generated-data","title":"Text Functions and Generated Data","kind":"lesson","minutes":45,"goals":"Clean up and combine text with text functions, and generate numbers with SEQUENCE and RANDBETWEEN.","file":"content/week-02/04-text-functions.md","status":"draft","activities":[{"id":"D2.10","kind":"drill","title":"Split member codes and fix capitals","assess":["auto"],"platform":"web","minutes":9,"badge":{"id":"D2.10","name":"Text Surgeon","week":2,"kind":"drill"},"steps":6,"screenshots":0},{"id":"D2.11","kind":"drill","title":"Full names and an email list","assess":["auto"],"platform":"web","minutes":5,"badge":{"id":"D2.11","name":"Text Joiner","week":2,"kind":"drill"},"steps":2,"screenshots":0},{"id":"D2.12","kind":"drill","title":"Number lines and make practice data","assess":["auto"],"platform":"web","minutes":4,"badge":{"id":"D2.12","name":"Number Generator","week":2,"kind":"drill"},"steps":2,"screenshots":0}],"clos":["CLO2"],"mos":["2.1.5","4.3.1","4.3.2","4.3.3"],"plannedDrills":[],"certificate":true,"docId":"XL2-L4","quizzes":1},{"sid":"w2-skill-check-2-formulas-that-work","title":"Skill Check 2: Formulas That Work","kind":"skillcheck","minutes":30,"goals":"Show what you can do in a timed, exam-style set of tasks.","file":"content/week-02/05-skill-check-sc2.md","status":"draft","activities":[{"id":"SC2","kind":"skillcheck","title":"June orders","assess":["auto"],"platform":"web","minutes":30,"badge":{"id":"SC2","name":"Skill Check 2","week":2,"kind":"skillcheck"},"steps":13,"screenshots":0}],"clos":["CLO2"],"mos":["1.2.2","1.2.3","1.4.6","2.1.5","2.3.1","2.3.2","4.1.1","4.2.1","4.2.2","4.2.3","4.3.1","4.3.2","4.3.3"],"plannedDrills":[],"certificate":false,"docId":"XL2-SC2","quizzes":0},{"sid":"w2-project-2-invoice-and-grade-calculator","title":"Project 2: Invoice and Grade Calculator","kind":"project","minutes":160,"goals":"Build an invoice or grade calculator that does the math for you.","file":"content/week-02/06-project-p2.md","status":"draft","activities":[{"id":"P2","kind":"project","title":"Project 2: Invoice and Grade Calculator","assess":["instructor"],"platform":"web","minutes":null,"badge":{"id":"P2","name":"Calculator Builder","week":2,"kind":"project"},"steps":0,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":[],"plannedDrills":[],"certificate":false,"docId":"XL2-P2","quizzes":0}]},{"id":"W3","n":3,"title":"Tables and Data","tagline":"Bring data in, organize it as a table, and make the pattern visible.","color":"#a23108","stations":[{"sid":"w3-bring-data-in","title":"Bring Data In","kind":"lesson","minutes":40,"goals":"Import data from text files and the web, and clean out duplicates.","file":"content/week-03/01-bring-data-in.md","status":"draft","activities":[{"id":"D3.01","kind":"drill","title":"Import the rental export and remove duplicates","assess":["auto"],"platform":"desktop","minutes":8,"badge":{"id":"D3.01","name":"Data Importer","week":3,"kind":"drill"},"steps":2,"screenshots":0},{"id":"D3.02","kind":"drill","title":"Import a table from a web page","assess":["auto"],"platform":"desktop","minutes":6,"badge":{"id":"D3.02","name":"Web Importer","week":3,"kind":"drill"},"steps":1,"screenshots":0}],"clos":["CLO2"],"mos":["1.1.1","1.1.2"],"plannedDrills":[],"certificate":true,"docId":"XL3-L1","quizzes":1},{"sid":"w3-excel-tables","title":"Excel Tables","kind":"lesson","minutes":50,"goals":"Turn a list into a table that formats, totals and grows by itself.","file":"content/week-03/02-excel-tables.md","status":"draft","activities":[{"id":"D3.03","kind":"drill","title":"Turn the rental list into a table","assess":["auto"],"platform":"web","minutes":5,"badge":{"id":"D3.03","name":"Table Maker","week":3,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D3.04","kind":"drill","title":"Style options, a total row and table rows","assess":["auto"],"platform":"web","minutes":7,"badge":{"id":"D3.04","name":"Table Tuner","week":3,"kind":"drill"},"steps":4,"screenshots":0},{"id":"D3.05","kind":"drill","title":"Calculate with column names","assess":["auto"],"platform":"web","minutes":4,"badge":{"id":"D3.05","name":"Structured Thinker","week":3,"kind":"drill"},"steps":1,"screenshots":0},{"id":"D3.06","kind":"drill","title":"Convert a table back to a range","assess":["auto"],"platform":"web","minutes":2,"badge":{"id":"D3.06","name":"Range Restorer","week":3,"kind":"drill"},"steps":1,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":["3.1.1","3.1.2","3.1.3","3.2.1","3.2.2","3.2.3","4.1.2"],"plannedDrills":[],"certificate":true,"docId":"XL3-L2","quizzes":1},{"sid":"w3-sort-and-filter","title":"Sort and Filter","kind":"lesson","minutes":40,"goals":"Answer questions with sorting, filtering, SORT and UNIQUE.","file":"content/week-03/03-sort-filter.md","status":"draft","activities":[{"id":"D3.07","kind":"drill","title":"Sort by two columns and filter the weekend","assess":["auto"],"platform":"web","minutes":7,"badge":{"id":"D3.07","name":"Sort and Filter Pro","week":3,"kind":"drill"},"steps":2,"screenshots":0},{"id":"D3.08","kind":"drill","title":"A list of boats and the longest rentals","assess":["auto"],"platform":"web","minutes":5,"badge":{"id":"D3.08","name":"Dynamic Lister","week":3,"kind":"drill"},"steps":2,"screenshots":0}],"clos":["CLO2"],"mos":["3.3.1","3.3.2","4.2.4","4.2.5"],"plannedDrills":[],"certificate":true,"docId":"XL3-L3","quizzes":1},{"sid":"w3-conditional-formatting-and-sparklines","title":"Conditional Formatting and Sparklines","kind":"lesson","minutes":40,"goals":"Make the pattern jump out with conditional formatting and sparklines.","file":"content/week-03/04-visual-summaries.md","status":"draft","activities":[{"id":"D3.09","kind":"drill","title":"Data bars, a highlight rule, and an old rule to remove","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D3.09","name":"Pattern Spotter","week":3,"kind":"drill"},"steps":3,"screenshots":0},{"id":"D3.10","kind":"drill","title":"Trend lines for each boat","assess":["auto"],"platform":"desktop","minutes":4,"badge":{"id":"D3.10","name":"Trend Spotter","week":3,"kind":"drill"},"steps":2,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":["2.4.1","2.4.2","2.4.3"],"plannedDrills":[],"certificate":true,"docId":"XL3-L4","quizzes":1},{"sid":"w3-skill-check-3-tables-and-data","title":"Skill Check 3: Tables and Data","kind":"skillcheck","minutes":30,"goals":"Show what you can do in a timed, exam-style set of tasks.","file":"content/week-03/05-skill-check-sc3.md","status":"draft","activities":[{"id":"SC3","kind":"skillcheck","title":"Gear deliveries","assess":["auto"],"platform":"web","minutes":30,"badge":{"id":"SC3","name":"Skill Check 3","week":3,"kind":"skillcheck"},"steps":14,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":["1.1.1","2.4.1","2.4.2","2.4.3","3.1.1","3.1.2","3.1.3","3.2.1","3.2.2","3.2.3","3.3.1","3.3.2","4.1.2","4.2.4","4.2.5"],"plannedDrills":[],"certificate":false,"docId":"XL3-SC3","quizzes":0},{"sid":"w3-project-3-data-report","title":"Project 3: Data Report","kind":"project","minutes":180,"goals":"Turn a raw dataset into a one-page report with a clear finding.","file":"content/week-03/06-project-p3.md","status":"draft","activities":[{"id":"P3","kind":"project","title":"Project 3: Data Report","assess":["instructor"],"platform":"web","minutes":null,"badge":{"id":"P3","name":"Data Reporter","week":3,"kind":"project"},"steps":0,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":[],"plannedDrills":[],"certificate":false,"docId":"XL3-P3","quizzes":0}]},{"id":"W4","n":4,"title":"Charts, Graphics and What-If","tagline":"Show the story in a chart, and ask Excel what happens if the numbers change.","color":"#6b21a8","stations":[{"sid":"w4-create-charts","title":"Create Charts","kind":"lesson","minutes":45,"goals":"Pick the right chart, put it on its own sheet, and choose its series.","file":"content/week-04/01-create-charts.md","status":"draft","activities":[{"id":"D4.01","kind":"drill","title":"Insert a clustered column chart","assess":["auto"],"platform":"web","minutes":4,"badge":{"id":"D4.01","name":"Chart Maker","week":4,"kind":"drill"},"steps":1,"screenshots":0},{"id":"D4.02","kind":"drill","title":"Move the chart to its own sheet","assess":["auto"],"platform":"desktop","minutes":2,"badge":{"id":"D4.02","name":"Chart Sheet Mover","week":4,"kind":"drill"},"steps":1,"screenshots":0},{"id":"D4.03","kind":"drill","title":"Add August and switch rows and columns","assess":["auto"],"platform":"web","minutes":5,"badge":{"id":"D4.03","name":"Series Switcher","week":4,"kind":"drill"},"steps":2,"screenshots":0}],"clos":["CLO5"],"mos":["5.1.1","5.1.2","5.2.1","5.2.2"],"plannedDrills":[],"certificate":true,"docId":"XL4-L1","quizzes":1},{"sid":"w4-format-charts","title":"Format Charts","kind":"lesson","minutes":35,"goals":"Make a chart clear with titles, labels, layouts, styles and alt text.","file":"content/week-04/02-format-charts.md","status":"draft","activities":[{"id":"D4.04","kind":"drill","title":"Add titles, labels and move the legend","assess":["auto"],"platform":"web","minutes":6,"badge":{"id":"D4.04","name":"Chart Labeler","week":4,"kind":"drill"},"steps":4,"screenshots":0},{"id":"D4.05","kind":"drill","title":"Apply a layout and a style, and add alt text","assess":["auto"],"platform":"desktop","minutes":6,"badge":{"id":"D4.05","name":"Chart Stylist","week":4,"kind":"drill"},"steps":3,"screenshots":0}],"clos":["CLO5"],"mos":["5.2.3","5.3.1","5.3.2","5.3.3"],"plannedDrills":[],"certificate":true,"docId":"XL4-L2","quizzes":1},{"sid":"w4-pictures-shapes-icons-and-smartart","title":"Pictures, Shapes, Icons and SmartArt","kind":"lesson","minutes":35,"goals":"Add pictures, shapes, icons and SmartArt, with alt text or a decorative mark.","file":"content/week-04/03-graphics.md","status":"draft","activities":[{"id":"D4.06","kind":"drill","title":"Dress up the flyer","assess":["auto","screenshot"],"platform":"desktop","minutes":10,"badge":{"id":"D4.06","name":"Flyer Designer","week":4,"kind":"drill"},"steps":5,"screenshots":1}],"clos":["CLO4"],"mos":[],"plannedDrills":[],"certificate":true,"docId":"XL4-L3","quizzes":1},{"sid":"w4-themes-cell-styles-and-templates","title":"Themes, Cell Styles and Templates","kind":"lesson","minutes":30,"goals":"Reuse a look with themes and cell styles, and save a workbook as a template.","file":"content/week-04/04-themes-templates.md","status":"draft","activities":[{"id":"D4.07","kind":"drill","title":"Make the trip planner a reusable template","assess":["auto"],"platform":"desktop","minutes":8,"badge":{"id":"D4.07","name":"Template Maker","week":4,"kind":"drill"},"steps":4,"screenshots":0}],"clos":["CLO1","CLO2"],"mos":["2.2.7"],"plannedDrills":[],"certificate":true,"docId":"XL4-L4","quizzes":1},{"sid":"w4-what-if-analysis","title":"What-If Analysis","kind":"lesson","minutes":50,"goals":"Ask what if with PMT, Goal Seek, Scenario Manager and data tables.","file":"content/week-04/05-what-if.md","status":"draft","activities":[{"id":"D4.08","kind":"drill","title":"What boat can we afford?","assess":["auto"],"platform":"desktop","minutes":8,"badge":{"id":"D4.08","name":"Goal Seeker","week":4,"kind":"drill"},"steps":2,"screenshots":0},{"id":"D4.09","kind":"drill","title":"Low, expected and high seasons","assess":["auto"],"platform":"desktop","minutes":8,"badge":{"id":"D4.09","name":"Scenario Planner","week":4,"kind":"drill"},"steps":2,"screenshots":0},{"id":"D4.10","kind":"drill","title":"The payment at five interest rates","assess":["auto"],"platform":"desktop","minutes":6,"badge":{"id":"D4.10","name":"Table Builder","week":4,"kind":"drill"},"steps":2,"screenshots":0}],"clos":["CLO3"],"mos":[],"plannedDrills":[],"certificate":true,"docId":"XL4-L5","quizzes":1},{"sid":"w4-skill-check-4-charts-and-what-if","title":"Skill Check 4: Charts and What-If","kind":"skillcheck","minutes":30,"goals":"Show what you can do in a timed, exam-style set of tasks.","file":"content/week-04/06-skill-check-sc4.md","status":"draft","activities":[{"id":"SC4","kind":"skillcheck","title":"Season sales","assess":["auto"],"platform":"desktop","minutes":30,"badge":{"id":"SC4","name":"Skill Check 4","week":4,"kind":"skillcheck"},"steps":11,"screenshots":0}],"clos":["CLO3","CLO5"],"mos":["2.2.7","5.1.1","5.1.2","5.2.1","5.2.2","5.2.3","5.3.1","5.3.2","5.3.3"],"plannedDrills":[],"certificate":false,"docId":"XL4-SC4","quizzes":0},{"sid":"w4-project-4-business-plan-workbook","title":"Project 4: Business Plan Workbook","kind":"project","minutes":180,"goals":"Test a business plan with a chart, a graphic and what-if analysis.","file":"content/week-04/07-project-p4.md","status":"draft","activities":[{"id":"P4","kind":"project","title":"Project 4: Business Plan Workbook","assess":["instructor"],"platform":"web","minutes":null,"badge":{"id":"P4","name":"Business Planner","week":4,"kind":"project"},"steps":0,"screenshots":0}],"clos":["CLO3","CLO4","CLO5"],"mos":[],"plannedDrills":[],"certificate":false,"docId":"XL4-P4","quizzes":0}]},{"id":"W5","n":5,"title":"Share, Publish and Work Together","tagline":"Review with others, combine their work, then share and publish safely. Capstone and certification practice.","color":"#374151","stations":[{"sid":"w5-comments-and-notes","title":"Comments and Notes","kind":"lesson","minutes":30,"goals":"Ask, answer and resolve questions with comments, and label cells with notes.","file":"content/week-05/01-comments-notes.md","status":"draft","activities":[{"id":"D5.01","kind":"drill","title":"Answer the budget reviewers","assess":["auto"],"platform":"web","minutes":8,"badge":{"id":"D5.01","name":"Comment Handler","week":5,"kind":"drill"},"steps":5,"screenshots":0}],"clos":["CLO7"],"mos":["1.5.5"],"plannedDrills":[],"certificate":true,"docId":"XL5-L1","quizzes":1},{"sid":"w5-co-author-compare-and-combine","title":"Co-author, Compare and Combine","kind":"lesson","minutes":50,"goals":"Co-author one workbook, see who changed what, and combine reviewers' copies.","file":"content/week-05/02-coauthor-combine.md","status":"draft","activities":[{"id":"D5.02","kind":"drill","title":"Edit the schedule with a partner","assess":["auto","screenshot"],"platform":"web","minutes":12,"badge":{"id":"D5.02","name":"Co-Author","week":5,"kind":"drill"},"steps":4,"screenshots":3},{"id":"D5.03","kind":"drill","title":"Combine the three budget reviews","assess":["auto","screenshot"],"platform":"desktop","minutes":12,"badge":{"id":"D5.03","name":"Combiner","week":5,"kind":"drill"},"steps":3,"screenshots":1}],"clos":["CLO7"],"mos":[],"plannedDrills":[],"certificate":true,"docId":"XL5-L2","quizzes":1},{"sid":"w5-inspect-check-and-protect","title":"Inspect, Check and Protect","kind":"lesson","minutes":50,"goals":"Inspect, fix accessibility and protect a workbook before it leaves your team.","file":"content/week-05/03-inspect-protect.md","status":"draft","activities":[{"id":"D5.04","kind":"drill","title":"Clean up the price list before it goes out","assess":["auto","screenshot"],"platform":"desktop","minutes":8,"badge":{"id":"D5.04","name":"Inspector","week":5,"kind":"drill"},"steps":4,"screenshots":1},{"id":"D5.05","kind":"drill","title":"Fix every accessibility error","assess":["auto"],"platform":"web","minutes":8,"badge":{"id":"D5.05","name":"Accessibility Fixer","week":5,"kind":"drill"},"steps":4,"screenshots":0},{"id":"D5.06","kind":"drill","title":"A sign-up sheet people can't break","assess":["auto"],"platform":"desktop","minutes":10,"badge":{"id":"D5.06","name":"Protector","week":5,"kind":"drill"},"steps":5,"screenshots":0}],"clos":["CLO1","CLO7"],"mos":["1.5.4"],"plannedDrills":[],"certificate":true,"docId":"XL5-L3","quizzes":1},{"sid":"w5-share-as-a-web-page-pdf-or-csv","title":"Share as a Web Page, PDF or CSV","kind":"lesson","minutes":30,"goals":"Share a sheet as a web page, a PDF or a CSV file.","file":"content/week-05/04-web-export.md","status":"draft","activities":[{"id":"D5.07","kind":"drill","title":"Put the schedule on the web","assess":["auto","screenshot"],"platform":"web","minutes":10,"badge":{"id":"D5.07","name":"Web Publisher","week":5,"kind":"drill"},"steps":4,"screenshots":3}],"clos":["CLO6"],"mos":["1.5.2"],"plannedDrills":[],"certificate":true,"docId":"XL5-L4","quizzes":1},{"sid":"w5-skill-check-5-review-protect-and-share","title":"Skill Check 5: Review, Protect and Share","kind":"skillcheck","minutes":30,"goals":"Show what you can do in a timed, exam-style set of tasks.","file":"content/week-05/05-skill-check-sc5.md","status":"draft","activities":[{"id":"SC5","kind":"skillcheck","title":"Volunteer roster","assess":["auto"],"platform":"desktop","minutes":30,"badge":{"id":"SC5","name":"Skill Check 5","week":5,"kind":"skillcheck"},"steps":14,"screenshots":0}],"clos":["CLO1","CLO7"],"mos":["1.4.5","1.5.4","1.5.5","5.3.3"],"plannedDrills":[],"certificate":false,"docId":"XL5-SC5","quizzes":0},{"sid":"w5-project-5-team-event-workbook","title":"Project 5: Team Event Workbook","kind":"project","minutes":180,"goals":"Plan an event with a team, combine your work, then check, protect and publish it.","file":"content/week-05/06-project-p5.md","status":"draft","activities":[{"id":"P5","kind":"project","title":"Project 5: Team Event Workbook","assess":["instructor"],"platform":"web","minutes":null,"badge":{"id":"P5","name":"Team Collaborator","week":5,"kind":"project"},"steps":0,"screenshots":0}],"clos":["CLO6","CLO7"],"mos":[],"plannedDrills":[],"certificate":false,"docId":"XL5-P5","quizzes":0},{"sid":"w5-capstone-practice-exam-and-portfolio","title":"Capstone: Practice Exam and Portfolio","kind":"capstone","minutes":120,"goals":"Take an MO-210 practice exam and gather everything you made into a portfolio.","file":"content/week-05/07-capstone.md","status":"draft","activities":[{"id":"CAP","kind":"skillcheck","title":"Season report practice exam","assess":["auto"],"platform":"web","minutes":50,"badge":{"id":"CAP","name":"Practice Exam","week":5,"kind":"skillcheck"},"steps":20,"screenshots":0},{"id":"PORT","kind":"project","title":"Capstone: Practice Exam and Portfolio","assess":["instructor"],"platform":"web","minutes":null,"badge":{"id":"PORT","name":"Course Portfolio","week":5,"kind":"project"},"steps":0,"screenshots":0}],"clos":["CLO1","CLO2","CLO3","CLO4","CLO5","CLO6","CLO7"],"mos":["1.3.1","1.3.3","1.4.3","1.4.5","2.2.5","2.3.1","2.3.2","2.4.2","3.1.1","3.1.2","3.2.3","3.3.2","4.1.2","4.2.1","4.2.2","4.2.3","4.2.5","4.3.2","5.1.1","5.2.3","5.3.3"],"plannedDrills":[],"certificate":false,"docId":"XL5-CAP","quizzes":0},{"sid":"course-complete","title":"Course Complete","kind":"course","minutes":null,"goals":"Earn the course certificate, with every badge and outcome from all five weeks on the back.","file":null,"status":"ready","activities":[],"clos":["CLO1","CLO2","CLO3","CLO4","CLO5","CLO6","CLO7"],"mos":["1.1.1","1.1.2","1.2.1","1.2.2","1.2.3","1.3.1","1.3.2","1.3.3","1.4.1","1.4.2","1.4.3","1.4.4","1.4.5","1.4.6","1.5.1","1.5.2","1.5.3","1.5.4","1.5.5","2.1.1","2.1.2","2.1.3","2.1.4","2.1.5","2.2.1","2.2.2","2.2.3","2.2.4","2.2.5","2.2.6","2.2.7","2.2.8","2.2.9","2.3.1","2.3.2","2.4.1","2.4.2","2.4.3","3.1.1","3.1.2","3.1.3","3.2.1","3.2.2","3.2.3","3.3.1","3.3.2","4.1.1","4.1.2","4.2.1","4.2.2","4.2.3","4.2.4","4.2.5","4.3.1","4.3.2","4.3.3","5.1.1","5.1.2","5.2.1","5.2.2","5.2.3","5.3.1","5.3.2","5.3.3"],"plannedDrills":[],"certificate":true}]}],"outcomes":[{"id":"CLO1","text":"Create, save, format and print worksheets and workbooks","line":231},{"id":"CLO2","text":"Demonstrate features offered by the application","line":232},{"id":"CLO3","text":"Create a \"what-if\" scenario","line":233},{"id":"CLO4","text":"Insert and modify graphics","line":234},{"id":"CLO5","text":"Create and format charts","line":235},{"id":"CLO6","text":"Create and preview the worksheet as a Web page","line":236},{"id":"CLO7","text":"Collaborate on workbooks: Compare and Combine workbooks","line":237}],"mosNames":{"1.1.1":"Import data from text files","1.1.2":"Import data from online sources","1.2.1":"Search for data within a workbook","1.2.2":"Navigate to named cells, ranges, or workbook elements","1.2.3":"Insert and remove hyperlinks","1.3.1":"Modify page setup","1.3.2":"Adjust row height and column width","1.3.3":"Customize headers and footers","1.4.1":"Manage the Quick Access toolbar","1.4.2":"Display and modify worksheets in different views","1.4.3":"Freeze worksheet rows and columns","1.4.4":"Change window views","1.4.5":"Modify built-in workbook properties","1.4.6":"Display formulas","1.5.1":"Set a print area","1.5.2":"Save and export workbooks in alternative file formats","1.5.3":"Configure print settings","1.5.4":"Inspect workbooks and correct issues","1.5.5":"Manage comments and notes","2.1.1":"Paste data by using special paste options","2.1.2":"Fill cells by using Auto Fill","2.1.3":"Insert and delete multiple columns or rows","2.1.4":"Insert and delete cells","2.1.5":"Generate numeric data by using RANDBETWEEN() and SEQUENCE()","2.2.1":"Merge and unmerge cells","2.2.2":"Modify cell alignment, orientation, and indentation","2.2.3":"Format cells by using Format Painter","2.2.4":"Wrap text within cells","2.2.5":"Apply number formats","2.2.6":"Apply cell formats from the Format Cells dialog box","2.2.7":"Apply cell styles","2.2.8":"Clear cell formatting","2.2.9":"Format multiple worksheets by grouping","2.3.1":"Define a named range","2.3.2":"Reference a named range","2.4.1":"Insert Sparklines","2.4.2":"Apply built-in conditional formatting","2.4.3":"Remove conditional formatting","3.1.1":"Create Excel tables from cell ranges","3.1.2":"Apply table styles","3.1.3":"Convert tables to cell ranges","3.2.1":"Add or remove table rows and columns","3.2.2":"Configure table style options","3.2.3":"Insert and configure total rows","3.3.1":"Filter records","3.3.2":"Sort data by multiple columns","4.1.1":"Insert relative, absolute, and mixed references","4.1.2":"Use structured references in formulas","4.2.1":"Perform calculations by using the AVERAGE(), MAX(), MIN(), and SUM() functions","4.2.2":"Count cells by using the COUNT(), COUNTA(), and COUNTBLANK() functions","4.2.3":"Perform conditional operations by using the IF() function","4.2.4":"Sort data by using the SORT() function","4.2.5":"Get unique values by using the UNIQUE() function","4.3.1":"Format text by using RIGHT(), LEFT(), and MID() functions","4.3.2":"Format text by using UPPER(), LOWER(), and LEN() functions","4.3.3":"Format text by using the CONCAT() and TEXTJOIN() functions","5.1.1":"Create charts","5.1.2":"Create chart sheets","5.2.1":"Add data series to charts","5.2.2":"Switch between rows and columns in source data","5.2.3":"Add and modify chart elements","5.3.1":"Apply chart layouts","5.3.2":"Apply chart styles","5.3.3":"Add alternative text to charts for accessibility"},"labels":{"auto":{"section":"Auto-checked","practice":"Auto-checked"},"screenshot":{"section":"Screenshot for your instructor","practice":"Screenshot: compare with the example"},"instructor":{"section":"Graded by your instructor","practice":"Self-check with the rubric"},"practice":{"section":"Practice only","practice":"Practice only"}},"builtFrom":"content/outline.md and the lesson files"}</script>
+<script>
+/* =========================================================================
+   Roadmap logic, in plain terms:
+   1. Read the course data the build step put in the page.
+   2. Draw the map (SVG) and the route list (HTML) from it.
+   3. Show one stop's details in the panel; keep map, list and panel in sync.
+   Text always goes in with textContent. The only HTML inserted as markup is
+   badge artwork made by TrainerMD.badgeSVG, which escapes everything it uses.
+   ========================================================================= */
+(function () {
+  "use strict";
+  const TM = window.TrainerMD;
+  const DATA = JSON.parse(document.getElementById("roadmap-data").textContent);
+  const $ = (id) => document.getElementById(id);
+  const SVG = "http://www.w3.org/2000/svg";
+
+  // ---------- small helpers ----------
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === null || v === undefined || v === false) continue;
+      if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? "" : String(v));
+    }
+    for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false) n.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+    return n;
+  }
+  function svg(tag, attrs, ...kids) {
+    const n = document.createElementNS(SVG, tag);
+    for (const [k, v] of Object.entries(attrs || {})) if (v !== null && v !== undefined) n.setAttribute(k, String(v));
+    for (const kid of kids.flat()) if (kid) n.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+    return n;
+  }
+  const store = {
+    get(k) { try { return localStorage.getItem("roadmap-" + k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem("roadmap-" + k, v); } catch (e) { /* storage blocked: fine */ } },
+  };
+  const KIND_WORD = { start: "Start here", lesson: "Lesson", skillcheck: "Skill check", project: "Project", capstone: "Capstone", course: "Finish line" };
+  const minutesText = (m) => !m ? "" : m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? " " + (m % 60) + " min" : ""}` : `${m} min`;
+
+  /** Break a title into lines of about `max` characters, at most 4 lines. */
+  function wrap(text, max) {
+    const words = text.split(" "), lines = [];
+    let cur = "";
+    for (const w of words) {
+      if ((cur + " " + w).trim().length > max && cur) { lines.push(cur); cur = w; } else cur = (cur + " " + w).trim();
+    }
+    if (cur) lines.push(cur);
+    return lines.length > 4 ? lines.slice(0, 3).concat([lines.slice(3).join(" ")]) : lines;
+  }
+
+  // ---------- the stops, in riding order ----------
+  const stops = [];
+  DATA.weeks.forEach((w) => w.stations.forEach((s) => stops.push(Object.assign(s, { week: w }))));
+  const byId = Object.fromEntries(stops.map((s) => [s.sid, s]));
+  let current = stops[0].sid;
+  let mode = store.get("mode") || DATA.course.mode || "practice";
+
+  // ---------- header ----------
+  $("college").textContent = DATA.course.college;
+  $("title").textContent = DATA.app.fullName + ": Course Roadmap";
+  const badgesSoFar = stops.reduce((n, s) => n + s.activities.length, 0);
+  const plannedDrills = stops.reduce((n, s) => n + s.plannedDrills.length, 0);
+  const stat = (b, t) => el("span", {}, el("b", {}, b), t);
+  $("stats").append(
+    stat(DATA.weeks.length, "weeks"),
+    stat(stops.length, "stops"),
+    stat(stops.filter((s) => s.certificate).length, "certificates"),
+    stat(badgesSoFar + plannedDrills + stops.filter((s) => s.status === "planned" && (s.kind === "skillcheck" || s.kind === "project")).length, "badges to earn"),
+  );
+  const anyPlanned = stops.some((s) => s.status === "planned" && s.kind !== "course");
+  $("footer").textContent = `Built from ${DATA.builtFrom}.${anyPlanned ? ' Stops marked "coming soon" are planned and being written.' : ""} Content license: ${DATA.course.license}.`;
+
+  // =====================================================================
+  // THE MAP: one horizontal line per week, snaking down the page.
+  // Even weeks run left to right, odd weeks right to left, joined by a
+  // dotted transfer, the way a folded transit map reads.
+  // =====================================================================
+  // Geometry, in SVG units: the map is 820 wide and scales to fit its column.
+  // Labels alternate below and above the line, so each gets twice the room.
+  const W = 820, LEFT = 92, RIGHT = 728, ROW = 236, TOP = 150;
+  function drawMap() {
+    const height = TOP + (DATA.weeks.length - 1) * ROW + 110;
+    const root = svg("svg", { viewBox: `0 0 ${W} ${height}`, role: "presentation" });
+    const lines = svg("g"), transfers = svg("g"), stationsLayer = svg("g"), labels = svg("g");
+    const pos = {}; // stop id -> {x, y}
+
+    DATA.weeks.forEach((w, i) => {
+      const y = TOP + i * ROW;
+      const n = w.stations.length;
+      const ltr = i % 2 === 0;
+      const xs = w.stations.map((_, k) => n === 1 ? (LEFT + RIGHT) / 2 : LEFT + (RIGHT - LEFT) * k / (n - 1));
+      if (!ltr) xs.reverse();
+      w.stations.forEach((s, k) => { pos[s.sid] = { x: xs[k], y, above: k % 2 === 1 }; });
+
+      // week name with its line "bullet", above the start of the line
+      const startX = xs[0];
+      const anchor = ltr ? "start" : "end";
+      const bx = ltr ? startX - 6 : startX + 6;
+      labels.append(svg("g", {},
+        svg("circle", { cx: ltr ? bx + 15 : bx - 15, cy: y - 122, r: 16, class: "f" + w.n }),
+        svg("text", { x: ltr ? bx + 15 : bx - 15, y: y - 116, "text-anchor": "middle", class: "wk-num" }, String(w.n)),
+        svg("text", { x: ltr ? bx + 40 : bx - 40, y: y - 124, "text-anchor": anchor, class: "wk-title" }, `Week ${w.n}: ${w.title}`),
+        svg("text", { x: ltr ? bx + 40 : bx - 40, y: y - 104, "text-anchor": anchor, class: "wk-tag" }, w.tagline),
+      ));
+      // the colored line itself
+      lines.append(svg("path", { d: `M${Math.min(...xs)} ${y}H${Math.max(...xs)}`, class: "route l" + w.n }));
+      // dotted transfer down to the next week's line
+      if (i < DATA.weeks.length - 1) {
+        const endX = xs[xs.length - 1], y2 = y + ROW, bulge = ltr ? 64 : -64;
+        transfers.append(svg("path", { d: `M${endX} ${y}C${endX + bulge} ${y} ${endX + bulge} ${y2} ${endX} ${y2}`, class: "transfer" }));
+      }
+    });
+
+    // stops: one focusable group each, in riding order
+    stops.forEach((s, idx) => {
+      const { x, y, above } = pos[s.sid];
+      const n = s.week.n;
+      const g = svg("g", { class: "station" + (s.status === "planned" ? " planned" : ""), tabindex: "0", role: "button",
+        "data-sid": s.sid, "aria-current": "false",
+        "aria-label": `Week ${n}, ${KIND_WORD[s.kind]}: ${s.title}${s.minutes ? ", about " + minutesText(s.minutes) : ""}${s.status === "planned" ? ", coming soon" : ""}` });
+      g.append(svg("circle", { class: "halo", cx: x, cy: y, r: 23 }));
+      g.append(marker(s.kind, x, y, n));
+      // Labels at either end of a line hug the inside, so the transfer curves never cross them
+      const lines = wrap(s.title, 20);
+      const anchor = x >= RIGHT - 1 ? "end" : x <= LEFT + 1 ? "start" : "middle";
+      const tx = anchor === "end" ? x + 14 : anchor === "start" ? x - 14 : x;
+      // An invisible hit area covering the marker and its label: one big, easy target
+      const top = above ? y - 44 - lines.length * 18 : y - 18;
+      const bottom = above ? y + 18 : y + 26 + lines.length * 18;
+      const hx = anchor === "end" ? tx - 170 : anchor === "start" ? tx - 20 : x - 80;
+      g.insertBefore(svg("rect", { x: hx, y: top, width: anchor === "middle" ? 160 : 190, height: bottom - top, fill: "transparent" }), g.firstChild);
+      lines.forEach((t, k) => {
+        const ty = above ? y - 30 - (lines.length - 1 - k) * 18 : y + 36 + k * 18;
+        g.append(svg("text", { x: tx, y: ty, "text-anchor": anchor, class: "st-label" }, t));
+      });
+      g.addEventListener("click", () => select(s.sid, true));
+      g.addEventListener("keydown", (e) => stationKeys(e, idx));
+      stationsLayer.append(g);
+    });
+
+    root.append(transfers, lines, labels, stationsLayer);
+    $("map").replaceChildren(root);
+  }
+
+  /** The symbol for each kind of stop (also used in the key). */
+  function marker(kind, x, y, n) {
+    const m = svg("g", { class: "marker-group" });
+    if (kind === "project") m.append(svg("rect", { class: "marker stop-ink", x: x - 17, y: y - 11, width: 34, height: 22, rx: 11, "stroke-width": 4 }));
+    else if (kind === "skillcheck") m.append(svg("circle", { class: "marker stop-fill l" + n, cx: x, cy: y, r: 13, "stroke-width": 5 }), svg("circle", { class: "f" + n, cx: x, cy: y, r: 4.5 }));
+    else if (kind === "start") m.append(svg("rect", { class: "marker f" + n, x: x - 7, y: y - 16, width: 14, height: 32, rx: 4 }));
+    else if (kind === "capstone" || kind === "course") {
+      m.append(svg("circle", { class: "marker " + (kind === "course" ? "stop-ink" : "stop-fill l" + n), cx: x, cy: y, r: 16, "stroke-width": 5 }));
+      m.append(svg("path", { d: star(x, y, 8.5), class: kind === "course" ? "" : "f" + n, style: kind === "course" ? "fill: var(--ink)" : null }));
+    } else m.append(svg("circle", { class: "marker stop-fill l" + n, cx: x, cy: y, r: 10, "stroke-width": 5 }));
+    return m;
+  }
+  function star(cx, cy, r) {
+    let d = "";
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+      d += (i ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(1) + " " + (cy + rr * Math.sin(a)).toFixed(1);
+    }
+    return d + "z";
+  }
+
+  /** Arrow keys ride the line; Enter or Space opens a stop. */
+  function stationKeys(e, idx) {
+    let next = null;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = Math.min(idx + 1, stops.length - 1);
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = Math.max(idx - 1, 0);
+    if (e.key === "Home") next = 0;
+    if (e.key === "End") next = stops.length - 1;
+    if (next !== null) { e.preventDefault(); focusStation(stops[next].sid); select(stops[next].sid, false); }
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(stops[idx].sid, true); }
+  }
+  function focusStation(sid) { const g = document.querySelector(`#map [data-sid="${sid}"]`); if (g) g.focus(); }
+
+  function drawLegend() {
+    const item = (kind, words) => {
+      const s = svg("svg", { viewBox: "0 0 44 44", width: 30, height: 30, "aria-hidden": "true" });
+      s.append(svg("path", { d: "M2 22H42", class: "route l1", style: "stroke-width:8" }));
+      s.append(marker(kind, 22, 22, 1));
+      return el("span", {}, s, words);
+    };
+    const soon = svg("svg", { viewBox: "0 0 44 44", width: 30, height: 30, "aria-hidden": "true" });
+    soon.append(svg("circle", { cx: 22, cy: 22, r: 10, class: "stop-fill l5", "stroke-width": 5, "stroke-dasharray": "4 3" }));
+    const items = [item("start", "Start here"), item("lesson", "Lesson (certificate)"), item("skillcheck", "Skill check"),
+      item("project", "Project"), item("capstone", "Capstone")];
+    if (anyPlanned) items.push(el("span", {}, soon, "Coming soon")); // only while lessons are still being written
+    $("legend").replaceChildren(...items);
+  }
+
+  // =====================================================================
+  // THE ROUTE LIST: the same stops as an ordinary list (phones, screen
+  // readers, and anyone who prefers it).
+  // =====================================================================
+  function drawList() {
+    const box = $("list-view");
+    box.replaceChildren(...DATA.weeks.map((w) => el("section", { class: "card", style: `--rail: var(--w${w.n})`, "aria-labelledby": "lw" + w.n },
+      el("h2", { id: "lw" + w.n }, el("span", { class: "bullet b" + w.n, "aria-hidden": "true" }, String(w.n)), `Week ${w.n}: ${w.title}`),
+      el("p", { class: "muted" }, w.tagline),
+      el("ol", {}, w.stations.map((s) => el("li", { class: `k-${s.kind}${s.status === "planned" ? " planned" : ""}` },
+        el("button", { type: "button", "data-sid": s.sid, "aria-current": "false", onclick: () => select(s.sid, true) },
+          el("span", { class: "t" }, s.title),
+          el("span", { class: "m" }, [KIND_WORD[s.kind], minutesText(s.minutes), s.status === "planned" ? "coming soon" : ""].filter(Boolean).join(" · ")))))))));
+  }
+
+  // =====================================================================
+  // THE PANEL: everything about one stop.
+  // =====================================================================
+  function labelsFor(kinds) {
+    return el("span", { class: "chips" }, kinds.map((k) => el("span", { class: "chip " + k }, DATA.labels[k][mode])));
+  }
+  function badgeArt(o) {
+    // Trusted markup: TrainerMD.badgeSVG escapes every value it draws.
+    const holder = el("span", { class: "art" });
+    holder.innerHTML = TM.badgeSVG(o);
+    return holder;
+  }
+
+  function renderPanel() {
+    const s = byId[current];
+    const idx = stops.indexOf(s);
+    const p = $("panel");
+    const parts = [];
+    parts.push(el("span", { class: "eyebrow" }, `Week ${s.week.n} · ${KIND_WORD[s.kind]}`));
+    parts.push(el("h2", {}, s.title));
+    const facts = el("div", { class: "chips" });
+    if (s.minutes) facts.append(el("span", { class: "chip" }, "About " + minutesText(s.minutes)));
+    if (s.status === "planned") facts.append(el("span", { class: "chip soon" }, "Coming soon"));
+    if (s.activities.some((a) => a.platform === "desktop")) facts.append(el("span", { class: "chip desktop" }, "Some drills need desktop " + DATA.app.name));
+    if (facts.childNodes.length) parts.push(facts);
+    if (s.goals) parts.push(el("p", {}, el("b", {}, "You'll be able to: "), s.goals.replace(/^./, (c) => c.toLowerCase())));
+
+    if (s.certificate) {
+      const isCourse = s.kind === "course";
+      parts.push(el("div", { class: "cert-note" }, badgeArt({ week: isCourse ? null : s.week.n, kind: isCourse ? "course" : "lesson", label: "Certificate", size: 44 }),
+        el("span", {}, isCourse
+          ? "Finish all five weeks for the course certificate. The back lists every badge and outcome."
+          : `Finish this lesson to earn a certificate. The back lists its badges and the outcomes they cover${mode === "practice" ? ", marked as your practice record" : ""}.`)));
+    }
+
+    if (s.activities.length) {
+      parts.push(el("h3", {}, "Badges to earn here"));
+      parts.push(el("ul", { class: "acts" }, s.activities.map((a) => el("li", {},
+        badgeArt({ week: a.badge.week, kind: a.badge.kind, code: a.id, label: a.badge.name + " badge", size: 52 }),
+        el("div", {}, el("span", { class: "name" }, a.badge.name), " ", el("span", { class: "sub" }, `${a.id} · ${a.title}`),
+          el("div", { style: "margin-top:4px" }, labelsFor(a.assess),
+            a.platform === "desktop" ? el("span", { class: "chip desktop", style: "margin-left:6px" }, "Desktop " + DATA.app.name) : null))))));
+      if (s.quizzes) parts.push(el("p", { class: "muted" }, `Plus ${s.quizzes} quick check${s.quizzes === 1 ? "" : "s"} along the way (practice only, no badge).`));
+    } else if (s.plannedDrills.length) {
+      parts.push(el("h3", {}, "Planned practice drills"));
+      parts.push(el("p", {}, `${s.plannedDrills.join(", ")}. Each one will earn a badge. This lesson is being written.`));
+    } else if (s.status === "planned" && (s.kind === "skillcheck" || s.kind === "project")) {
+      parts.push(el("p", { class: "muted" }, `Earns a badge when finished. ${s.kind === "skillcheck" ? "Auto-checked, timed." : DATA.labels.instructor[mode] + "."} Being written.`));
+    }
+
+    if (s.clos.length) {
+      const map = Object.fromEntries(DATA.outcomes.map((o) => [o.id, o.text]));
+      parts.push(el("details", {}, el("summary", {}, `Course outcomes (${s.clos.length})`), el("ul", {}, s.clos.map((c) => el("li", {}, `${c}: ${map[c] || ""}`)))));
+    }
+    if (s.mos.length) {
+      parts.push(el("details", {}, el("summary", {}, `${DATA.app.exam || "MOS"} exam skills practiced (${s.mos.length})`),
+        el("ul", {}, s.mos.slice(0, 80).map((c) => el("li", {}, `${c} ${DATA.mosNames[c] || ""}`)))));
+    }
+
+    parts.push(el("div", { class: "nav" },
+      el("button", { type: "button", class: "btn", disabled: idx === 0 ? true : null, onclick: () => step(-1) }, "‹ Previous stop"),
+      el("button", { type: "button", class: "btn", disabled: idx === stops.length - 1 ? true : null, onclick: () => step(1) }, "Next stop ›")));
+    p.replaceChildren(...parts);
+  }
+  function step(d) { const i = stops.findIndex((s) => s.sid === current); const n = stops[i + d]; if (n) { select(n.sid, false); focusStation(n.sid); } }
+
+  /** Make one stop current everywhere. `reveal` scrolls the panel into view on small screens. */
+  function select(sid, reveal) {
+    if (!byId[sid]) return;
+    current = sid;
+    document.querySelectorAll("[data-sid]").forEach((n) => n.setAttribute("aria-current", n.dataset.sid === sid ? "true" : "false"));
+    renderPanel();
+    try { history.replaceState(null, "", "#" + sid); } catch (e) { /* sandboxed: fine */ }
+    if (reveal && window.matchMedia("(max-width: 1080px)").matches) {
+      const smooth = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+      $("panel").scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    }
+  }
+
+  // ---------- view, mode and theme switches ----------
+  function setView(v) {
+    $("map-view").hidden = v !== "map";
+    $("list-view").hidden = v !== "list";
+    document.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+    store.set("view", v);
+  }
+  document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => setView(b.dataset.view)));
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+    store.set("mode", m);
+    renderPanel();
+  }
+  document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const THEMES = ["system", "light", "dark"];
+  function applyTheme(t) {
+    if (t === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", t);
+    $("theme").textContent = "Theme: " + t; store.set("theme", t);
+  }
+  $("theme").addEventListener("click", () => applyTheme(THEMES[(THEMES.indexOf(store.get("theme") || "system") + 1) % 3]));
+
+  // ---------- start-up ----------
+  if (store.get("theme")) applyTheme(store.get("theme"));
+  drawMap(); drawLegend(); drawList();
+  const wanted = (location.hash || "").slice(1);
+  // Phones start on the list; a remembered choice wins.
+  setView(store.get("view") || (window.matchMedia("(max-width: 700px)").matches ? "list" : "map"));
+  setMode(mode === "section" ? "section" : "practice");
+  select(byId[wanted] ? wanted : stops[0].sid, false);
+})();
+</script>
+</body>
+</html>
