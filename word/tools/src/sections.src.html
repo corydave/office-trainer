@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    OFFICE TRAINER - the section builder (instructor/sections.html)
+    =====================================================================
+    DON'T EDIT instructor/sections.html DIRECTLY. It's built from this file
+    by word/tools/build-site-pages.py (which copies in site.css, site.js
+    and TrainerMD, and writes the security fingerprints below).
+
+    WHAT IT DOES
+    An instructor picks a course, ticks the lessons their section uses,
+    adds their own videos, and gets a SECTION KEY: one line of text with
+    all of it inside. Students paste the key into the Office Trainer panel
+    (Settings > Your section). Nothing is uploaded or stored anywhere: the
+    key IS the section. To change the section later, paste the key back
+    in here, edit, and make a new key.
+
+    HOW A KEY IS MADE AND CHECKED
+    TrainerMD.cleanSection checks everything (the same code the panel runs
+    when a student pastes the key), then TrainerMD.encodeSectionKey packs
+    it. Videos must be https links on the course's approved video sites.
+
+    SECURITY
+    - Content Security Policy: only this page's own script and style (by
+      fingerprint), fetches from this site (the course files), and video
+      previews from the approved video sites.
+    - Previews load only when the instructor presses Preview, in a sandboxed frame.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="__CSP__">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Set up an Office Trainer section: choose the lessons, add your own videos, and get a key for your students.">
+  <title>Section builder · Office Trainer</title>
+  <link rel="icon" href="../assets/icon-32.png" sizes="32x32">
+  <style>
+/*__SITE_CSS__*/
+
+/* ---------- This page ---------- */
+.step { margin: 0 0 28px; }
+.step > h2 { display: flex; align-items: center; gap: 8px; }
+.grid2 { display: grid; gap: 0 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.stop-list { list-style: none; padding: 0; margin: 0; }
+.stop-list .kind { color: var(--muted); font-size: .9rem; }
+.week-tools { margin: 0 0 6px; font-size: .92rem; }
+.lesson-videos { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 0 0 10px; }
+.lesson-videos > summary { font-size: 1.02rem; }
+.video-row { border-top: 1px solid var(--line); padding: 12px 0 4px; }
+.video-row:first-of-type { border-top: 0; }
+.video-row h4 { margin: 0 0 6px; font-size: 1rem; }
+.video-fields { display: grid; gap: 0 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.video-fields .wide { grid-column: 1 / -1; }
+.preview { margin: 6px 0 10px; max-width: 560px; }
+.preview .frame { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; }
+.preview iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.counts { font-weight: 700; }
+.key-out { margin: 12px 0; }
+.problems li { margin-bottom: 4px; }
+.share-steps li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="site-head">
+    <div class="wrap">
+      <a class="brand" href="../index.html"><img src="../assets/icon-80.png" alt="" width="32" height="32"> Office Trainer</a>
+      <nav class="head-links" aria-label="Site">
+        <a href="../index.html#instructors">For instructors</a>
+        <a href="grader.html">Grader</a>
+        <button type="button" class="theme-btn" id="theme-btn" aria-pressed="false" hidden>Dark mode</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <h1>Set up your section</h1>
+    <p class="lead">Choose the lessons your class uses and add your own videos. You'll get a <strong>section key</strong> to give your students. There's no account and nothing to upload: everything is inside the key.</p>
+
+    <details class="card band">
+      <summary>Edit a section you made before</summary>
+      <div class="field">
+        <label for="old-key">Paste your section key</label>
+        <textarea id="old-key" class="key" spellcheck="false" autocomplete="off" aria-describedby="old-key-help"></textarea>
+        <small id="old-key-help">It starts with OTK1. The form below fills in so you can change it, then make a new key.</small>
+      </div>
+      <button type="button" class="btn slim" id="load-key">Load it</button>
+      <div id="load-status" class="small" role="status" aria-live="polite"></div>
+    </details>
+
+    <section class="step" aria-labelledby="s1">
+      <h2 id="s1"><span class="step-num" aria-hidden="true">1</span> Course</h2>
+      <fieldset>
+        <legend>Which course is your section?</legend>
+        <div class="choices" id="course-choices"></div>
+      </fieldset>
+      <div id="course-status" role="status" aria-live="polite"></div>
+    </section>
+
+    <div id="after-course" hidden>
+      <section class="step" aria-labelledby="s2">
+        <h2 id="s2"><span class="step-num" aria-hidden="true">2</span> About your section</h2>
+        <div class="grid2">
+          <div class="field">
+            <label for="sec-title">Section name <span class="muted">(required)</span></label>
+            <input type="text" id="sec-title" maxlength="80" autocomplete="off" aria-describedby="sec-title-help">
+            <small id="sec-title-help">Students see this, for example "CSC 136-01, Spring 2027".</small>
+          </div>
+          <div class="field">
+            <label for="sec-instructor">Your name, as students see it <span class="muted">(required)</span></label>
+            <input type="text" id="sec-instructor" maxlength="60" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="sec-term">Term <span class="muted">(optional)</span></label>
+            <input type="text" id="sec-term" maxlength="40" autocomplete="off">
+          </div>
+        </div>
+      </section>
+
+      <section class="step" aria-labelledby="s3">
+        <h2 id="s3"><span class="step-num" aria-hidden="true">3</span> Lessons</h2>
+        <p>Untick anything your section doesn't use. Students still see it, marked <strong>Not in your section</strong>, and it doesn't count toward their course certificate.</p>
+        <p class="counts" id="stop-count" aria-live="polite"></p>
+        <div class="btn-row week-tools"><button type="button" class="btn slim secondary" id="all-on">Include everything</button></div>
+        <div id="weeks"></div>
+      </section>
+
+      <section class="step" aria-labelledby="s4">
+        <h2 id="s4"><span class="step-num" aria-hidden="true">4</span> Your videos <span class="muted small">(optional)</span></h2>
+        <p>Use your own video in place of a course video, or add one after any activity. Leave a lesson alone to keep the course videos.</p>
+        <p class="notice small" id="hosts-note"></p>
+        <div id="videos"></div>
+      </section>
+
+      <section class="step" aria-labelledby="s5">
+        <h2 id="s5"><span class="step-num" aria-hidden="true">5</span> Your section key</h2>
+        <button type="button" class="btn" id="make-key">Make my section key</button>
+        <div id="key-box" tabindex="-1"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>A section key changes what students see: which lessons count, and your videos. It doesn't collect anything: students' progress stays on their own devices. To grade work, use the <a href="grader.html">grader</a>.</p>
+      <p>Office Trainer · Finger Lakes Community College, Computing Sciences</p>
+    </div>
+  </footer>
+  <div id="announce" class="sr-only" aria-live="polite"></div>
+
+  <script>
+/*__TRAINER_MD__*/
+/*__SITE_JS__*/
+/* =====================================================================
+   THIS PAGE: the section builder
+   ===================================================================== */
+(function () {
+  "use strict";
+  const TM = window.TrainerMD;
+  const { APPS, el, add, fill, announce, download, loadCourse } = window.Site;
+  const $ = (id) => document.getElementById(id);
+  const KIND_WORDS = { lesson: "Lesson", skillcheck: "Skill check", project: "Project", capstone: "Capstone" };
+  const CAPTIONS = [["verified", "Checked by a person"], ["auto", "Automatic, not checked yet"], ["none", "No captions yet"]];
+
+  // Everything about the form for the course that's open.
+  let state = null; // { app, course, hosts, index, stops: {docId: checkbox}, rows: [video rows] }
+  let rowCount = 0; // gives every video row's fields unique ids
+
+  // ---------------------------------------------------------------
+  // 1. CHOOSING A COURSE
+  // ---------------------------------------------------------------
+  Object.values(APPS).forEach((a) => {
+    add($("course-choices"), el("label", { class: "choice" },
+      el("input", { type: "radio", name: "course", value: a.id, onchange: () => openCourse(a.id) }), a.name));
+  });
+
+  /** Load a course and draw steps 2 to 5 for it. Keeps the section name and instructor if they're filled in. */
+  async function openCourse(appId) {
+    fill($("course-status"), el("p", { class: "small" }, "Loading the " + APPS[appId].name + " course…"));
+    let course;
+    try { course = await loadCourse(appId, "../"); }
+    catch (e) { fill($("course-status"), el("p", { class: "notice warn" }, "Couldn't load the course. Check your connection and try again. (" + e.message + ")")); return; }
+    fill($("course-status"));
+    for (const r of document.querySelectorAll('input[name="course"]')) r.checked = r.value === appId;
+    const hosts = Array.isArray(course.config.videoHosts) ? course.config.videoHosts : TM.DEFAULT_VIDEO_HOSTS;
+    state = { app: appId, course: course, hosts: hosts, index: TM.courseIndex(Object.values(course.docs)), stops: {}, rows: [] };
+    drawStops();
+    drawVideos();
+    fill($("hosts-note"), "Videos can come from: " + hosts.filter((h) => h !== "www.youtube-nocookie.com").join(", ") +
+      ". YouTube links play in privacy-enhanced mode. Mark captions as checked only after a person has reviewed them.");
+    fill($("key-box"));
+    $("after-course").hidden = false;
+  }
+
+  /** The stops a section can leave out: every written lesson, skill check, project and the capstone. */
+  function choosableStops() {
+    return state.course.stations.filter((s) => s.docId && KIND_WORDS[s.kind] && s.file && state.course.docs[s.file]);
+  }
+
+  // ---------------------------------------------------------------
+  // 2. LESSONS: one checkbox per stop, grouped by week
+  // ---------------------------------------------------------------
+  function drawStops() {
+    const box = fill($("weeks"));
+    for (const w of state.course.map.weeks) {
+      const stops = w.stations.filter((s) => choosableStops().includes(s));
+      if (!stops.length) continue;
+      const list = el("ul", { class: "stop-list" }, stops.map((s) => {
+        const id = "stop-" + s.docId;
+        const box = el("input", { type: "checkbox", id: id, checked: true, onchange: countStops });
+        state.stops[s.docId] = box;
+        return el("li", { class: "check-row" }, box,
+          el("label", { for: id }, s.title, " ", el("span", { class: "kind" }, "· " + KIND_WORDS[s.kind] + (s.activities.length ? " · " + s.activities.length + " badge" + (s.activities.length === 1 ? "" : "s") : ""))));
+      }));
+      add(box, el("fieldset", {}, el("legend", {}, "Week " + w.n + ": " + w.title), list));
+    }
+    countStops();
+  }
+  function countStops() {
+    const all = choosableStops();
+    const on = all.filter((s) => state.stops[s.docId].checked);
+    const badges = on.reduce((n, s) => n + s.activities.length, 0);
+    $("stop-count").textContent = on.length + " of " + all.length + " stops included · " + badges + " badges";
+  }
+  $("all-on").addEventListener("click", () => { for (const b of Object.values(state.stops)) b.checked = true; countStops(); announce("Every stop is included."); });
+
+  // ---------------------------------------------------------------
+  // 3. VIDEOS: per lesson, replace a course video or add one after an activity
+  // ---------------------------------------------------------------
+  function drawVideos() {
+    const box = fill($("videos"));
+    state.rows = [];
+    state.lessonBoxes = {};
+    for (const s of choosableStops()) {
+      const doc = state.course.docs[s.file];
+      const videos = doc.blocks.filter((b) => b.name === "video" && b.header.id);
+      const anchors = doc.blocks.filter((b) => (b.name === "video" && b.header.id) || (["drill", "quiz", "skillcheck", "preflight", "rubric"].includes(b.name) && b.arg));
+      if (!anchors.length) continue;
+      const list = el("div");
+      const lesson = el("details", { class: "lesson-videos" },
+        el("summary", {}, "Week " + s.week + ": " + s.title, el("span", { class: "muted small" }, videos.length ? " · " + videos.length + " course video" + (videos.length === 1 ? "" : "s") : "")),
+        list);
+      state.lessonBoxes[s.docId] = { lesson, list, anchors, stop: s };
+      for (const v of videos) add(list, videoRow({ replace: v.header.id, stockTitle: v.header.title, stockUrl: v.header.url }, s.docId));
+      const addBtn = el("button", { type: "button", class: "btn slim secondary" }, "Add a video to this lesson");
+      addBtn.addEventListener("click", () => { const row = videoRow({ after: anchors[anchors.length - 1] ? anchorId(anchors[anchors.length - 1]) : "" }, s.docId); addBtn.parentNode.before(row); row.querySelector("select").focus(); });
+      add(lesson, el("div", { class: "btn-row add-row" }, addBtn));
+      add(box, lesson);
+    }
+  }
+  function anchorId(b) { return b.name === "video" ? b.header.id : b.arg; }
+  function anchorLabel(b) {
+    if (b.name === "video") return "The video \"" + TM.plainText(b.header.title || b.header.id) + "\"";
+    const words = { drill: "Drill", quiz: "Quick check", skillcheck: "Skill check", preflight: "Preflight", rubric: "Rubric" };
+    return words[b.name] + " " + b.arg + (b.header.title ? ": " + TM.plainText(b.header.title) : "");
+  }
+
+  /**
+   * One video's fields. spec is { replace, stockTitle, stockUrl } for a
+   * course video, or { after } for an added one. Values fill in from spec.video.
+   */
+  function videoRow(spec, docId) {
+    const n = ++rowCount;
+    const f = (name) => "v" + n + "-" + name;
+    const v = spec.video || {};
+    const row = el("div", { class: "video-row", "data-row": n });
+    const url = el("input", { type: "url", id: f("url"), inputmode: "url", autocomplete: "off", spellcheck: "false", placeholder: "https://www.youtube.com/watch?v=…", value: v.url || "", "aria-describedby": f("url-err") });
+    const title = el("input", { type: "text", id: f("title"), maxlength: "100", autocomplete: "off", value: v.title || "" });
+    const captions = el("select", { id: f("cap"), "aria-describedby": f("cap-note") }, CAPTIONS.map(([val, label]) => el("option", { value: val, selected: (v.captions || "verified") === val }, label)));
+    const note = el("input", { type: "text", id: f("note"), maxlength: "240", autocomplete: "off", value: v.note || "" });
+    const capNote = el("small", { id: f("cap-note") });
+    const err = el("p", { class: "error-text", id: f("url-err"), hidden: true });
+    const showCapNote = () => { capNote.textContent = captions.value === "verified" ? "" : "Check the captions before you share this. Students are told they aren't checked yet (ADA Title II, WCAG 1.2.2)."; };
+    captions.addEventListener("change", showCapNote);
+    showCapNote();
+    const preview = el("div", { class: "preview" });
+    const previewBtn = el("button", { type: "button", class: "btn slim secondary" }, "Preview");
+    previewBtn.addEventListener("click", () => {
+      if (!TM.videoUrlAllowed(url.value.trim(), state.hosts)) { showError("That isn't an https link on one of the approved video sites."); url.focus(); return; }
+      showError("");
+      const frame = el("iframe", { src: TM.embedUrl(url.value.trim()), title: "Preview: " + (title.value || "your video"), sandbox: "allow-scripts allow-same-origin allow-presentation",
+        referrerpolicy: "strict-origin-when-cross-origin", allow: "encrypted-media; picture-in-picture; fullscreen" });
+      fill(preview, el("div", { class: "frame" }, frame));
+    });
+    function showError(text) { err.textContent = text; err.hidden = !text; url.setAttribute("aria-invalid", text ? "true" : "false"); }
+
+    let where;
+    if (spec.replace) {
+      where = el("h4", {}, "In place of \"" + TM.plainText(spec.stockTitle || spec.replace) + "\"",
+        spec.stockUrl && spec.stockUrl !== "TODO" ? null : el("span", { class: "muted small" }, " (the course video isn't recorded yet)"));
+      row.dataset.replace = spec.replace;
+    } else {
+      const lesson = state.lessonBoxes[docId];
+      const select = el("select", { id: f("after") }, lesson.anchors.map((b) => el("option", { value: anchorId(b), selected: anchorId(b) === spec.after }, anchorLabel(b))));
+      const remove = el("button", { type: "button", class: "btn slim danger" }, "Remove this video");
+      remove.addEventListener("click", () => {
+        const next = row.nextElementSibling;
+        state.rows = state.rows.filter((r) => r.row !== row);
+        row.remove();
+        announce("Video removed.");
+        if (next) (next.querySelector("input, select, button") || next).focus();
+      });
+      where = el("div", { class: "field" }, el("label", { for: f("after") }, "Show it after"), select, el("div", {}, remove));
+      row.afterSelect = select;
+    }
+    add(row, where, el("div", { class: "video-fields" },
+      el("div", { class: "field wide" }, el("label", { for: f("url") }, spec.replace ? "Your video's link (leave empty to keep the course video)" : "Your video's link"), url, err),
+      el("div", { class: "field" }, el("label", { for: f("title") }, "Title"), title),
+      el("div", { class: "field" }, el("label", { for: f("cap") }, "Captions"), captions, capNote),
+      el("div", { class: "field wide" }, el("label", { for: f("note") }, "A note for students (optional)"), note)),
+      el("div", { class: "btn-row" }, previewBtn), preview);
+    state.rows.push({ row, url, title, captions, note, showError, replace: spec.replace || null, docId });
+    return row;
+  }
+
+  // ---------------------------------------------------------------
+  // 4. MAKING THE KEY
+  // ---------------------------------------------------------------
+  /** Read the form into a section (before checking). Also marks fields that have a problem. */
+  function readForm() {
+    const fieldErrors = [];
+    const raw = { app: state.app, title: $("sec-title").value, instructor: $("sec-instructor").value, term: $("sec-term").value, skip: [], videos: [] };
+    for (const [docId, box] of Object.entries(state.stops)) if (!box.checked) raw.skip.push(docId);
+    for (const [name, label] of [["sec-title", "Section name"], ["sec-instructor", "Your name"]]) {
+      const empty = !$(name).value.trim();
+      $(name).setAttribute("aria-invalid", String(empty));
+      if (empty) fieldErrors.push({ field: $(name), text: label + " is required." });
+    }
+    for (const r of state.rows) {
+      const url = r.url.value.trim();
+      if (r.replace && !url) { r.showError(""); continue; } // keep the course video
+      if (!url) { r.showError("Add the video's link, or remove this video."); fieldErrors.push({ field: r.url, text: "An added video has no link." }); continue; }
+      if (!TM.videoUrlAllowed(url, state.hosts)) { r.showError("That isn't an https link on one of the approved video sites."); fieldErrors.push({ field: r.url, text: "A video link isn't on an approved video site: " + url }); continue; }
+      r.showError("");
+      const v = { url: url, title: r.title.value, captions: r.captions.value, note: r.note.value };
+      if (r.replace) v.replace = r.replace; else v.after = r.row.afterSelect.value;
+      raw.videos.push(v);
+    }
+    return { raw, fieldErrors };
+  }
+
+  $("make-key").addEventListener("click", function () {
+    const box = $("key-box");
+    const { raw, fieldErrors } = readForm();
+    if (fieldErrors.length) {
+      fill(box, el("div", { class: "notice warn", role: "alert" },
+        el("p", {}, el("b", {}, "Fix " + (fieldErrors.length === 1 ? "this" : "these " + fieldErrors.length) + " first:")),
+        el("ul", { class: "problems" }, fieldErrors.map((e) => el("li", {}, el("a", { href: "#" + e.field.id, onclick: (ev) => { ev.preventDefault(); openTo(e.field); } }, e.text))))));
+      box.focus();
+      return;
+    }
+    const ctx = { app: state.app, videoHosts: state.hosts, stopIds: state.index.stopIds, videoIds: state.index.videoIds, anchorIds: state.index.anchorIds };
+    const result = TM.cleanSection(raw, ctx);
+    if (!result.section) { fill(box, el("p", { class: "notice warn", role: "alert" }, result.problems[0])); box.focus(); return; }
+    showKey(result.section, result.problems);
+  });
+
+  /** Open the lesson a field is in, then move to it. */
+  function openTo(field) {
+    const d = field.closest("details");
+    if (d) d.open = true;
+    field.focus();
+  }
+
+  function showKey(section, problems) {
+    const box = $("key-box");
+    const key = TM.encodeSectionKey(section);
+    if (key.length > 20000) {
+      fill(box, el("p", { class: "notice warn", role: "alert" }, "This section is too big for one key (" + key.length.toLocaleString() + " characters; the limit is 20,000). Remove some videos or shorten their notes, then try again."));
+      box.focus();
+      return;
+    }
+    // Check it the way the panel will: unpack it again.
+    const again = TM.decodeSectionKey(key, { app: section.app, videoHosts: state.hosts });
+    if (!again.section) { fill(box, el("p", { class: "notice warn" }, "Something went wrong making the key. Please try again.")); return; }
+    const keyArea = el("textarea", { id: "key-out", class: "key", readonly: true, rows: "5", spellcheck: "false", "aria-describedby": "key-help" });
+    keyArea.value = key;
+    const copied = el("span", { class: "small", role: "status" });
+    const copy = el("button", { type: "button", class: "btn" }, "Copy the key");
+    copy.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(key); copied.textContent = " Copied."; }
+      catch (e) { keyArea.focus(); keyArea.select(); copied.textContent = " Selected: press Ctrl+C (Cmd+C on a Mac) to copy."; }
+    });
+    const link = new URL("../taskpane.html?app=" + section.app + "&join=" + encodeURIComponent(key), window.location.href).href;
+    const copyLink = el("button", { type: "button", class: "btn slim secondary" }, "Copy the browser link");
+    const linkNote = el("span", { class: "small", role: "status" });
+    copyLink.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(link); linkNote.textContent = " Copied."; } catch (e) { linkNote.textContent = " Couldn't copy. Use the key instead."; }
+    });
+
+    // A section file, for a section with a short code on the website (sections/<CODE>.md).
+    const prefix = { word: "WRD", excel: "XL", powerpoint: "PP" }[section.app];
+    const codeInput = el("input", { type: "text", id: "file-code", maxlength: "15", value: prefix + "-" + randomCode(), autocomplete: "off", spellcheck: "false" });
+    const codeErr = el("p", { class: "error-text", hidden: true, id: "file-code-err" });
+    const saveFile = el("button", { type: "button", class: "btn slim secondary" }, "Download the section file");
+    saveFile.addEventListener("click", () => {
+      const code = codeInput.value.trim().toUpperCase();
+      if (!TM.SECTION_CODE.test(code)) { codeErr.textContent = "A code is capitals and numbers with one hyphen, such as " + prefix + "-7K3Q."; codeErr.hidden = false; codeInput.setAttribute("aria-invalid", "true"); codeInput.focus(); return; }
+      codeErr.hidden = true; codeInput.setAttribute("aria-invalid", "false");
+      download(TM.sectionToFile(section, code), code + ".md", "text/markdown;charset=utf-8");
+    });
+
+    fill(box,
+      el("div", { class: "notice good key-out" },
+        el("p", {}, el("b", {}, "Your key is ready. "), describe(section)),
+        problems.length ? el("details", {}, el("summary", {}, "Notes (" + problems.length + ")"), el("ul", {}, problems.map((p) => el("li", {}, p)))) : null),
+      el("div", { class: "field" }, el("label", { for: "key-out" }, "Section key (" + key.length.toLocaleString() + " characters)"), keyArea,
+        el("small", { id: "key-help" }, "It's long, and that's fine: students copy and paste it. Keep a copy, so you can edit the section later.")),
+      el("div", { class: "btn-row" }, copy, copied),
+      el("h3", {}, "What to tell your students"),
+      el("ol", { class: "share-steps" },
+        el("li", {}, "Open Office Trainer in ", APPS[section.app].name, " (or in the browser)."),
+        el("li", {}, "Go to ", el("b", {}, "Settings"), ", find ", el("b", {}, "Your section"), ", paste the key and select ", el("b", {}, "Join"), "."),
+        el("li", {}, "The course now shows your lessons and videos. Their progress still stays on their own device.")),
+      el("p", { class: "small" }, "Students working in a browser can use a link instead, which asks them to join: ", copyLink, linkNote),
+      el("details", {}, el("summary", {}, "For the website: a short section code instead of a key"),
+        el("p", { class: "small" }, "A short code (such as " + prefix + "-7K3Q) is easier to type, but someone who can update the website has to add the file to the course's sections folder (" + APPS[section.app].folder + "sections/). Students then type the code instead of pasting the key."),
+        el("div", { class: "field" }, el("label", { for: "file-code" }, "Code"), codeInput, codeErr),
+        saveFile));
+    box.focus();
+    announce("Your section key is ready.");
+  }
+
+  function describe(s) {
+    const bits = [];
+    bits.push(s.skip.length ? "It leaves out " + s.skip.length + (s.skip.length === 1 ? " stop" : " stops") : "It includes every stop");
+    bits.push(s.videos.length ? "has " + s.videos.length + " of your videos" : "uses the course videos");
+    return bits.join(" and ") + ".";
+  }
+
+  /** Four random capitals and digits (no I, L, O or U, which look like 1, 0 and V). */
+  function randomCode() {
+    const letters = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+    const bytes = crypto.getRandomValues(new Uint8Array(4));
+    return Array.from(bytes, (b) => letters[b % 32]).join("");
+  }
+
+  // ---------------------------------------------------------------
+  // 5. EDITING AN OLD KEY
+  // ---------------------------------------------------------------
+  $("load-key").addEventListener("click", async function () {
+    const status = $("load-status");
+    const text = $("old-key").value;
+    // First unpack without a course, to learn which course it's for.
+    const first = TM.decodeSectionKey(text, {});
+    if (!first.section) { status.textContent = first.problems[0]; $("old-key").focus(); return; }
+    await openCourse(first.section.app);
+    if (!state || state.app !== first.section.app) { status.textContent = "Couldn't load the " + APPS[first.section.app].name + " course to edit this key. Check your connection and try again."; return; }
+    const ctx = { app: state.app, videoHosts: state.hosts, stopIds: state.index.stopIds, videoIds: state.index.videoIds, anchorIds: state.index.anchorIds };
+    const { section, problems } = TM.decodeSectionKey(text, ctx);
+    if (!section) { status.textContent = problems[0]; return; }
+    $("sec-title").value = section.title;
+    $("sec-instructor").value = section.instructor === "your instructor" ? "" : section.instructor;
+    $("sec-term").value = section.term;
+    for (const [docId, box] of Object.entries(state.stops)) box.checked = !section.skip.includes(docId);
+    countStops();
+    for (const v of section.videos) {
+      if (v.replace) {
+        const r = state.rows.find((x) => x.replace === v.replace);
+        if (!r) continue;
+        r.url.value = v.url; r.title.value = v.title; r.captions.value = v.captions; r.note.value = v.note;
+        r.captions.dispatchEvent(new Event("change"));
+        r.row.closest("details").open = true;
+      } else {
+        // Find the lesson that has this anchor, and add a row there.
+        const lesson = Object.entries(state.lessonBoxes).find(([, l]) => l.anchors.some((b) => anchorId(b) === v.after));
+        if (!lesson) continue;
+        const row = videoRow({ after: v.after, video: v }, lesson[0]);
+        lesson[1].lesson.querySelector(".add-row").before(row);
+        lesson[1].lesson.open = true;
+      }
+    }
+    status.textContent = "Loaded " + section.title + "." + (problems.length ? " " + problems.length + " part(s) were dropped: " + problems.join(" ") : "");
+    announce(status.textContent);
+    $("sec-title").focus();
+  });
+})();
+  </script>
+</body>
+</html>

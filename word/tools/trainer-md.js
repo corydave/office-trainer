@@ -21,7 +21,7 @@
 (function (root) {
   "use strict";
 
-  const VERSION = "0.4.0";
+  const VERSION = "0.5.0";
 
   // -------------------------------------------------------------------------
   // Fonts: each choice expands to a fallback chain (see course.config.md).
@@ -508,6 +508,11 @@
       if (!SECTION_CODE.test(String(meta.id || ""))) add("error", 1, 'A section id is its code, such as "WRD-7K3Q" (capitals, numbers, one hyphen).');
       ["title", "instructor"].forEach(k => { if (!meta[k]) add("error", 1, `Front matter is missing "${k}".`); });
       if (ctx.fileName && meta.id && ctx.fileName.replace(/\.md$/, "") !== meta.id) add("error", 1, `Name this file ${meta.id}.md so the trainer can find it by its code.`);
+      // skip: [PP1-L3, PP2-SC2] leaves those stops out of the section
+      splitList(meta.skip).forEach((id) => {
+        if (!STOP_ID.test(id)) add("error", 1, `skip: "${id}" isn't a lesson id (such as PP1-L3).`);
+        else if (ctx.stopIds && !ctx.stopIds.has(id)) add("error", 1, `skip: there's no stop "${id}" in this course.`);
+      });
     }
     if (type === "info" || type === "outline") {
       ["id", "title"].forEach(k => { if (!meta[k]) add("error", 1, `Front matter is missing "${k}".`); });
@@ -690,10 +695,12 @@
 
   /**
    * Course index for section files: every video id and every activity id
-   * (drills, quizzes, skill checks), from a list of parsed lesson files.
+   * (drills, quizzes, skill checks), and every stop's id (lessons, skill checks,
+   * projects, the capstone: what a section can skip), from a list of parsed lesson files.
    */
   function courseIndex(docs) {
-    const videos = [], videoIds = new Set(), anchorIds = new Set();
+    const videos = [], videoIds = new Set(), anchorIds = new Set(), stopIds = new Set();
+    for (const d of docs) if (["lesson", "skillcheck", "project", "capstone"].includes(d.meta.type) && d.meta.id) stopIds.add(String(d.meta.id));
     for (const d of docs) for (const b of d.blocks) {
       if (b.name === "video" && b.header.id) {
         videoIds.add(b.header.id); anchorIds.add(b.header.id);
@@ -701,7 +708,7 @@
       }
       if (["drill", "quiz", "skillcheck", "preflight", "rubric"].includes(b.name) && b.arg) anchorIds.add(b.arg);
     }
-    return { videos, videoIds, anchorIds };
+    return { videos, videoIds, anchorIds, stopIds };
   }
 
   /**
@@ -712,7 +719,7 @@
    */
   function applyOverrides(doc, section) {
     if (!section) return doc;
-    const replace = {}, after = {};
+    const replace = Object.create(null), after = Object.create(null); // no inherited names such as "constructor"
     for (const b of section.blocks) {
       if (b.name === "replace-video" && b.arg) replace[b.arg] = b;
       if (b.name === "add-video" && b.arg) (after[b.arg.replace(/^after\s+/, "")] = after[b.arg.replace(/^after\s+/, "")] || []).push(b);
@@ -729,6 +736,235 @@
       if (anchor && after[anchor]) after[anchor].forEach(o => blocks.push(asVideo(o, null)));
     }
     return Object.assign({}, doc, { blocks });
+  }
+
+  // -------------------------------------------------------------------------
+  // SECTIONS: section keys and section files, in one shape
+  // -------------------------------------------------------------------------
+  // An instructor can set up a section two ways:
+  //   1. A SECTION KEY: the whole section packed into one line of text, made
+  //      on instructor/sections.html. Students paste it into the panel. It
+  //      needs no server and no upload: the settings live inside the key.
+  //   2. A SECTION FILE: sections/<CODE>.md in the course folder (5.13 in
+  //      trainer-markdown.md). Students type the short code. Someone with
+  //      access to the website has to add the file.
+  // Both turn into the same plain object (a "section"):
+  //   { app, title, instructor, term,
+  //     skip:   ["PP1-L3", ...]   lesson ids the section leaves out,
+  //     videos: [{ replace: "w1-l2-show-hide" } or { after: "D1.05" },
+  //              plus url, title, captions, note, duration] }
+  // A key is NOT secret and NOT trusted: anyone can make one. So everything
+  // in it is checked here, the same way for keys and files, before the panel
+  // uses it: lengths are capped, ids must look like ids, and videos must come
+  // from the course's approved hosts. A key can't add a host or run code.
+  // -------------------------------------------------------------------------
+  const SECTION_KEY_PREFIX = "OTK1.";           // "Office Trainer key, version 1"
+  const SECTION_KEY_MAX = 20000;                 // characters; a key with 60 videos is about 15,000
+  const STOP_ID = /^[A-Za-z0-9][A-Za-z0-9-]{1,31}$/;          // lesson ids such as PP1-L3, W2-SC2
+  const ANCHOR_ID = /^[A-Za-z0-9][A-Za-z0-9.-]{1,48}$/;        // video ids (w1-l2-show-hide) or activity ids (D1.05)
+  const SECTION_APPS = ["word", "excel", "powerpoint"];
+  const CAPTION_CHOICES = ["verified", "auto", "none"];
+
+  /** Plain one-line text: no control, invisible or text-direction characters (which can disguise a name), trimmed, at most max characters. */
+  function cleanText(value, max) {
+    return String(value === undefined || value === null ? "" : value)
+      .replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u2028-\u202e\u2060-\u206f\ufeff]/g, " ")
+      .replace(/\s+/g, " ").trim().slice(0, max);
+  }
+
+  /**
+   * Will this link play in a lesson? It must be https, and after embedUrl
+   * turns it into a player link (YouTube watch links become privacy-enhanced
+   * youtube-nocookie links, Vimeo pages become player links), its host must
+   * be on the approved list. This is the same test videoFigure uses, so a
+   * video that passes here is a video learners can play.
+   */
+  function videoUrlAllowed(url, hosts) {
+    if (typeof url !== "string" || url.length > 500 || !/^https:\/\//i.test(url)) return false;
+    const player = embedUrl(url);
+    const host = hostOf(player);
+    const list = (hosts || DEFAULT_VIDEO_HOSTS).concat(["www.youtube-nocookie.com"]);
+    if (!host || !list.includes(host)) return false;
+    // YouTube and Vimeo links must point at one video (not a channel, a search or the home page).
+    if (/(^|\.)youtube(-nocookie)?\.com$/.test(host)) return /^https:\/\/www\.youtube-nocookie\.com\/embed\/[\w-]{6,}([?#]|$)/.test(player);
+    if (/(^|\.)vimeo\.com$/.test(host)) return /^https:\/\/player\.vimeo\.com\/video\/\d+([?#/]|$)/.test(player);
+    return true;
+  }
+
+  /**
+   * Check a section (from a key, a file or the builder) and return a clean copy.
+   *   ctx = { app, videoHosts, stopIds, videoIds, anchorIds }  (the id sets are optional)
+   * Returns { section, problems }. Bad parts are dropped and described in
+   * problems (plain sentences), so one typo never breaks the whole section.
+   * Returns section: null when the key can't be used at all.
+   */
+  function cleanSection(raw, ctx) {
+    const c = ctx || {};
+    const problems = [];
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { section: null, problems: ["That isn't a section."] };
+    const app = cleanText(raw.app, 12).toLowerCase();
+    if (!SECTION_APPS.includes(app)) return { section: null, problems: ["The section doesn't say which course it's for."] };
+    if (c.app && app !== c.app) {
+      const names = { word: "Word", excel: "Excel", powerpoint: "PowerPoint" };
+      return { section: null, problems: [`This section is for the ${names[app]} course. Open Office Trainer in ${names[app]} to join it.`] };
+    }
+    const section = {
+      app,
+      title: cleanText(raw.title, 80),
+      instructor: cleanText(raw.instructor, 60),
+      term: cleanText(raw.term, 40),
+      skip: [],
+      videos: [],
+    };
+    if (!section.title) return { section: null, problems: ["The section has no name."] };
+    if (!section.instructor) section.instructor = "your instructor";
+
+    // Lessons left out. Unknown ids are dropped (a lesson may have been renamed).
+    const skips = Array.isArray(raw.skip) ? raw.skip.slice(0, 200) : [];
+    for (const s of skips) {
+      const id = cleanText(s, 32);
+      if (!STOP_ID.test(id)) { problems.push(`"${id}" isn't a lesson id, so it was ignored.`); continue; }
+      if (c.stopIds && !c.stopIds.has(id)) { problems.push(`There's no stop "${id}" in this course any more, so it was ignored.`); continue; }
+      if (!section.skip.includes(id)) section.skip.push(id);
+    }
+
+    // Videos: each replaces a course video or goes after a video or activity.
+    const vids = Array.isArray(raw.videos) ? raw.videos.slice(0, 80) : [];
+    const replaced = new Set();
+    vids.forEach((v, i) => {
+      if (!v || typeof v !== "object") return;
+      const n = `Video ${i + 1}`;
+      const replace = v.replace !== undefined ? cleanText(v.replace, 49) : "";
+      const after = v.after !== undefined ? cleanText(v.after, 49) : "";
+      const url = cleanText(v.url, 500);
+      const video = {
+        url, title: cleanText(v.title, 100) || "Video from " + section.instructor,
+        captions: CAPTION_CHOICES.includes(v.captions) ? v.captions : "none",
+        note: cleanText(v.note, 240), duration: cleanText(v.duration, 10),
+      };
+      if (replace) {
+        if (!VIDEO_ID.test(replace)) { problems.push(`${n}: "${replace}" isn't a video id, so it was ignored.`); return; }
+        if (c.videoIds && !c.videoIds.has(replace)) { problems.push(`${n}: the course has no video "${replace}" any more, so it was ignored.`); return; }
+        if (replaced.has(replace)) { problems.push(`${n}: "${replace}" is replaced twice; the first one is used.`); return; }
+        replaced.add(replace);
+        video.replace = replace;
+      } else if (after) {
+        if (!ANCHOR_ID.test(after)) { problems.push(`${n}: "${after}" isn't a video or activity id, so it was ignored.`); return; }
+        if (c.anchorIds && !c.anchorIds.has(after)) { problems.push(`${n}: the course has no video or activity "${after}" any more, so it was ignored.`); return; }
+        video.after = after;
+      } else { problems.push(`${n} doesn't say where it goes, so it was ignored.`); return; }
+      if (!videoUrlAllowed(url, c.videoHosts)) { problems.push(`${n} ("${video.title}") isn't an https link on an approved video site, so it was left out.`); return; }
+      video.url = embedUrl(url); // store the player link (YouTube watch links become privacy-enhanced youtube-nocookie links)
+      section.videos.push(video);
+    });
+    return { section, problems };
+  }
+
+  /** UTF-8 text to base64url (the letters, digits, - and _ that survive copy and paste). */
+  function toBase64Url(text) {
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  /** base64url back to UTF-8 text. Throws on anything that isn't base64url. */
+  function fromBase64Url(b64) {
+    if (!/^[A-Za-z0-9_-]*$/.test(b64)) throw new Error("not base64url");
+    const binary = atob(b64.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64.length + 3) % 4));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  }
+
+  /** Pack a (clean) section into a key: "OTK1." + base64url of its JSON. Empty parts are left out to keep it short. */
+  function encodeSectionKey(section) {
+    const s = { app: section.app, title: section.title, instructor: section.instructor };
+    if (section.term) s.term = section.term;
+    if (section.skip && section.skip.length) s.skip = section.skip;
+    if (section.videos && section.videos.length) s.videos = section.videos.map((v) => {
+      const o = v.replace ? { replace: v.replace } : { after: v.after };
+      o.url = v.url; o.title = v.title; o.captions = v.captions;
+      if (v.note) o.note = v.note;
+      if (v.duration) o.duration = v.duration;
+      return o;
+    });
+    return SECTION_KEY_PREFIX + toBase64Url(JSON.stringify(s));
+  }
+
+  /** Does this text look like a section key (as opposed to a short section code)? */
+  function isSectionKey(text) { return String(text || "").replace(/\s+/g, "").startsWith(SECTION_KEY_PREFIX); }
+
+  /**
+   * Unpack a key that someone pasted. Spaces and line breaks (from email or
+   * chat wrapping) are ignored. Returns cleanSection's { section, problems }.
+   */
+  function decodeSectionKey(text, ctx) {
+    const key = String(text || "").replace(/\s+/g, "");
+    if (!key.startsWith(SECTION_KEY_PREFIX)) return { section: null, problems: ["A section key starts with OTK1."] };
+    if (key.length > SECTION_KEY_MAX) return { section: null, problems: ["That key is too long to be a section key."] };
+    let raw;
+    try { raw = JSON.parse(fromBase64Url(key.slice(SECTION_KEY_PREFIX.length))); }
+    catch (e) { return { section: null, problems: ["That key is damaged or incomplete. Copy the whole key again (it's one long line)."] }; }
+    return cleanSection(raw, ctx);
+  }
+
+  /** A parsed section file (sections/<CODE>.md) as a section. Its front matter may list skip: [lesson ids]. */
+  function sectionFromFile(doc, ctx) {
+    if (!doc || !doc.meta || doc.meta.type !== "section") return { section: null, problems: ["That isn't a section file."] };
+    const raw = {
+      app: (ctx && ctx.app) || doc.meta.app || "word", title: doc.meta.title, instructor: doc.meta.instructor, term: doc.meta.term,
+      skip: splitList(doc.meta.skip), videos: [],
+    };
+    for (const b of doc.blocks) {
+      if (b.name !== "replace-video" && b.name !== "add-video") continue;
+      const v = Object.assign({}, b.header);
+      if (b.name === "replace-video") v.replace = b.arg; else v.after = String(b.arg || "").replace(/^after\s+/, "");
+      raw.videos.push(v);
+    }
+    return cleanSection(raw, ctx);
+  }
+
+  /** A section as a document applyOverrides understands (made of replace-video and add-video blocks). */
+  function sectionDoc(section) {
+    if (!section) return null;
+    const blocks = section.videos.map((v, i) => ({
+      kind: "directive", name: v.replace ? "replace-video" : "add-video", arg: v.replace ? v.replace : "after " + v.after,
+      line: i + 1, header: { url: v.url, title: v.title, captions: v.captions, note: v.note, duration: v.duration },
+      headerLines: {}, intro: [], steps: [], body: [], items: [],
+    }));
+    return { meta: { type: "section", title: section.title, instructor: section.instructor, term: section.term }, blocks };
+  }
+
+  /** A section written out as a section file (sections/<CODE>.md), for the website's sections folder. */
+  function sectionToFile(section, code) {
+    const one = (s) => cleanText(s, 500); // one line, no control characters
+    const lines = ["---", "type: section", `id: ${one(code)}`, `title: ${one(section.title)}`, `instructor: ${one(section.instructor)}`];
+    if (section.term) lines.push(`term: ${one(section.term)}`);
+    if (section.skip.length) lines.push(`skip: [${section.skip.join(", ")}]`);
+    lines.push("status: draft", "---", "", `Made with the section builder for the ${({ word: "Word", excel: "Excel", powerpoint: "PowerPoint" })[section.app]} course.`, "");
+    for (const v of section.videos) {
+      lines.push(v.replace ? `::: replace-video ${v.replace}` : `::: add-video after ${v.after}`,
+        `url: ${one(v.url)}`, `title: ${one(v.title)}`, `captions: ${v.captions}`);
+      if (v.duration) lines.push(`duration: ${one(v.duration)}`);
+      if (v.note) lines.push(`note: ${one(v.note)}`);
+      lines.push(":::", "");
+    }
+    return lines.join("\n");
+  }
+
+  /**
+   * Inline Markdown as plain text, for places that can't show formatting
+   * (the grader's feedback files and spreadsheets): **bold** and `code`
+   * lose their marks, [[path: Home > Font]] and [[key: Ctrl+B]] keep their
+   * words, and links keep their text.
+   */
+  function plainText(md) {
+    return String(md || "")
+      .replace(/\[\[(?:path|key):\s*([^\]]+)\]\]/g, "$1")
+      .replace(/\[([^\]]+)\]\((?:[^)]+)\)/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1").replace(/\*([^*]+)\*/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\s+/g, " ").trim();
   }
 
   /** Check one parsed "check:" against the catalog. */
@@ -802,7 +1038,12 @@
     }
   }
 
-  function hostOf(url) { const m = /^https:\/\/([^/:?#]+)/i.exec(url); return m ? m[1].toLowerCase() : null; }
+  /**
+   * The host of an https link, or null. The host must be followed by "/", "?", "#" or the end,
+   * so a link with a user name or a port (https://www.youtube.com:x@evil.example/) is refused
+   * instead of being mistaken for YouTube.
+   */
+  function hostOf(url) { const m = /^https:\/\/([a-z0-9.-]+)(?=[/?#]|$)/i.exec(String(url || "")); return m ? m[1].toLowerCase() : null; }
   function checkUrl(url, lineNo, add, hosts) {
     const host = hostOf(url.split("#")[0]);
     if (!host) add("error", lineNo, "Video links must be full https:// addresses.");
@@ -1026,7 +1267,7 @@
           if (b.source === "instructor") {
             const stock = b.stockUrl && b.stockUrl !== "TODO" && /^https:/.test(b.stockUrl)
               ? ` <a href="${esc(b.stockUrl)}" target="_blank" rel="noopener noreferrer">Watch the standard video instead<span class="tm-vh"> (opens in a new tab)</span></a>` : "";
-            parts.push(`<p class="tm-from"><span class="tm-pill tm-instructor-pill">From ${esc(b.instructor)}</span>${h.note ? " " + inline(h.note) : ""}${stock}</p>`);
+            parts.push(`<p class="tm-from"><span class="tm-pill tm-instructor-pill">From ${esc(b.instructor)}</span>${h.note ? " " + esc(h.note) : ""}${stock}</p>`); // plain text: a section key can come from anyone, so no links or pictures
           }
           parts.push(videoFigure(h, opts));
           break;
@@ -1201,6 +1442,8 @@
 
   const api = { VERSION, parse, validate, render, summarize, inline, markdown, esc, toPoints, fontStack, embedUrl,
     activityKinds, activityLabels, badgeFor, badgeSVG, makeId, idLooksValid, courseIndex, applyOverrides, courseMap, splitListPublic: splitList, VIDEO_ID, SECTION_CODE,
+    cleanText, cleanSection, encodeSectionKey, decodeSectionKey, isSectionKey, sectionFromFile, sectionDoc, sectionToFile, videoUrlAllowed, plainText,
+    toBase64Url, fromBase64Url, SECTION_KEY_PREFIX, STOP_ID,
     FONT_STACKS, DEFAULT_FONTS, DEFAULT_VIDEO_HOSTS, CHECKS, EXCEL_CHECKS, POWERPOINT_CHECKS, CHECK_SETS, checkSet, DIRECTIVES, CALLOUT_KINDS,
     ASSESS_KINDS, ASSESS_LABELS, COURSE_MODES, WEEK_COLORS };
   if (typeof module === "object" && module.exports) module.exports = api;

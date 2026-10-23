@@ -418,6 +418,7 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
       fileExists: state.allPaths ? (p) => state.allPaths.has(p) : null,
       videoIds: state.index ? state.index.videoIds : null,
       anchorIds: state.index ? state.index.anchorIds : null,
+      stopIds: state.index ? state.index.stopIds : null,
       fileName: state.fileName,
     });
     // "Preview as" a section: swap in that section's videos (the lesson text itself is untouched)
@@ -755,7 +756,7 @@ dialog h2 { font-family: "Comfortaa", var(--ui-font); margin: 0 0 12px; font-siz
     for (const f of state.files) {
       const text = await (await f.handle.getFile()).text();
       const issues = TM.validate(TM.parse(text), { app: state.config.app || "word", videoHosts: state.config.videoHosts, starterExists: (p) => state.starters.has(p), fileExists: (p) => state.allPaths.has(p),
-        videoIds: state.index.videoIds, anchorIds: state.index.anchorIds, fileName: f.path.split("/").pop() });
+        videoIds: state.index.videoIds, anchorIds: state.index.anchorIds, stopIds: state.index.stopIds, fileName: f.path.split("/").pop() });
       f.errors = issues.filter(i => i.level === "error").length;
       f.warnings = issues.length - f.errors;
     }

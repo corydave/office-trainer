@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Office Trainer">
+  <!-- Office Trainer's icon: three overlapping tiles, one per course, each with a check.
+       Blue = Word, green = Excel, orange = PowerPoint. The white outlines keep the tiles apart where they overlap. -->
+  <g stroke="#ffffff" stroke-width="3">
+    <rect x="3" y="5" width="54" height="54" rx="12" fill="#185abd"/>
+    <rect x="43" y="5" width="54" height="54" rx="12" fill="#107c41"/>
+    <rect x="23" y="43" width="54" height="54" rx="12" fill="#c43e1c"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 31l8 8 15-16"/>
+    <path d="M62 31l8 8 15-16"/>
+    <path d="M37 70l9 9 17-18"/>
+  </g>
+</svg>

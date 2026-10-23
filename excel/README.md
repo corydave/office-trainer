@@ -34,6 +34,8 @@ The editor (`../word/tools/editor.html`), the validator (`../word/tools/validate
 | Rebuild the roadmap and certificate | `node ../word/tools/build-learner-pages.mjs .` |
 | Rebuild the course map | `cd _build && python3 build.py` |
 | Rebuild the add-in (after a change to `excel-checker.js`) | `cd ../word && python3 tools/build-taskpane.py` |
+| Rebuild the badges page, section builder and grader (after a change to a checker or `trainer-md.js`) | `python3 ../word/tools/build-site-pages.py` |
+| Rebuild the home page's standards tabs (after a change to the course map) | `python3 ../word/tools/build-index-standards.py` |
 
 ## How the add-in uses these files
 

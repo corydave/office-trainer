@@ -50,7 +50,7 @@
 
   // Shown at the bottom of the panel. Bump it whenever you upload a new
   // taskpane.html, so you can SEE whether Word picked up the new version.
-  const APP_VERSION = "0.7";
+  const APP_VERSION = "0.8";
 
   // The three courses this add-in can show. Each has its own folder (next to
   // this page), its own checker, and its own saved progress, so a Word
@@ -99,10 +99,13 @@
 
   /** Switch to one course ("word", "excel" or "powerpoint"). Called once, before anything is drawn. */
   function chooseApp(id) {
-    APP = APPS[id] || APPS.word;
+    APP = isApp(id) ? APPS[id] : APPS.word;
     COURSE = APP.course;
     STORE_KEY = APP.storeKey;
   }
+
+  /** Is this one of our three course names? (Not just any property: "constructor" isn't a course.) */
+  function isApp(id) { return typeof id === "string" && Object.prototype.hasOwnProperty.call(APPS, id); }
 
   /** The checker for this course (WordChecker, ExcelChecker or PptChecker). */
   function checker() { return APP.checker(); }
@@ -241,6 +244,7 @@
       skillchecks: {},  // skill check id -> { attempts: [...], current: {...} or null }
       rubric: {},       // project id -> { criterion id: true }
       last: null,       // the station opened most recently
+      sectionJoin: "",  // the section key (OTK1....) or code (PP-7K3Q) the learner joined, or "" (see PART 5b)
     };
   }
 
@@ -284,14 +288,17 @@
     const fresh = blankProgress();
     const isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
     const str = (v, max) => String(v === undefined || v === null ? "" : v).slice(0, max || 80);
+    // Names that would change how an object behaves (a saved file could hold one). Never used as keys.
+    const UNSAFE = ["__proto__", "constructor", "prototype"];
+    const entries = (v) => Object.entries(v).filter(([k]) => !UNSAFE.includes(k));
     const dateMap = (v) => {
       const out = {};
-      if (isObj(v)) for (const [k, d] of Object.entries(v)) out[str(k, 40)] = str(d, 10);
+      if (isObj(v)) for (const [k, d] of entries(v)) out[str(k, 40)] = str(d, 10);
       return out;
     };
     const nested = (v) => {
       const out = {};
-      if (isObj(v)) for (const [k, inner] of Object.entries(v)) out[str(k, 40)] = dateMap(inner);
+      if (isObj(v)) for (const [k, inner] of entries(v)) out[str(k, 40)] = dateMap(inner);
       return out;
     };
     if (isObj(raw.settings)) {
@@ -302,20 +309,26 @@
     fresh.ticks = nested(raw.ticks);
     fresh.quizzes = dateMap(raw.quizzes);
     fresh.rubric = {};
-    if (isObj(raw.rubric)) for (const [k, v] of Object.entries(raw.rubric)) {
+    if (isObj(raw.rubric)) for (const [k, v] of entries(raw.rubric)) {
       fresh.rubric[str(k, 40)] = {};
-      if (isObj(v)) for (const [c, on] of Object.entries(v)) fresh.rubric[str(k, 40)][str(c, 40)] = on === true;
+      if (isObj(v)) for (const [c, on] of entries(v)) fresh.rubric[str(k, 40)][str(c, 40)] = on === true;
     }
-    if (isObj(raw.badges)) for (const [k, b] of Object.entries(raw.badges)) {
+    if (isObj(raw.badges)) for (const [k, b] of entries(raw.badges)) {
       if (!isObj(b)) continue;
       fresh.badges[str(k, 40)] = { id: str(b.id, 40), activity: str(b.activity, 40), name: str(b.name, 80), kind: str(b.kind, 20),
         week: Number(b.week) || null, assessedBy: Array.isArray(b.assessedBy) ? b.assessedBy.map((x) => str(x, 20)).filter((x) => TM.ASSESS_KINDS.includes(x)) : [],
         earnedAt: str(b.earnedAt, 10) };
     }
-    if (isObj(raw.certificates)) for (const [k, c] of Object.entries(raw.certificates)) {
-      if (isObj(c)) fresh.certificates[str(k, 60)] = { id: str(c.id, 40), issuedAt: str(c.issuedAt, 10) };
+    if (isObj(raw.certificates)) for (const [k, c] of entries(raw.certificates)) {
+      if (!isObj(c)) continue;
+      fresh.certificates[str(k, 60)] = { id: str(c.id, 40), issuedAt: str(c.issuedAt, 10) };
+      // A course certificate earned in a section remembers which section, and which stops it left out.
+      if (isObj(c.section)) fresh.certificates[str(k, 60)].section = {
+        title: TM.cleanText(c.section.title, 80), instructor: TM.cleanText(c.section.instructor, 60),
+        skip: Array.isArray(c.section.skip) ? c.section.skip.slice(0, 200).map((x) => String(x)).filter((x) => TM.STOP_ID.test(x)) : [],
+      };
     }
-    if (isObj(raw.skillchecks)) for (const [k, s] of Object.entries(raw.skillchecks)) {
+    if (isObj(raw.skillchecks)) for (const [k, s] of entries(raw.skillchecks)) {
       if (!isObj(s)) continue;
       fresh.skillchecks[str(k, 40)] = {
         attempts: Array.isArray(s.attempts) ? s.attempts.slice(0, 20).map((a) => ({ score: Number(a.score) || 0, passed: a.passed === true, at: str(a.at, 10), scored: a.scored !== false })) : [],
@@ -323,6 +336,8 @@
       };
     }
     fresh.last = raw.last ? str(raw.last, 60) : null;
+    // A section key can be long, so it gets its own limit. It's checked again (TrainerMD.decodeSectionKey) every time it's used.
+    fresh.sectionJoin = typeof raw.sectionJoin === "string" ? raw.sectionJoin.replace(/\s+/g, "").slice(0, 20000) : "";
     return fresh;
   }
 
@@ -673,6 +688,93 @@
   function courseMode() { return Course.config.mode === "section" ? "section" : "practice"; }
 
   // =====================================================================
+  // PART 5b: SECTIONS (an instructor's choice of lessons and videos)
+  // ---------------------------------------------------------------------
+  // An instructor sets up a section on instructor/sections.html and gives
+  // the class either a SECTION KEY (one long line starting "OTK1.", with
+  // everything inside it) or a short SECTION CODE such as PP-7K3Q (which
+  // names a file, sections/PP-7K3Q.md, on this website).
+  // Joining a section changes only what this panel SHOWS: the stops the
+  // instructor left out are marked "Not in your section" (and don't count
+  // toward the course certificate), and the instructor's videos replace or
+  // join the course videos. Nothing is sent to anyone: progress still stays
+  // on this device. TrainerMD checks every key and file before we use it
+  // (lengths, ids, approved video sites), because anyone can make a key.
+  // =====================================================================
+
+  const Section = {
+    active: null,    // the joined section (TrainerMD's section shape), or null
+    doc: null,       // the same section as replace-video / add-video blocks, for TrainerMD.applyOverrides
+    problems: [],    // parts of the key that were skipped (shown in Settings)
+    error: "",       // why a saved section couldn't be loaded this time (shown on Home)
+    pending: null,   // a section offered by a ?join= link, waiting for the learner to say yes
+  };
+
+  /** What a section is checked against: this course, its approved video sites, and its stop, video and activity ids. */
+  function sectionContext() {
+    const index = TM.courseIndex(Object.values(Course.docs));
+    const hosts = Array.isArray(Course.config.videoHosts) ? Course.config.videoHosts : TM.DEFAULT_VIDEO_HOSTS;
+    return { app: APP.id, videoHosts: hosts, stopIds: index.stopIds, videoIds: index.videoIds, anchorIds: index.anchorIds };
+  }
+
+  /**
+   * Turn what the learner typed (a key or a code) into a section.
+   * Returns { section, problems, join } where join is the tidy text to save.
+   * section is null (and problems says why) when it can't be used.
+   */
+  async function resolveSection(typed) {
+    const text = String(typed || "").replace(/\s+/g, "");
+    if (!text) return { section: null, problems: ["Paste the section key or type the code your instructor gave you."], join: "" };
+    if (TM.isSectionKey(text)) return Object.assign(TM.decodeSectionKey(text, sectionContext()), { join: text });
+
+    // A short code names a section file on this website: sections/<CODE>.md
+    const code = text.toUpperCase();
+    if (!TM.SECTION_CODE.test(code)) {
+      return { section: null, problems: ["That isn't a section key (keys start with OTK1.) or a section code (such as " + (APP.id === "word" ? "WRD" : APP.id === "excel" ? "XL" : "PP") + "-7K3Q)."], join: "" };
+    }
+    let response;
+    try { response = await fetch(COURSE + "sections/" + code + ".md", { cache: "no-cache" }); }
+    catch (e) { return { section: null, problems: ["Couldn't reach the course website to look up " + code + ". Check your internet connection and try again."], join: code }; }
+    if (!response.ok) return { section: null, problems: ["There's no " + APP.name + " section with the code " + code + ". Check the code with your instructor."], join: "" };
+    const doc = TM.parse(await response.text());
+    if (String(doc.meta.id || "") !== code) return { section: null, problems: ["The section file for " + code + " has a different code inside it. Let your instructor know."], join: "" };
+    return Object.assign(TM.sectionFromFile(doc, sectionContext()), { join: code });
+  }
+
+  /** Start using a section (or stop, with null). Saves the choice. */
+  function useSection(result) {
+    Section.active = result && result.section ? result.section : null;
+    Section.doc = Section.active ? TM.sectionDoc(Section.active) : null;
+    Section.problems = Section.active ? result.problems : [];
+    Section.error = "";
+    progress.sectionJoin = Section.active ? result.join : "";
+    // Leaving stops out can complete the course: check the course certificate again.
+    if (Course.stations.some((s) => s.kind === "course")) maybeCourseCertificate();
+    saveProgress();
+  }
+
+  /** At startup: load the section saved last time, if there is one. A failure keeps the key and says so on Home. */
+  async function loadSavedSection() {
+    if (!progress.sectionJoin) return;
+    const result = await resolveSection(progress.sectionJoin);
+    if (result.section) {
+      Section.active = result.section;
+      Section.doc = TM.sectionDoc(result.section);
+      Section.problems = result.problems;
+    } else {
+      Section.error = result.problems[0] || "Your section couldn't be loaded.";
+    }
+  }
+
+  /** Is this stop part of the learner's section? (Everything is, with no section.) */
+  function inSection(st) {
+    return !Section.active || !st.docId || !Section.active.skip.includes(st.docId);
+  }
+
+  /** The stops that count: every stop, minus the ones the section leaves out. */
+  function countedStations() { return Course.stations.filter(inSection); }
+
+  // =====================================================================
   // PART 6: MOVING BETWEEN SCREENS
   // ---------------------------------------------------------------------
   // Four kinds of screen: home, a station (lesson / skill check / project /
@@ -732,10 +834,18 @@
    * "done", "partial", "todo" or "planned". Always words + symbol, never color alone.
    */
   function stationState(st) {
+    // "skipped": the learner's section leaves this stop out (see PART 5b)
     if (st.kind === "course") {
-      return progress.certificates[st.sid] ? { state: "done", text: "✓ Certificate earned" } : { state: "todo", text: "Finish every stop to earn it" };
+      if (progress.certificates[st.sid]) return { state: "done", text: "✓ Certificate earned" };
+      if (!sectionAllowsCourseCertificate()) return { state: "todo", text: "Your section leaves out too much of the course for a course certificate" };
+      return { state: "todo", text: Section.active ? "Finish every stop in your section to earn it" : "Finish every stop to earn it" };
     }
     if (!st.file || !Course.docs[st.file]) return { state: "planned", text: "Coming soon" };
+    if (!inSection(st)) {
+      // Left out by the section: still open for practice, but it doesn't count.
+      const got = st.activities.filter((a) => progress.badges[a.id]).length;
+      return { state: "skipped", text: "Not in your section" + (got ? " · " + got + " of " + st.activities.length + " badges" : "") };
+    }
     const acts = st.activities;
     const earned = acts.filter((a) => progress.badges[a.id]).length;
     if (st.kind === "skillcheck") {
@@ -752,7 +862,7 @@
 
   /** The next stop to work on: the first written one that isn't done. */
   function nextStation() {
-    const open = Course.stations.find((s) => s.kind !== "course" && stationState(s).state !== "done" && stationState(s).state !== "planned");
+    const open = Course.stations.find((s) => s.kind !== "course" && !["done", "planned", "skipped"].includes(stationState(s).state));
     return open || Course.stations.find((s) => s.sid === progress.last) || Course.stations[0];
   }
 
@@ -767,14 +877,15 @@
   function drawHome(view) {
     const next = nextStation();
     const started = Object.keys(progress.visited).length > 0;
-    const allActivities = Course.stations.flatMap((s) => s.activities);
+    // Only the stops that count (a section can leave some out).
+    const allActivities = countedStations().flatMap((s) => s.activities);
     const earnedCount = allActivities.filter((a) => progress.badges[a.id]).length;
-    const certStations = Course.stations.filter((s) => s.certificate && s.kind !== "course" && s.activities.length);
+    const certStations = countedStations().filter((s) => s.certificate && s.kind !== "course" && s.activities.length);
     const certCount = certStations.filter((s) => progress.certificates[s.sid]).length;
     const startStation = Course.stations.find((s) => s.kind === "start");
     const finale = Course.stations.find((s) => s.kind === "course");
     // Are some lessons still unwritten? Then the counts are "so far".
-    const morePlanned = Course.stations.some((s) => s.kind !== "course" && stationState(s).state === "planned");
+    const morePlanned = countedStations().some((s) => s.kind !== "course" && stationState(s).state === "planned");
 
     // --- Heading and mode ---
     add(view, el("section", { class: "home-head", "aria-labelledby": "home-title" },
@@ -786,7 +897,18 @@
           ? "Nothing is graded, and your progress stays on this device."
           : "Your instructor sees your results."),
         startStation ? [" ", el("button", { type: "button", class: "linkish small", onclick: () => go("station", startStation) }, "How this course works")] : null),
+      sectionLine(),
       Host.inOffice ? null : courseSwitcher()));
+
+    // --- A ?join= link offered a section: ask first ---
+    if (Section.pending) add(view, drawJoinOffer());
+    // --- The saved section couldn't load this time ---
+    if (Section.error) {
+      add(view, el("div", { class: "notice warn", role: "status" },
+        el("p", {}, el("b", {}, "Your section couldn't be loaded. "), Section.error),
+        el("p", { class: "small" }, "You're seeing the whole course for now. ",
+          el("button", { type: "button", class: "linkish", onclick: () => go("settings", null, () => $("section-input")) }, "Section settings"))));
+    }
 
     // --- The course certificate, once it's earned ---
     if (finale && progress.certificates[finale.sid]) {
@@ -813,7 +935,10 @@
       el("div", { class: "meter" },
         el("label", { for: "badge-meter", class: "small" }, earnedCount + " of " + allActivities.length + (morePlanned ? " badges available so far" : " badges")),
         el("progress", { id: "badge-meter", max: Math.max(allActivities.length, 1), value: earnedCount })),
-      el("p", { class: "small muted", style: "margin:6px 0 0" }, certCount + " of " + certStations.length + " lesson certificates" + (morePlanned ? " · more lessons are on the way" : ""))));
+      el("p", { class: "small muted", style: "margin:6px 0 0" }, certCount + " of " + certStations.length + " lesson certificates" + (morePlanned ? " · more lessons are on the way" : "")),
+      el("p", { class: "small", style: "margin:6px 0 0" },
+        el("button", { type: "button", class: "linkish", onclick: () => openBadgesPage() }, "See all your badges on a full page"),
+        el("span", { class: "muted" }, " (opens in your browser)"))));
 
     // --- The weeks, each a line of stations ---
     const openWeek = next ? next.week : 1;
@@ -844,15 +969,62 @@
     return el("p", { class: "small course-switch" }, el("span", { class: "muted" }, "Course: "), links.map((l, i) => [i ? " " : "", l]));
   }
 
+  /** Under the course title: the learner's section, or a way to join one. */
+  function sectionLine() {
+    if (Section.active) {
+      const s = Section.active;
+      return el("p", { class: "small section-line" },
+        el("span", { class: "mode-chip" }, "Section"), " ",
+        el("b", {}, s.title), el("span", { class: "muted" }, " · " + s.instructor + (s.skip.length ? " · " + s.skip.length + (s.skip.length === 1 ? " stop" : " stops") + " left out" : "")), " ",
+        el("button", { type: "button", class: "linkish small", onclick: () => go("settings", null, () => $("section-card")) }, "Section settings"));
+    }
+    return el("p", { class: "small section-line" },
+      el("button", { type: "button", class: "linkish small", onclick: () => go("settings", null, () => $("section-input")) }, "Have a section key from your instructor?"));
+  }
+
+  /** A link with ?join=... offered a section. Show what it is and let the learner choose. */
+  function drawJoinOffer() {
+    const offer = Section.pending;
+    const card = el("section", { class: "card continue", id: "join-offer", "aria-labelledby": "join-title", tabindex: "-1" });
+    if (!offer.section) {
+      fill(card, el("h2", { id: "join-title" }, "That section link didn't work"),
+        el("p", { class: "small" }, offer.problems[0] || "The link is damaged."),
+        el("button", { type: "button", class: "btn slim quiet", onclick: () => { Section.pending = null; go("home"); } }, "OK"));
+      return card;
+    }
+    const s = offer.section;
+    const yes = el("button", { type: "button", class: "btn primary" }, "Join this section");
+    const no = el("button", { type: "button", class: "btn quiet" }, "No thanks");
+    yes.addEventListener("click", () => { useSection(offer); Section.pending = null; go("home"); announce("You joined " + s.title + "."); });
+    no.addEventListener("click", () => { Section.pending = null; go("home"); });
+    fill(card,
+      el("p", { class: "eyebrow" }, "Join a section?"),
+      el("h2", { id: "join-title" }, s.title),
+      el("p", { class: "small" }, "From " + s.instructor + (s.term ? " · " + s.term : "") + ". " + describeSection(s)),
+      Section.active ? el("p", { class: "small" }, "This replaces your current section, " + Section.active.title + ".") : null,
+      el("p", { class: "small muted" }, "Joining changes which lessons and videos you see. Your progress still stays on this device, and nothing is sent to your instructor."),
+      el("div", { class: "btn-row" }, yes, no));
+    return card;
+  }
+
+  /** "It leaves out 2 stops and adds 3 instructor videos." */
+  function describeSection(s) {
+    const bits = [];
+    if (s.skip.length) bits.push("leaves out " + s.skip.length + (s.skip.length === 1 ? " stop" : " stops"));
+    if (s.videos.length) bits.push("has " + s.videos.length + " video" + (s.videos.length === 1 ? "" : "s") + " from your instructor");
+    return bits.length ? "It " + bits.join(" and ") + "." : "It uses the whole course as it is.";
+  }
+
   function drawWeek(w, open) {
     const written = w.stations.filter((s) => s.file && Course.docs[s.file]).length;
-    const done = w.stations.filter((s) => stationState(s).state === "done").length;
+    const counted = w.stations.filter(inSection);
+    const done = counted.filter((s) => stationState(s).state === "done").length;
     const listId = "week-" + w.n + "-stops";
     const toggle = el("button", { type: "button", class: "week-toggle", "aria-expanded": String(open), "aria-controls": listId },
       el("span", { class: "week-swatch", "aria-hidden": "true" }),
       el("span", { class: "week-name" },
         el("b", {}, "Week " + w.n + ": " + w.title),
-        el("span", {}, written ? done + " of " + w.stations.length + " stops done" : "Coming soon · " + w.stations.length + " stops")),
+        el("span", {}, written ? done + " of " + counted.length + " stops done" : "Coming soon · " + w.stations.length + " stops")),
       icon("chevron"));
     const list = el("ol", { class: "line", id: listId, hidden: !open });
     for (const st of w.stations) add(list, drawStationRow(st));
@@ -927,7 +1099,8 @@
   }
 
   function drawStation(view, st) {
-    const doc = Course.docs[st.file];
+    // The instructor's videos (if the learner is in a section) replace or join the course videos.
+    const doc = Section.doc ? TM.applyOverrides(Course.docs[st.file], Section.doc) : Course.docs[st.file];
     if (!progress.visited[st.sid]) progress.visited[st.sid] = today();
     progress.last = st.sid;
     saveProgress();
@@ -943,6 +1116,10 @@
       el("button", { type: "button", class: "btn quiet slim", onclick: () => go("home") }, "‹ Course"),
       el("span", { class: "where" }, where)));
     add(page, el("div", { class: "lesson-bar", "aria-hidden": "true" }));
+    if (!inSection(st)) {
+      add(page, el("p", { class: "notice small" }, el("b", {}, "Not in your section. "),
+        Section.active.title + " leaves this stop out. You can still do it for practice; it just doesn't count toward your course certificate."));
+    }
 
     // --- The lesson itself, drawn by TrainerMD ---
     // We render into a <template> first: nothing inside a template loads
@@ -985,7 +1162,9 @@
 
   /** Previous and next stops. */
   function drawStationNav(st) {
-    const open = Course.stations.filter((s) => s.file && Course.docs[s.file]);
+    // Previous and next skip the stops the section leaves out (unless this is one of them).
+    let open = Course.stations.filter((s) => s.file && Course.docs[s.file] && inSection(s));
+    if (!open.includes(st)) open = Course.stations.filter((s) => s.file && Course.docs[s.file]);
     const i = open.indexOf(st);
     const prev = open[i - 1], next = open[i + 1];
     return el("nav", { class: "station-nav", "aria-label": "Previous and next" },
@@ -1395,22 +1574,46 @@
     maybeCourseCertificate();
   }
 
+  /**
+   * Can a course certificate be earned in this section? A section key can come
+   * from anyone, so one that leaves out most of the course can't hand out a
+   * course certificate: the section must keep at least half of the stops that
+   * have badges.
+   */
+  function sectionAllowsCourseCertificate() {
+    if (!Section.active || !Section.active.skip.length) return true;
+    const withBadges = Course.stations.filter((s) => s.kind !== "course" && s.activities.length);
+    const kept = withBadges.filter(inSection);
+    return kept.length >= 1 && kept.length * 2 >= withBadges.length;
+  }
+
   /** The course certificate: every stop written and finished (not reachable until all weeks exist). */
   function maybeCourseCertificate() {
     const finale = Course.stations.find((s) => s.kind === "course");
     if (!finale || progress.certificates[finale.sid]) return;
-    const others = Course.stations.filter((s) => s !== finale);
+    if (!sectionAllowsCourseCertificate()) return;
+    const others = countedStations().filter((s) => s !== finale); // a section's left-out stops don't count
     if (others.some((s) => stationState(s).state === "planned")) return;
     if (!others.every((s) => s.activities.every((a) => progress.badges[a.id]))) return;
     // The course certificate's number names the course: OT-WORD-..., OT-EXCEL-... or OT-PPT-...
-    progress.certificates[finale.sid] = { id: TM.makeId("OT-" + APP.certCode), issuedAt: today() };
+    const cert = { id: TM.makeId("OT-" + APP.certCode), issuedAt: today() };
+    // Earned in a section that left stops out: remember that, so the certificate says so for good.
+    if (Section.active && Section.active.skip.length) cert.section = { title: Section.active.title, instructor: Section.active.instructor, skip: Section.active.skip.slice() };
+    progress.certificates[finale.sid] = cert;
   }
 
   /** The certificate record, in the format certificate.html reads (office-trainer-certificate/1). */
   function certificateRecord(st) {
     const cert = progress.certificates[st.sid];
     const isCourse = st.kind === "course";
-    const acts = isCourse ? Course.stations.flatMap((s) => s.activities) : st.activities;
+    // A course certificate earned in a section that left stops out says so, and lists only what
+    // counted. That comes from the certificate itself (saved when it was issued), not from
+    // whatever section the learner is in today.
+    const snap = isCourse && cert.section && cert.section.skip.length ? cert.section : null;
+    const partial = !!snap;
+    const counted = Course.stations.filter((s) => s.kind !== "course" && !(snap && s.docId && snap.skip.includes(s.docId)));
+    const acts = isCourse ? counted.flatMap((s) => s.activities) : st.activities;
+    const union = (key) => Array.from(new Set(counted.flatMap((s) => s[key] || []))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     return {
       format: "office-trainer-certificate/1",
       id: cert.id, issuedAt: cert.issuedAt,
@@ -1418,9 +1621,9 @@
       mode: courseMode(),
       learner: { name: progress.settings.name || "Learner" },
       section: null,
-      achievement: { kind: isCourse ? "course" : "lesson", id: st.sid, title: st.title, week: isCourse ? null : st.week },
+      achievement: { kind: isCourse ? "course" : "lesson", id: st.sid, title: partial ? st.title + ": " + snap.title : st.title, week: isCourse ? null : st.week },
       badges: acts.map((a) => progress.badges[a.id]).filter(Boolean),
-      outcomes: st.clos, mos: st.mos,
+      outcomes: partial ? union("clos") : st.clos, mos: partial ? union("mos") : st.mos,
     };
   }
 
@@ -1760,20 +1963,93 @@
   // PART 12: THE BADGES SCREEN (MY RECORD)
   // =====================================================================
 
+  // ---------- The badges page (badges.html, in a browser tab) ----------
+  // The panel's saved progress lives in the panel's own storage, which a
+  // browser tab can't read. So we pack the badges and certificates from
+  // every course on this device into the part of the page address after
+  // "#". Browsers never send that part to a server: the page unpacks it
+  // in the tab. Nothing else (steps, settings, sections) goes along.
+
+  /** Every course's badges and certificates on this device, in a compact form (format "otb1"). */
+  function badgeHandoff() {
+    const courses = {};
+    for (const app of Object.values(APPS)) {
+      let p = null;
+      if (app.id === APP.id) p = progress;
+      else {
+        try {
+          const raw = JSON.parse(localStorage.getItem(app.storeKey) || "null");
+          if (raw && raw.format === "office-trainer-progress/1") p = cleanProgress(raw);
+        } catch (e) { /* storage blocked or damaged: skip that course */ }
+      }
+      if (!p) continue;
+      // [activity id, badge number, date earned] and [stop id, certificate number, date issued]
+      const b = Object.values(p.badges).map((x) => [x.activity, x.id, x.earnedAt]);
+      // (a course certificate earned in a section adds the section's name and the stops it left out)
+      const k = Object.entries(p.certificates).map(([sid, c]) => c.section ? [sid, c.id, c.issuedAt, c.section.title, c.section.skip] : [sid, c.id, c.issuedAt]);
+      if (b.length || k.length) courses[app.id] = { b: b, k: k };
+    }
+    return { f: "otb1", n: progress.settings.name || "", d: today(), c: courses };
+  }
+
+  /** Bytes to base64url (letters, digits, - and _: safe in an address). */
+  function bytesToBase64Url(bytes) {
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  /**
+   * Pack an object for the address: "z." + squeezed (deflate) base64url when
+   * the browser can squeeze, else "j." + plain base64url. badges.html reads both.
+   */
+  async function packForAddress(obj) {
+    const json = JSON.stringify(obj);
+    if (typeof CompressionStream === "function") {
+      try {
+        const squeezed = new Blob([json]).stream().pipeThrough(new CompressionStream("deflate-raw"));
+        return "z." + bytesToBase64Url(new Uint8Array(await new Response(squeezed).arrayBuffer()));
+      } catch (e) { /* fall back to plain */ }
+    }
+    return "j." + TM.toBase64Url(json);
+  }
+
+  /** Open badges.html with this device's badges. */
+  async function openBadgesPage() {
+    // In a browser tab, open the new tab right away (while the click still
+    // counts, so pop-up blockers allow it), then fill in the address.
+    const early = Host.inOffice ? null : window.open("", "_blank");
+    const url = new URL("badges.html#r=" + (await packForAddress(badgeHandoff())), window.location.href).href;
+    if (early) {
+      early.opener = null; // the badges page can't reach back into this one
+      early.location.replace(url);
+    } else openPage(url);
+  }
+
   function drawRecord(view) {
-    const allActs = Course.stations.flatMap((s) => s.activities.map((a) => ({ a: a, st: s })));
+    // Counts are for the stops that count (a section can leave some out),
+    // but a badge or certificate already earned is always listed.
+    const allActs = countedStations().flatMap((s) => s.activities.map((a) => ({ a: a, st: s })));
     const earned = allActs.filter((x) => progress.badges[x.a.id]);
-    const certStations = Course.stations.filter((s) => s.certificate && (s.activities.length || s.kind === "course"));
-    const certs = certStations.filter((s) => progress.certificates[s.sid]);
+    const certStations = countedStations().filter((s) => s.certificate && (s.activities.length || s.kind === "course"));
+    const certs = Course.stations.filter((s) => s.certificate && progress.certificates[s.sid]);
 
     add(view, el("h1", { style: "font-family:var(--tm-heading);font-size:1.4rem;margin:0 0 4px" }, "Your badges"),
       el("p", { class: "muted small" }, earned.length + " of " + allActs.length + " badges · " +
-        certs.filter((s) => s.kind !== "course").length + " of " + certStations.filter((s) => s.kind !== "course").length + " lesson certificates" +
+        certs.filter((s) => s.kind !== "course" && inSection(s)).length + " of " + certStations.filter((s) => s.kind !== "course").length + " lesson certificates" +
         (certs.some((s) => s.kind === "course") ? " · course certificate earned" : "")));
+
+    // --- The full-page view (a browser tab) ---
+    add(view, el("section", { class: "card", "aria-labelledby": "page-title" },
+      el("h2", { id: "page-title" }, "Your badges page"),
+      el("p", { class: "small" }, "See every badge and certificate from all your Office Trainer courses on one page, with room to explore, print or save them."),
+      el("button", { type: "button", class: "btn primary", onclick: () => openBadgesPage() }, "Open my badges page"),
+      el("p", { class: "small muted", style: "margin:6px 0 0" }, "Opens in your browser. Your badges travel inside the page's address and aren't sent to any server.")));
 
     // --- Badges, week by week ---
     for (const w of Course.weeks) {
-      const acts = w.stations.flatMap((s) => s.activities.map((a) => ({ a: a, st: s })));
+      const acts = w.stations.filter((s) => inSection(s) || s.activities.some((a) => progress.badges[a.id]))
+        .flatMap((s) => s.activities.filter((a) => inSection(s) || progress.badges[a.id]).map((a) => ({ a: a, st: s })));
       if (!acts.length) continue;
       add(view, el("h2", { style: "font-size:1.05rem;margin:16px 0 8px" }, "Week " + w.n + ": " + w.title),
         el("ul", { class: "badge-grid" }, acts.map(function (x) {
@@ -1805,6 +2081,7 @@
         if (f.size > 2 * 1024 * 1024) throw new Error("too big");
         const raw = JSON.parse(await f.text());
         if (!raw || raw.format !== "office-trainer-progress/1") throw new Error("wrong format");
+        if (raw.app && raw.app !== APP.id && isApp(raw.app)) { status.textContent = "That record is from the " + APPS[raw.app].name + " course. Open it in Office Trainer for " + APPS[raw.app].name + "."; return; }
         askToReplace(cleanProgress(raw));
       } catch (e) { status.textContent = "That file isn't a saved Office Trainer record. Choose a file made with Save my record."; }
     });
@@ -1839,7 +2116,7 @@
         ? "Your badges live only in this browser. Clearing browsing data, or using a different computer, starts you over. Save your record to keep a copy, and open it on any computer."
         : "Your instructor sees your results. You can also keep your own copy."),
       el("div", { class: "btn-row" },
-        el("button", { type: "button", class: "btn slim", onclick: () => downloadJson(progress, "office-trainer-record-" + today() + ".json") }, "Save my record"),
+        el("button", { type: "button", class: "btn slim", onclick: () => downloadJson(Object.assign({ app: APP.id }, progress), "office-trainer-" + APP.id + "-record-" + today() + ".json") }, "Save my record"),
         el("button", { type: "button", class: "btn slim quiet", onclick: () => openInput.click() }, "Open a saved record"),
         reset),
       openInput, status));
@@ -1883,6 +2160,7 @@
 
     add(view, 
       el("h1", { style: "font-family:var(--tm-heading);font-size:1.4rem;margin:0 0 12px" }, "Settings"),
+      drawSectionCard(),
       el("div", { class: "field" }, el("label", { for: "set-name" }, "Name on your certificates"), name,
         el("small", {}, "Stored only on this device. A nickname is fine.")),
       choice("set-heading", "Heading font", allowFonts ? "" : "Your course sets the fonts.",
@@ -1899,8 +2177,65 @@
         el("h2", { id: "about-title" }, "About"),
         el("p", { class: "small" }, "Office Trainer " + APP_VERSION + " · " + APP.name + " checker " + checker().VERSION + " · lessons format " + TM.VERSION + "."),
         el("p", { class: "small" }, Host.inOffice ? "Running inside " + APP.name + ": the trainer checks the open " + APP.file + "." : "Running in a browser: download each practice file, work on it in " + APP.name + ", then upload it to check."),
-        el("p", { class: "small" }, "Class sections (join codes, instructor dashboards) come later. For now everyone is in practice mode."),
+        el("p", { class: "small" }, "Practice mode: your progress stays on this device. A section changes which lessons and videos you see; it doesn't send anything to your instructor."),
         el("p", { class: "small" }, "Keyboard: F6 (Ctrl+F6 in " + APP.name + " for the web) moves between the " + APP.file + ", the ribbon and this panel.")));
+  }
+
+  /** Settings: the section card (join with a key or code, or leave). */
+  function drawSectionCard() {
+    const card = el("section", { class: "card", id: "section-card", "aria-labelledby": "section-title", tabindex: "-1" });
+    const status = el("div", { class: "small", role: "status", "aria-live": "polite" });
+    const input = el("input", { type: "text", id: "section-input", autocomplete: "off", spellcheck: "false", autocapitalize: "off",
+      maxlength: "20000", "aria-describedby": "section-help" });
+    const join = el("button", { type: "button", class: "btn slim primary" }, "Join");
+
+    async function tryJoin() {
+      join.disabled = true;
+      status.textContent = "Checking…";
+      const result = await resolveSection(input.value);
+      join.disabled = false;
+      if (!result.section) { status.textContent = result.problems[0]; input.focus(); return; }
+      useSection(result);
+      go("settings", null, () => $("section-card"));
+      announce("You joined " + result.section.title + ".");
+    }
+    join.addEventListener("click", tryJoin);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); tryJoin(); } });
+
+    const joinField = el("div", { class: "field" },
+      el("label", { for: "section-input" }, Section.active ? "Switch to another section" : "Section key or code"),
+      el("div", { class: "btn-row" }, input, join),
+      el("small", { id: "section-help" }, "Your instructor gives you this. A key is one long line that starts with OTK1. A code is short, such as " +
+        (APP.id === "word" ? "WRD" : APP.id === "excel" ? "XL" : "PP") + "-7K3Q."));
+
+    if (!Section.active) {
+      fill(card, el("h2", { id: "section-title" }, "Your section"),
+        el("p", { class: "small" }, Section.error ? "Your saved section couldn't be loaded: " + Section.error : "You're not in a section, so you see the whole " + APP.name + " course."),
+        joinField, status,
+        el("p", { class: "small muted" }, "Joining changes which lessons and videos you see. Your progress still stays on this device, and nothing is sent to your instructor."));
+      return card;
+    }
+    const s = Section.active;
+    const leave = el("button", { type: "button", class: "btn slim danger" }, "Leave section");
+    leave.addEventListener("click", function () {
+      const yes = el("button", { type: "button", class: "btn slim danger" }, "Yes, leave it");
+      const no = el("button", { type: "button", class: "btn slim quiet" }, "Cancel");
+      fill(status, el("div", { class: "confirm" }, el("p", {}, "Leave " + s.title + "? You'll see the whole course again. Your badges stay."), el("div", { class: "btn-row" }, yes, no)));
+      yes.focus();
+      no.addEventListener("click", () => { status.textContent = ""; leave.focus(); });
+      yes.addEventListener("click", () => { useSection(null); go("settings", null, () => $("section-card")); announce("You left the section."); });
+    });
+    const skipped = Course.stations.filter((st) => !inSection(st));
+    fill(card, el("h2", { id: "section-title" }, "Your section"),
+      el("p", {}, el("b", {}, s.title), el("br"), el("span", { class: "small" }, s.instructor + (s.term ? " · " + s.term : ""))),
+      el("p", { class: "small" }, describeSection(s)),
+      skipped.length ? el("details", { class: "small" }, el("summary", {}, "Stops left out (" + skipped.length + ")"),
+        el("ul", {}, skipped.map((st) => el("li", {}, "Week " + st.week + ": " + st.title)))) : null,
+      Section.problems.length ? el("details", { class: "small" }, el("summary", {}, "Parts of the key that were skipped (" + Section.problems.length + ")"),
+        el("ul", {}, Section.problems.map((p) => el("li", {}, p)))) : null,
+      el("div", { class: "btn-row", style: "margin:8px 0" }, leave),
+      joinField, status);
+    return card;
   }
 
   // =====================================================================
@@ -1925,11 +2260,11 @@
   /** In a browser tab: which course? ?app=excel in the address, else the last one picked, else Word. */
   function browserApp() {
     const asked = new URLSearchParams(window.location.search).get("app");
-    if (asked && APPS[asked]) {
+    if (isApp(asked)) {
       try { localStorage.setItem(APP_CHOICE_KEY, asked); } catch (e) { /* not important */ }
       return asked;
     }
-    try { const last = localStorage.getItem(APP_CHOICE_KEY); if (last && APPS[last]) return last; } catch (e) { /* blocked */ }
+    try { const last = localStorage.getItem(APP_CHOICE_KEY); if (isApp(last)) return last; } catch (e) { /* blocked */ }
     return "word";
   }
 
@@ -1968,6 +2303,7 @@
       return;
     }
     applySettings(); // the course may set default fonts
+    await loadSavedSection(); // the learner's section (PART 5b), before anything counts badges
     // Catch up: a learner who finished everything before the last lesson was
     // published gets the course certificate as soon as the course is complete.
     if (Course.stations.some((s) => s.kind === "course")) {
@@ -1978,10 +2314,18 @@
     $("brand-course").textContent = Course.config.title || APP.fullName;
 
     const params = new URLSearchParams(window.location.search);
+    // A link with ?join=<key or code> offers a section. We never join without asking.
+    const joinParam = params.get("join");
+    if (joinParam && joinParam.replace(/\s+/g, "") !== progress.sectionJoin) {
+      Section.pending = await resolveSection(joinParam.slice(0, 20000));
+      try { const url = new URL(window.location.href); url.searchParams.delete("join"); window.history.replaceState(null, "", url); } catch (e) { /* not important */ }
+    }
     const wanted = params.get("lesson");
     const station = wanted && Course.stations.find((s) => s.docId === wanted || s.sid === wanted);
     const activity = params.get("activity");
-    if (station && Course.docs[station.file]) {
+    if (Section.pending) {
+      go("home", null, () => $("join-offer"));
+    } else if (station && Course.docs[station.file]) {
       go("station", station, activity ? () => document.getElementById("h-" + activity) || document.getElementById("act-" + activity) : null);
     } else {
       go("home");

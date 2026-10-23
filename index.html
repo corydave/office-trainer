@@ -7,34 +7,48 @@
     OFFICE TRAINER - the product page (the site's home page)
     =====================================================================
     One self-contained page: HTML, CSS and a little JavaScript, no frameworks
-    and nothing loaded from other websites. Students come first (pick a
-    course and start), then sections for installing the add-in, privacy,
-    instructors and other colleges.
+    and nothing loaded from other websites. In order:
+      header (sticky) > hero > three promises > numbers > courses >
+      the tour (a slider of real screenshots) > how it works > standards
+      (three tabs) > instructors > install > privacy > free and open > FAQ
+
+    THE SCREENSHOTS in assets/screens/ are real: they're taken from the
+    live pages (the panel, the roadmap, the badges page, the certificate,
+    the section builder and the grader) with made-up learners.
+
+    THE STANDARDS TABS are written by word/tools/build-index-standards.py
+    from the three course maps. Don't edit between STANDARDS:START and
+    STANDARDS:END by hand; change the course map and run the script.
 
     SECURITY
     - The Content Security Policy below allows only files from this site,
-      plus the one small script and one style block in this page, which are
-      pinned by their sha256 fingerprints. If you edit the script or the
-      style block, run  python3 word/tools/build-index-csp.py  to update
-      the fingerprints, or the browser will refuse to run them. The page
-      still works without the script: only the light/dark button needs it.
+      plus the ONE script and ONE style block in this page, pinned by their
+      sha256 fingerprints. If you edit either, run
+        python3 word/tools/build-index-csp.py
+      (build-index-standards.py runs it for you) or the browser will refuse
+      them. The page works without the script: the slider and the tabs
+      just show everything, one after another.
     - No forms, no cookies, no analytics, no outside fonts or images.
     - Links that open other sites use rel="noopener noreferrer".
 
     ACCESSIBILITY
-    - A "Skip to main content" link, landmarks (header, nav, main, footer),
-      one h1, headings in order, visible focus, and text that reflows at
-      320 px wide and at 400% zoom.
-    - Colors pass WCAG AA contrast in light and dark mode. Motion is off for
-      people who ask their system for reduced motion.
+    - A "Skip to main content" link, landmarks, one h1, headings in order,
+      visible focus, and text that reflows at 320 px wide and at 400% zoom.
+    - The slider never moves by itself. Its slides are tabs: arrow keys,
+      Home and End move between them, and Previous / Next buttons too.
+    - Every screenshot has alt text that says what it shows.
+    - Colors pass WCAG AA contrast in light and dark mode. Motion is off
+      for people who ask their system for reduced motion.
   -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'sha256-puYcGOYjimrnWnsYA9ygXMgs8pCgYvswHUVP80eAFkA='; style-src 'sha256-Z3zV5MQ2odv3BLgw0HfVN4DdenuNJNkOd5M2Z46XbVQ='; img-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+        content="default-src 'none'; script-src 'sha256-2jRHcwE2SrMIgMQCP7iI4WvPjrQWtl8LXc98xH2fsRQ='; style-src 'sha256-+5aykwfHeRm6GPTV6zWbinWN/F3pGAeQZToZ+uVuvok='; img-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
   <meta name="referrer" content="no-referrer">
-  <meta name="description" content="Office Trainer: free lessons and practice for Microsoft Word, Excel and PowerPoint. Practice on real files, check your work instantly, and prepare for the Microsoft Office Specialist exams.">
+  <meta name="description" content="Office Trainer: free lessons and practice for Microsoft Word, Excel and PowerPoint. Practice on real files, check your work instantly, and prepare for the Microsoft Office Specialist exams. No accounts, no tracking, nothing to install or host.">
   <meta name="color-scheme" content="light dark">
-  <title>Office Trainer: Learn Word, Excel and PowerPoint</title>
+  <title>Office Trainer: Learn Word, Excel and PowerPoint, free</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="icon" href="assets/icon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
   <style>
     /* ===================================================================
        FONTS: hosted with the site (assets/fonts), so no font service is contacted.
@@ -46,38 +60,36 @@
     @font-face { font-family: "Comfortaa"; font-weight: 700; font-style: normal; font-display: swap; src: url("assets/fonts/comfortaa-latin-700-normal.woff2") format("woff2"); }
 
     /* ===================================================================
-       COLORS: one set of names, defined twice (light and dark).
+       COLORS: one set of names, defined for light and for dark.
        Every pair used for text passes WCAG AA (4.5 to 1 or better).
+       The three course colors match the three tiles in the icon.
        =================================================================== */
     :root {
-      --bg: #ffffff;
-      --surface: #f3f6fb;      /* cards and bands */
-      --ink: #14171c;          /* main text */
-      --muted: #4a5260;        /* secondary text */
-      --line: #cfd6e0;
-      --brand: #0046ad;        /* the trainer's blue (the check-mark icon) */
-      --brand-ink: #ffffff;    /* text on the brand color */
-      --link: #0046ad;
-      --word: #1d4f9c;
-      --excel: #1b6b3c;
-      --ppt: #a83a17;
-      --focus: #0046ad;
-      --shadow: 0 1px 2px rgba(20, 23, 28, .06), 0 4px 16px rgba(20, 23, 28, .06);
+      --bg: #ffffff; --surface: #f3f6fb; --ink: #14171c; --muted: #4a5260; --line: #cfd6e0;
+      --brand: #0046ad; --brand-ink: #ffffff; --link: #0046ad; --focus: #0046ad;
+      --word: #185abd; --excel: #107c41; --ppt: #c43e1c;
+      --word-soft: #e8f0fc; --excel-soft: #e6f4ec; --ppt-soft: #fcece7;
+      --hero-a: #eaf1ff; --hero-b: #ecf8f1; --hero-c: #fff0ea;
+      --shadow: 0 1px 2px rgba(20, 23, 28, .06), 0 8px 28px rgba(20, 23, 28, .08);
+      --shot-shadow: 0 10px 40px rgba(14, 30, 60, .18);
     }
-    /* Dark colors: used when the system asks for dark mode (unless the visitor chose light), or when they chose dark. */
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         --bg: #111418; --surface: #1b2027; --ink: #eef1f5; --muted: #b9c1cc; --line: #343c47;
-        --brand: #7fb0ff; --brand-ink: #0b1220; --link: #9cc2ff;
-        --word: #8fb4f0; --excel: #7fd39d; --ppt: #f4a07f; --focus: #9cc2ff;
-        --shadow: none;
+        --brand: #7fb0ff; --brand-ink: #0b1220; --link: #9cc2ff; --focus: #9cc2ff;
+        --word: #8fb4f0; --excel: #7fd39d; --ppt: #f4a07f;
+        --word-soft: #18243a; --excel-soft: #15281e; --ppt-soft: #2d1c16;
+        --hero-a: #142037; --hero-b: #13251c; --hero-c: #2a1a14;
+        --shadow: none; --shot-shadow: 0 10px 40px rgba(0, 0, 0, .5);
       }
     }
     :root[data-theme="dark"] {
       --bg: #111418; --surface: #1b2027; --ink: #eef1f5; --muted: #b9c1cc; --line: #343c47;
-      --brand: #7fb0ff; --brand-ink: #0b1220; --link: #9cc2ff;
-      --word: #8fb4f0; --excel: #7fd39d; --ppt: #f4a07f; --focus: #9cc2ff;
-      --shadow: none;
+      --brand: #7fb0ff; --brand-ink: #0b1220; --link: #9cc2ff; --focus: #9cc2ff;
+      --word: #8fb4f0; --excel: #7fd39d; --ppt: #f4a07f;
+      --word-soft: #18243a; --excel-soft: #15281e; --ppt-soft: #2d1c16;
+      --hero-a: #142037; --hero-b: #13251c; --hero-c: #2a1a14;
+      --shadow: none; --shot-shadow: 0 10px 40px rgba(0, 0, 0, .5);
     }
 
     /* ===================================================================
@@ -85,16 +97,17 @@
        =================================================================== */
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
     body {
       margin: 0; background: var(--bg); color: var(--ink);
       font: 1.0625rem/1.6 "Atkinson Hyperlegible", Arial, Arimo, sans-serif;
-      overflow-wrap: break-word;   /* long web addresses wrap instead of widening the page */
+      overflow-wrap: break-word;
     }
-    h1, h2, h3 { font-family: Comfortaa, "Atkinson Hyperlegible", Arial, sans-serif; line-height: 1.25; margin: 0 0 .5em; }
-    h1 { font-size: clamp(1.9rem, 5vw, 3rem); letter-spacing: -.01em; }
-    h2 { font-size: clamp(1.45rem, 3.2vw, 2rem); }
-    h3 { font-size: 1.2rem; }
+    h1, h2, h3, h4 { font-family: Comfortaa, "Atkinson Hyperlegible", Arial, sans-serif; line-height: 1.25; margin: 0 0 .5em; }
+    h1 { font-size: clamp(2.1rem, 5.6vw, 3.6rem); letter-spacing: -.015em; }
+    h2 { font-size: clamp(1.6rem, 3.6vw, 2.3rem); letter-spacing: -.01em; }
+    h3 { font-size: 1.25rem; }
+    h4 { font-size: 1.05rem; }
     p, ul, ol { margin: 0 0 1em; }
     a { color: var(--link); text-underline-offset: .15em; }
     a:hover { text-decoration-thickness: 2px; }
@@ -102,100 +115,232 @@
     img { max-width: 100%; height: auto; }
     code { font-family: ui-monospace, Consolas, "Liberation Mono", monospace; font-size: .92em; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3em; }
     kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 .35em; background: var(--surface); }
-    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+    .wrap { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
     .muted { color: var(--muted); }
-
-    /* Hidden until it gets keyboard focus. */
-    .skip { position: absolute; left: 16px; top: -100px; background: var(--brand); color: var(--brand-ink); padding: 8px 14px; border-radius: 6px; z-index: 10; font-weight: 700; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    [hidden] { display: none !important; }
+    .skip { position: absolute; left: 16px; top: -100px; background: var(--brand); color: var(--brand-ink); padding: 8px 14px; border-radius: 6px; z-index: 50; font-weight: 700; }
     .skip:focus { top: 12px; }
+    section[id], [id].anchor { scroll-margin-top: 84px; }
 
     /* ===================================================================
-       HEADER AND NAVIGATION
+       HEADER: stays at the top while the page scrolls
        =================================================================== */
-    .site-head { border-bottom: 1px solid var(--line); }
-    .site-head .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-top: 12px; padding-bottom: 12px; }
-    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: Comfortaa, Arial, sans-serif; font-weight: 700; font-size: 1.2rem; }
-    .brand img { width: 36px; height: 36px; border-radius: 8px; }
-    .site-nav { margin-left: auto; }
-    .site-nav ul { display: flex; flex-wrap: wrap; gap: 4px 18px; list-style: none; margin: 0; padding: 0; }
-    .site-nav a { color: var(--ink); text-decoration: none; font-weight: 700; padding: 6px 0; display: inline-block; }
-    .site-nav a:hover { color: var(--link); text-decoration: underline; }
-    .theme-btn {
-      font: inherit; font-size: .95rem; color: var(--ink); background: transparent; border: 1px solid var(--line);
-      border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 40px;
+    .site-head {
+      position: sticky; top: 0; z-index: 30;
+      background: color-mix(in srgb, var(--bg) 90%, transparent); border-bottom: 1px solid var(--line);
+      backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
     }
+    @supports not (background: color-mix(in srgb, red 50%, blue)) { .site-head { background: var(--bg); } }
+    .site-head .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; padding-top: 10px; padding-bottom: 10px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: Comfortaa, Arial, sans-serif; font-weight: 700; font-size: 1.2rem; }
+    .brand img { width: 38px; height: 38px; }
+    .site-nav { margin-left: auto; }
+    .site-nav ul { display: flex; flex-wrap: wrap; gap: 2px 16px; list-style: none; margin: 0; padding: 0; }
+    .site-nav a { color: var(--ink); text-decoration: none; font-weight: 700; padding: 6px 0; display: inline-block; font-size: .98rem; }
+    .site-nav a:hover { color: var(--link); text-decoration: underline; }
+    .head-actions { display: flex; gap: 8px; align-items: center; }
+    .theme-btn { font: inherit; font-size: .92rem; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 40px; }
     .theme-btn:hover { border-color: var(--ink); }
-    .theme-btn[hidden] { display: none; }
+    @media (max-width: 760px) { .site-nav { order: 3; width: 100%; margin-left: 0; } .head-actions { margin-left: auto; } }
+
+    /* ===================================================================
+       BUTTONS
+       =================================================================== */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px;
+      padding: 10px 20px; border-radius: 12px; font-weight: 700; text-decoration: none;
+      background: var(--brand); color: var(--brand-ink); border: 2px solid var(--brand);
+      transition: transform .15s ease, filter .15s ease;
+    }
+    .btn:hover { filter: brightness(1.08); text-decoration: underline; transform: translateY(-1px); }
+    .btn.secondary { background: transparent; color: var(--link); border-color: currentColor; }
+    .btn.small { min-height: 40px; padding: 6px 14px; font-size: .95rem; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 12px; }
 
     /* ===================================================================
        SECTIONS
        =================================================================== */
-    section { padding: 56px 0; }
-    section + section { border-top: 1px solid var(--line); }
+    section { padding: 72px 0; }
     .band { background: var(--surface); }
-    .lead { font-size: 1.2rem; color: var(--muted); max-width: 46em; }
+    .lead { font-size: 1.2rem; color: var(--muted); max-width: 44em; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: .8rem; font-weight: 700; color: var(--muted); margin-bottom: .6em; }
+    .center { text-align: center; }
+    .center .lead { margin-left: auto; margin-right: auto; }
 
-    .hero { padding: 64px 0 56px; }
-    .hero h1 { max-width: 16em; }
-    .hero .lead { font-size: 1.25rem; }
-    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 20px 0 28px; }
-    .pill-row li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: .95rem; background: var(--bg); }
-
-    /* Buttons are links styled as buttons (they go somewhere). */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px;
-      padding: 10px 18px; border-radius: 10px; font-weight: 700; text-decoration: none;
-      background: var(--brand); color: var(--brand-ink); border: 2px solid var(--brand);
+    /* ---------- HERO: soft color wash in the three course colors ---------- */
+    .hero {
+      padding: 56px 0 72px; position: relative; overflow: hidden;
+      background:
+        radial-gradient(60% 70% at 8% 10%, var(--hero-a) 0%, transparent 70%),
+        radial-gradient(50% 60% at 60% 0%, var(--hero-b) 0%, transparent 70%),
+        radial-gradient(60% 70% at 100% 90%, var(--hero-c) 0%, transparent 70%),
+        var(--bg);
     }
-    .btn:hover { filter: brightness(1.08); text-decoration: underline; }
-    .btn.secondary { background: transparent; color: var(--link); border-color: currentColor; }
-    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .hero-grid { display: grid; gap: 40px; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); align-items: center; }
+    @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+    .hero h1 .hl { background: linear-gradient(90deg, var(--word), var(--excel) 55%, var(--ppt)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    @media (forced-colors: active) { .hero h1 .hl { color: CanvasText; background: none; } }
+    .hero .lead { font-size: 1.25rem; }
+    .promises { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 22px 0 28px; }
+    .promises li { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; font-weight: 700; font-size: .95rem; background: var(--bg); }
+    .promises li::before { content: "✓"; color: var(--excel); font-weight: 700; }
 
-    /* ===================================================================
-       COURSE CARDS
-       =================================================================== */
-    .cards { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); margin-top: 28px; }
+    /* The hero picture: an illustrated app window with the real panel screenshot docked on the right. */
+    .hero-art { position: relative; } /* the floating badge and "Done" sit on the picture */
+    .app-window { position: relative; border-radius: 16px; background: var(--bg); border: 1px solid var(--line); box-shadow: var(--shot-shadow); overflow: hidden; }
+    .app-bar { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--surface); }
+    .app-bar span { width: 11px; height: 11px; border-radius: 50%; background: var(--line); }
+    .app-bar b { margin-left: 10px; font-size: .82rem; color: var(--muted); font-weight: 700; }
+    .app-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 250px); min-height: 420px; }
+    .app-doc { padding: 22px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); }
+    .slide-art { border-radius: 10px; background: var(--bg); border: 1px solid var(--line); aspect-ratio: 16 / 10; display: grid; place-items: center; }
+    .doc-line { height: 9px; border-radius: 5px; background: var(--line); }
+    .doc-line.w80 { width: 80%; } .doc-line.w60 { width: 60%; } .doc-line.w90 { width: 90%; }
+    .app-panel { border-left: 1px solid var(--line); background: var(--bg); overflow: hidden; }
+    .app-panel img { display: block; width: 100%; }
+    .float { position: absolute; display: flex; align-items: center; gap: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; box-shadow: var(--shot-shadow); font-weight: 700; font-size: .92rem; }
+    .float.f1 { left: -14px; bottom: 26px; }
+    .float.f2 { right: 18px; top: 58px; }
+    .float svg { flex: 0 0 auto; }
+    @media (max-width: 560px) { .app-body { grid-template-columns: 1fr; } .app-doc { display: none; } .float.f1 { left: 8px; } }
+    @media (prefers-reduced-motion: no-preference) {
+      .float.f1 { animation: bob 5s ease-in-out infinite; }
+      .float.f2 { animation: bob 6s ease-in-out -2s infinite; }
+      @keyframes bob { 50% { transform: translateY(-8px); } }
+    }
+
+    /* ---------- THE THREE PROMISES ---------- */
+    .promise-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 28px; }
+    .promise { background: var(--bg); border: 1px solid var(--line); border-radius: 18px; padding: 26px 24px; box-shadow: var(--shadow); }
+    .promise .art { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 14px; }
+    .promise.free .art { background: var(--word-soft); color: var(--word); }
+    .promise.private .art { background: var(--excel-soft); color: var(--excel); }
+    .promise.hosted .art { background: var(--ppt-soft); color: var(--ppt); }
+    .promise h3 { font-size: 1.45rem; }
+    .promise p { color: var(--muted); margin: 0; }
+
+    /* ---------- NUMBERS ---------- */
+    .numbers { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); list-style: none; padding: 0; margin: 40px 0 0; text-align: center; }
+    .numbers li { padding: 10px; }
+    .numbers b { display: block; font-family: Comfortaa, Arial, sans-serif; font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.1; }
+    .numbers li:nth-child(3n+1) b { color: var(--word); }
+    .numbers li:nth-child(3n+2) b { color: var(--excel); }
+    .numbers li:nth-child(3n) b { color: var(--ppt); }
+    .numbers span { color: var(--muted); font-weight: 700; }
+
+    /* ---------- COURSE CARDS ---------- */
+    .cards { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 32px; }
     .card {
       display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--line);
-      border-top: 6px solid var(--accent); border-radius: 12px; padding: 20px; box-shadow: var(--shadow);
+      border-top: 8px solid var(--accent); border-radius: 18px; padding: 22px; box-shadow: var(--shadow);
+      transition: transform .2s ease;
     }
-    .card.word { --accent: var(--word); }
-    .card.excel { --accent: var(--excel); }
-    .card.ppt { --accent: var(--ppt); }
-    .card h3 { color: var(--accent); font-size: 1.45rem; margin-bottom: .25em; }
-    .card .facts { font-size: .95rem; color: var(--muted); margin-bottom: .8em; }
+    .card:hover { transform: translateY(-3px); }
+    .card.word { --accent: var(--word); --soft: var(--word-soft); }
+    .card.excel { --accent: var(--excel); --soft: var(--excel-soft); }
+    .card.ppt { --accent: var(--ppt); --soft: var(--ppt-soft); }
+    .card h3 { color: var(--accent); font-size: 1.6rem; margin-bottom: .2em; display: flex; align-items: center; gap: 10px; }
+    .card .tile { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; }
+    .card .facts { font-size: .95rem; color: var(--muted); margin-bottom: .8em; font-weight: 700; }
     .card ul { padding-left: 1.2em; }
     .card li { margin-bottom: .2em; }
     .card .btn-row { margin-top: auto; padding-top: 8px; }
     .card .btn { background: var(--accent); border-color: var(--accent); color: var(--bg); }
     .card .btn.secondary { background: transparent; color: var(--accent); }
+    .after-cards { margin-top: 22px; }
 
-    /* ===================================================================
-       STEPS, TWO-COLUMN BLOCKS AND LISTS
-       =================================================================== */
-    .steps { counter-reset: step; list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 24px; }
-    .steps li { counter-increment: step; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 16px; }
-    .steps li::before {
-      content: counter(step); display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
-      background: var(--brand); color: var(--brand-ink); font-weight: 700; margin-bottom: 8px;
+    /* ---------- THE TOUR (a slider of screenshots) ---------- */
+    .tour { margin-top: 30px; }
+    .tour-tabs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 0 0 22px; padding: 0; }
+    .tour-tabs [role="tab"] {
+      font: inherit; font-weight: 700; font-size: .95rem; color: var(--ink); background: var(--bg); cursor: pointer;
+      border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; min-height: 44px;
     }
+    .tour-tabs [role="tab"][aria-selected="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+    .slide { display: grid; gap: 32px; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: center; }
+    .slide + .slide { margin-top: 56px; } /* without the script, every slide shows, one after another */
+    .js .slide + .slide { margin-top: 0; }
+    @media (max-width: 860px) { .slide { grid-template-columns: 1fr; } }
+    .slide-text h3 { font-size: clamp(1.4rem, 3vw, 1.9rem); }
+    .slide-text p { color: var(--muted); font-size: 1.1rem; }
+    .slide-text ul { padding-left: 1.2em; }
+    .slide-num { font-weight: 700; color: var(--muted); font-size: .9rem; margin-bottom: .4em; }
+    .shot { margin: 0; }
+    .shot img { display: block; border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--shot-shadow); background: #fff; }
+    .shot.tall { display: flex; justify-content: center; }
+    .shot.tall img { width: min(100%, 330px); }
+    .shot figcaption { font-size: .9rem; color: var(--muted); margin-top: 10px; text-align: center; }
+    .tour-nav { display: flex; justify-content: center; gap: 12px; margin-top: 26px; }
+    @media (prefers-reduced-motion: no-preference) { .js .slide:not([hidden]) { animation: fade .35s ease; } @keyframes fade { from { opacity: 0; transform: translateY(6px); } } }
+
+    /* ---------- HOW IT WORKS ---------- */
+    .steps { counter-reset: step; list-style: none; padding: 0; display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin-top: 28px; }
+    .steps li { counter-increment: step; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; padding: 22px 20px 20px; position: relative; }
+    .steps li::before {
+      content: counter(step); position: absolute; top: 18px; right: 18px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+      background: var(--surface); color: var(--muted); font-weight: 700; font-size: .9rem;
+    }
+    .steps .art { margin-bottom: 10px; }
     .steps h3 { margin-bottom: .3em; }
     .steps p { margin: 0; color: var(--muted); }
-    .two { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 24px; }
-    .panel { border: 1px solid var(--line); border-radius: 12px; padding: 20px; background: var(--bg); }
+    .two { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); margin-top: 28px; }
+    .panel { border: 1px solid var(--line); border-radius: 16px; padding: 22px; background: var(--bg); }
     .panel h3 { margin-top: 0; }
     .ticks { list-style: none; padding: 0; }
-    .ticks li { padding-left: 1.7em; position: relative; margin-bottom: .55em; }
-    .ticks li::before { content: "✓"; position: absolute; left: 0; color: var(--brand); font-weight: 700; }
+    .ticks li { padding-left: 1.8em; position: relative; margin-bottom: .6em; }
+    .ticks li::before { content: "✓"; position: absolute; left: 0; color: var(--excel); font-weight: 700; }
     ol.numbered { padding-left: 1.4em; }
     ol.numbered li { margin-bottom: .5em; }
     .note { border-left: 4px solid var(--brand); background: var(--surface); padding: 12px 16px; border-radius: 0 8px 8px 0; }
 
-    /* ===================================================================
-       FOOTER
-       =================================================================== */
-    footer { border-top: 1px solid var(--line); padding: 32px 0 40px; font-size: .95rem; color: var(--muted); }
+    /* ---------- STANDARDS (three tabs) ---------- */
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--line); margin: 26px 0 20px; }
+    .tabs [role="tab"] { font: inherit; font-weight: 700; color: var(--ink); background: transparent; border: 1px solid transparent; border-bottom: 0; border-radius: 12px 12px 0 0; padding: 10px 20px; cursor: pointer; min-height: 46px; font-size: 1.05rem; }
+    .tabs [role="tab"]:nth-child(1)[aria-selected="true"] { color: var(--word); }
+    .tabs [role="tab"]:nth-child(2)[aria-selected="true"] { color: var(--excel); }
+    .tabs [role="tab"]:nth-child(3)[aria-selected="true"] { color: var(--ppt); }
+    .tabs [role="tab"][aria-selected="true"] { border-color: var(--line); background: var(--bg); box-shadow: 0 2px 0 var(--bg); }
+    .std-panel { padding: 0; } /* a <section>, but not a page band */
+    .std-panel + .std-panel { margin-top: 40px; }
+    .js .std-panel + .std-panel { margin-top: 0; }
+    .js .std-head { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+    table { border-collapse: collapse; width: 100%; font-size: .98rem; }
+    caption { text-align: left; font-weight: 700; padding: 12px 14px; }
+    th, td { text-align: left; padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+    thead th { background: var(--surface); }
+    .std-table tbody th { font-weight: 700; }
+    .std-table .cov { font-weight: 700; white-space: nowrap; color: var(--excel); }
+    .std-details { display: grid; align-items: start; gap: 0 22px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 18px; }
+    .std-list { border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; margin: 0 0 12px; background: var(--bg); }
+    .std-list summary { cursor: pointer; font-weight: 700; padding: 4px 0; }
+    .std-list ul { padding-left: 1.2em; margin: 8px 0; font-size: .95rem; }
+    .std-list h4 { margin: 12px 0 4px; }
+    .std-more { margin-top: 8px; font-weight: 700; }
+
+    /* ---------- INSTRUCTORS ---------- */
+    .features { display: grid; gap: 28px; margin-top: 30px; }
+    .feature { display: grid; gap: 28px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: center; }
+    .feature.flip > :first-child { order: 2; }
+    @media (max-width: 860px) { .feature { grid-template-columns: 1fr; } .feature.flip > :first-child { order: 0; } }
+    .feature h3 { font-size: clamp(1.3rem, 2.6vw, 1.6rem); }
+    .tool-links { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 36px; }
+
+    /* ---------- FAQ ---------- */
+    .faq details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+    .faq summary { cursor: pointer; font-weight: 700; font-size: 1.1rem; }
+    .faq details p { margin: 10px 0 0; color: var(--muted); }
+
+    /* ---------- FOOTER ---------- */
+    footer { border-top: 1px solid var(--line); padding: 40px 0 44px; font-size: .95rem; color: var(--muted); }
     footer p { margin-bottom: .6em; }
+    .foot-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px; }
+    .foot-grid h2 { font-size: 1rem; color: var(--ink); }
+    .foot-grid ul { list-style: none; padding: 0; }
+    .foot-grid li { margin-bottom: .3em; }
+
+    @media print { .site-head { position: static; } .float { display: none; } }
   </style>
 </head>
 <body>
@@ -204,20 +349,24 @@
   <header class="site-head">
     <div class="wrap">
       <a class="brand" href="./" aria-label="Office Trainer home">
-        <img src="assets/icon-64.png" alt="" width="36" height="36">
+        <img src="assets/icon.svg" alt="" width="38" height="38">
         <span>Office Trainer</span>
       </a>
       <nav class="site-nav" aria-label="Main">
         <ul>
           <li><a href="#courses">Courses</a></li>
-          <li><a href="#how">How it works</a></li>
+          <li><a href="#tour">Tour</a></li>
+          <li><a href="#standards">Standards</a></li>
+          <li><a href="#instructors">Instructors</a></li>
           <li><a href="#install">Install</a></li>
           <li><a href="#privacy">Privacy</a></li>
-          <li><a href="#instructors">Instructors</a></li>
         </ul>
       </nav>
-      <!-- Shown only when JavaScript runs (the script removes "hidden"). -->
-      <button class="theme-btn" id="theme-btn" type="button" aria-pressed="false" hidden>Dark mode</button>
+      <div class="head-actions">
+        <!-- Shown only when JavaScript runs (the script removes "hidden"). -->
+        <button class="theme-btn" id="theme-btn" type="button" aria-pressed="false" hidden>Dark mode</button>
+        <a class="btn small" href="#courses">Start free</a>
+      </div>
     </div>
   </header>
 
@@ -225,31 +374,112 @@
 
     <!-- ============================ HERO ============================ -->
     <section class="hero" aria-labelledby="hero-title">
-      <div class="wrap">
-        <h1 id="hero-title">Learn Word, Excel and PowerPoint by doing the real thing</h1>
-        <p class="lead">Office Trainer gives you short lessons, then has you practice in a real file in the real app. Select <strong>Check my work</strong> and it tells you right away what's done and what still needs fixing.</p>
-        <ul class="pill-row" aria-label="At a glance">
-          <li>Free for students</li>
-          <li>Works in the browser and on a Chromebook</li>
-          <li>Prepares you for Microsoft Office Specialist exams</li>
-          <li>Your files never leave your device</li>
-        </ul>
-        <div class="btn-row">
-          <a class="btn" href="#courses">Choose a course</a>
-          <a class="btn secondary" href="#how">See how it works</a>
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Free for every student and every school</p>
+          <h1 id="hero-title">Learn Word, Excel and PowerPoint <span class="hl">by doing the real thing.</span></h1>
+          <p class="lead">Short lessons, real files in the real apps, and instant feedback. Select <strong>Check my work</strong> and Office Trainer tells you what's done, what to fix, and where to find it.</p>
+          <ul class="promises" aria-label="At a glance">
+            <li>Free, with no access codes</li>
+            <li>No accounts, no tracking</li>
+            <li>Nothing to install or host</li>
+            <li>Microsoft Office Specialist exam prep</li>
+          </ul>
+          <div class="btn-row">
+            <a class="btn" href="#courses">Start a course</a>
+            <a class="btn secondary" href="#tour">Take the tour</a>
+          </div>
+        </div>
+
+        <!-- An illustration of an Office app with the real Office Trainer panel (a screenshot) docked on the right. -->
+        <div class="hero-art" role="img" aria-label="Illustration: a presentation open in PowerPoint, with the Office Trainer panel beside it showing two steps done and one still to fix.">
+          <div class="app-window" aria-hidden="true">
+            <div class="app-bar"><span></span><span></span><span></span><b>Orientation.pptx</b></div>
+            <div class="app-body">
+              <div class="app-doc">
+                <div class="slide-art">
+                  <svg width="70%" viewBox="0 0 200 110" aria-hidden="true">
+                    <rect x="0" y="0" width="200" height="110" rx="6" fill="#0e3f7a"/>
+                    <circle cx="160" cy="28" r="14" fill="#f6c35b"/>
+                    <path d="M0 80 Q50 60 100 78 T200 74 V110 H0z" fill="#2b7bbf"/>
+                    <path d="M0 92 Q60 78 120 92 T200 90 V110 H0z" fill="#1b5f99"/>
+                    <path d="M70 84 h44 l-8 7 h-30z" fill="#c43e1c"/>
+                    <rect x="16" y="16" width="90" height="10" rx="3" fill="#ffffff"/>
+                    <rect x="16" y="32" width="60" height="6" rx="3" fill="#cfe0f5"/>
+                  </svg>
+                </div>
+                <div class="doc-line w80"></div>
+                <div class="doc-line w60"></div>
+                <div class="doc-line w90"></div>
+              </div>
+              <div class="app-panel"><img src="assets/screens/panel-check.webp" alt="" width="760" height="1520"></div>
+            </div>
+          </div>
+          <div class="float f1" aria-hidden="true">
+            <svg width="44" height="44" viewBox="0 0 100 100"><polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="#a23108"/><path d="M34 50l11 11 21-23" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Badge earned:<br>Photo Fixer</span>
+          </div>
+          <div class="float f2" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#107c41"/><path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Done</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- ============================ COURSES ============================ -->
-    <section class="band" id="courses" aria-labelledby="courses-title">
+    <!-- ============================ PROMISES ============================ -->
+    <section class="band" aria-labelledby="why-title">
       <div class="wrap">
-        <h2 id="courses-title">Start here: pick a course</h2>
-        <p class="lead">Each course is five weeks of lessons, drills, timed skill checks and projects, built around one small business so the practice files feel real. You can start right now in your browser, no sign-in needed.</p>
+        <div class="center">
+          <p class="eyebrow">Why Office Trainer</p>
+          <h2 id="why-title">Free. Private. Already running.</h2>
+          <p class="lead">Everything a commercial skills trainer does for an Office course, without the price, the logins or the data collection.</p>
+        </div>
+        <div class="promise-grid">
+          <article class="promise free" aria-labelledby="p-free">
+            <div class="art" aria-hidden="true">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+            </div>
+            <h3 id="p-free">Free, for real</h3>
+            <p>No license fees, no access codes, no textbook bundle and no "free trial". Every lesson, practice file, badge and certificate costs nothing, for every student.</p>
+          </article>
+          <article class="promise private" aria-labelledby="p-private">
+            <div class="art" aria-hidden="true">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h3 id="p-private">No tracking. None.</h3>
+            <p>No accounts, ads, analytics or cookies. Files are checked right on the student's device and never uploaded. Progress stays in the student's own browser.</p>
+          </article>
+          <article class="promise hosted" aria-labelledby="p-hosted">
+            <div class="art" aria-hidden="true">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/><circle cx="12" cy="12" r="10"/></svg>
+            </div>
+            <h3 id="p-hosted">Nothing to set up</h3>
+            <p>It's hosted for you at <strong>learnoffice.org</strong>. Students open a course and start; schools can add the add-in for everyone in a few clicks. No servers, no IT project.</p>
+          </article>
+        </div>
+        <ul class="numbers" aria-label="Office Trainer in numbers">
+          <li><b>3</b><span>courses</span></li>
+          <li><b>61</b><span>lessons</span></li>
+          <li><b>184</b><span>badges to earn</span></li>
+          <li><b>208</b><span>exam skills practiced</span></li>
+          <li><b>3</b><span>Microsoft Office Specialist exams</span></li>
+          <li><b>$0</b><span>for students and schools</span></li>
+        </ul>
+      </div>
+    </section>
 
+    <!-- ============================ COURSES ============================ -->
+    <section id="courses" aria-labelledby="courses-title">
+      <div class="wrap">
+        <div class="center">
+          <p class="eyebrow">Start here</p>
+          <h2 id="courses-title">Pick a course and start in your browser</h2>
+          <p class="lead">Each course is five weeks of lessons, drills, timed skill checks and projects, built around one small business so the practice files feel real. No sign-in needed.</p>
+        </div>
         <div class="cards">
           <article class="card word" aria-labelledby="c-word">
-            <h3 id="c-word">Word</h3>
+            <h3 id="c-word"><span class="tile" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Word</h3>
             <p class="facts">5 weeks · 20 lessons · 66 badges · MO-110 exam prep</p>
             <p>Make documents people take seriously, then the ones you'll need for school and work:</p>
             <ul>
@@ -264,9 +494,8 @@
               <a class="btn secondary" href="word/roadmap.html">Course roadmap</a>
             </div>
           </article>
-
           <article class="card excel" aria-labelledby="c-excel">
-            <h3 id="c-excel">Excel</h3>
+            <h3 id="c-excel"><span class="tile" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Excel</h3>
             <p class="facts">5 weeks · 21 lessons · 64 badges · MO-210 exam prep</p>
             <p>Build spreadsheets that do the math for you and show what the numbers mean:</p>
             <ul>
@@ -281,9 +510,8 @@
               <a class="btn secondary" href="excel/roadmap.html">Course roadmap</a>
             </div>
           </article>
-
           <article class="card ppt" aria-labelledby="c-ppt">
-            <h3 id="c-ppt">PowerPoint</h3>
+            <h3 id="c-ppt"><span class="tile" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>PowerPoint</h3>
             <p class="facts">5 weeks · 20 lessons · 54 badges · MO-310 exam prep</p>
             <p>Make presentations people can follow, then deliver them with confidence:</p>
             <ul>
@@ -299,6 +527,89 @@
             </div>
           </article>
         </div>
+        <p class="center muted after-cards">Already earning badges? <a href="badges.html">Open your badges page</a> from the panel's Badges screen.</p>
+      </div>
+    </section>
+
+    <!-- ============================ TOUR (slider) ============================ -->
+    <section class="band" id="tour" aria-labelledby="tour-title">
+      <div class="wrap">
+        <div class="center">
+          <p class="eyebrow">Take the tour</p>
+          <h2 id="tour-title">See it in action</h2>
+          <p class="lead">Real screens from the trainer, with made-up learners.</p>
+        </div>
+        <div class="tour" id="tour-slider">
+          <div class="tour-tabs" role="tablist" aria-label="Tour" hidden>
+            <button type="button" role="tab" id="tt-1" aria-controls="ts-1" aria-selected="true" tabindex="0">Learn</button>
+            <button type="button" role="tab" id="tt-2" aria-controls="ts-2" aria-selected="false" tabindex="-1">Check your work</button>
+            <button type="button" role="tab" id="tt-3" aria-controls="ts-3" aria-selected="false" tabindex="-1">Earn badges</button>
+            <button type="button" role="tab" id="tt-4" aria-controls="ts-4" aria-selected="false" tabindex="-1">Track progress</button>
+            <button type="button" role="tab" id="tt-5" aria-controls="ts-5" aria-selected="false" tabindex="-1">Roadmap</button>
+            <button type="button" role="tab" id="tt-6" aria-controls="ts-6" aria-selected="false" tabindex="-1">Certificates</button>
+          </div>
+
+          <div class="slide" id="ts-1" role="tabpanel" aria-labelledby="tt-1">
+            <div class="slide-text">
+              <p class="slide-num">1 of 6</p>
+              <h3>Short lessons, one idea at a time</h3>
+              <p>Each lesson explains why a skill matters, then gives the exact menu path for the web and desktop apps, with a quick question to check it stuck.</p>
+              <ul><li>Fonts you can read: Atkinson Hyperlegible, OpenDyslexic and more</li><li>Videos with checked captions</li><li>Light and dark mode</li></ul>
+            </div>
+            <figure class="shot tall"><img src="assets/screens/panel-lesson.webp" width="760" height="1520" loading="lazy" alt="The Office Trainer panel in Word, showing the lesson Format Text and Paragraphs with a Why it matters box and the difference between character and paragraph formatting."></figure>
+          </div>
+
+          <div class="slide" id="ts-2" role="tabpanel" aria-labelledby="tt-2">
+            <div class="slide-text">
+              <p class="slide-num">2 of 6</p>
+              <h3>Practice in a real file. Get feedback in a second.</h3>
+              <p>Open the practice file, do the steps any way you like, and select <strong>Check my work</strong>. The trainer looks at the result, not your clicks, and says exactly what to fix.</p>
+              <ul><li>The Ribbon, a shortcut or a right-click all count</li><li>Inside the app, <strong>Show me where</strong> selects the spot</li><li>Your file never leaves your device</li></ul>
+            </div>
+            <figure class="shot tall"><img src="assets/screens/panel-check.webp" width="760" height="1520" loading="lazy" alt="A PowerPoint drill after Check my work: two steps marked Done, and a third, Crop it to a square, marked Not yet with a note saying the picture isn't cropped yet and where to find Crop."></figure>
+          </div>
+
+          <div class="slide" id="ts-3" role="tabpanel" aria-labelledby="tt-3">
+            <div class="slide-text">
+              <p class="slide-num">3 of 6</p>
+              <h3>Every drill earns a badge</h3>
+              <p>Finish every step and the badge is yours, with its own number. Drills, timed skill checks and projects all count, and each lesson ends with a certificate.</p>
+            </div>
+            <figure class="shot tall"><img src="assets/screens/panel-badge.webp" width="760" height="1520" loading="lazy" alt="A drill with all three checked steps done and a green banner: Badge earned, Photo Fixer, with the badge's number."></figure>
+          </div>
+
+          <div class="slide" id="ts-4" role="tabpanel" aria-labelledby="tt-4">
+            <div class="slide-text">
+              <p class="slide-num">4 of 6</p>
+              <h3>Always know what's next</h3>
+              <p>The course home picks up where you left off and shows your progress week by week. Open your badges page to explore everything you've earned across all three courses.</p>
+            </div>
+            <figure class="shot tall"><img src="assets/screens/panel-home.webp" width="760" height="1520" loading="lazy" alt="The PowerPoint course home: Pick up where you left off, Pictures and Screenshots; 22 of 54 badges and 8 of 20 lesson certificates; weeks 1 and 2 complete."></figure>
+          </div>
+
+          <div class="slide" id="ts-5" role="tabpanel" aria-labelledby="tt-5">
+            <div class="slide-text">
+              <p class="slide-num">5 of 6</p>
+              <h3>A roadmap for the whole course</h3>
+              <p>Five weeks, five lines, every stop on the map: lessons, skill checks and projects, with what you'll be able to do at each one.</p>
+            </div>
+            <figure class="shot"><img src="assets/screens/roadmap.webp" width="1400" height="887" loading="lazy" alt="The PowerPoint course roadmap drawn as a subway map: week 1 and week 2 lines with their stops, and a card for the first stop, How This Course Works."></figure>
+          </div>
+
+          <div class="slide" id="ts-6" role="tabpanel" aria-labelledby="tt-6">
+            <div class="slide-text">
+              <p class="slide-num">6 of 6</p>
+              <h3>Certificates worth printing</h3>
+              <p>Each lesson's certificate lists the badges and skills behind it on the back, mapped to the Microsoft Office Specialist exam. Print it or save it as a PDF.</p>
+            </div>
+            <figure class="shot"><img src="assets/screens/certificate.webp" width="1400" height="887" loading="lazy" alt="A Certificate of Practice for Jamie Rivera for Week 1, Meet PowerPoint, mapped to Microsoft Office Specialist MO-310, with a week 1 badge and a certificate number."></figure>
+          </div>
+
+          <div class="tour-nav" hidden>
+            <button type="button" class="btn secondary small" id="tour-prev">‹ Previous</button>
+            <button type="button" class="btn small" id="tour-next">Next ›</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -308,62 +619,169 @@
         <h2 id="how-title">How it works</h2>
         <ol class="steps">
           <li>
+            <svg class="art" width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#185abd"/><path d="M14 15h9a4 4 0 0 1 1 1 4 4 0 0 1 1-1h9v18h-9a4 4 0 0 0-1 1 4 4 0 0 0-1-1h-9z" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/></svg>
             <h3>Learn one idea</h3>
             <p>A short lesson explains one skill, with the exact menu path and a quick question to check you've got it.</p>
           </li>
           <li>
+            <svg class="art" width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#107c41"/><rect x="13" y="13" width="22" height="22" rx="3" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M13 21h22M21 13v22" stroke="#fff" stroke-width="2.6"/></svg>
             <h3>Practice in a real file</h3>
-            <p>Open the practice file in Word, Excel or PowerPoint and do the steps any way you like: the Ribbon, a shortcut or the right-click menu all count.</p>
+            <p>Open the practice file in Word, Excel or PowerPoint and do the steps any way you like.</p>
           </li>
           <li>
+            <svg class="art" width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#c43e1c"/><path d="M15 24.5l6 6 12-13" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <h3>Check your work</h3>
-            <p>The trainer looks at the result, not your clicks, and tells you what's right and what to fix. Inside the app, it can also show you where.</p>
+            <p>The trainer looks at the result, not your clicks, and tells you what's right and what to fix.</p>
           </li>
           <li>
+            <svg class="art" width="44" height="44" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#6b21a8"/><polygon points="24,10 36,17 36,31 24,38 12,31 12,17" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><path d="M19 24l3.5 3.5L29 21" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <h3>Earn badges and certificates</h3>
             <p>Every drill, skill check and project earns a badge. Finish a lesson for a certificate that lists the skills you showed.</p>
           </li>
         </ol>
-
         <div class="two">
           <div class="panel">
-            <h3>Inside the app (the sidebar)</h3>
+            <h3>Inside the app (the side panel)</h3>
             <p>Add Office Trainer to Word, Excel or PowerPoint once, and it opens as a panel next to your file. It reads the file you have open, so checking takes one click.</p>
             <p class="muted">Works in the web apps (including on a Chromebook) and in the desktop apps on Windows and Mac. See <a href="#install">Install</a>.</p>
           </div>
           <div class="panel">
             <h3>In any browser</h3>
-            <p>No add-in? Open a course from this page, download each practice file, do the work in any version of the app (even on a phone), save it, and select <strong>Upload my file and check</strong>. The file opens in your browser tab to be checked; it isn't sent anywhere.</p>
+            <p>No add-in? Open a course from this page, download each practice file, do the work in any version of the app (even on a phone), save it, and select <strong>Upload my file and check</strong>. The file is checked in your browser tab; it isn't sent anywhere.</p>
             <p class="muted">Same lessons, same checks, same badges.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============================ WHAT YOU GET ============================ -->
-    <section class="band" aria-labelledby="get-title">
+    <!-- ============================ STANDARDS (three tabs) ============================ -->
+    <section class="band" id="standards" aria-labelledby="std-title">
       <div class="wrap">
-        <h2 id="get-title">Made for every learner</h2>
-        <div class="two">
-          <ul class="ticks">
-            <li><strong>Ready for the exam.</strong> The lessons cover every skill on the Microsoft Office Specialist Associate exams (MO-110, MO-210, MO-310), and each course ends with a timed practice exam.</li>
-            <li><strong>Real skills, not trivia.</strong> Projects are things you'd actually make: a budget, a cover letter, a team presentation.</li>
-            <li><strong>Practice at your own pace.</strong> Skill checks can be untimed or given extra time.</li>
-          </ul>
-          <ul class="ticks">
-            <li><strong>Readable your way.</strong> Pick your fonts, such as Atkinson Hyperlegible, Verdana or OpenDyslexic (if it's installed). Light and dark modes follow your system.</li>
-            <li><strong>Keyboard friendly.</strong> Everything works without a mouse. <kbd>F6</kbd> (<kbd>Ctrl</kbd>+<kbd>F6</kbd> in the web apps) moves between your file, the Ribbon and the trainer.</li>
-            <li><strong>Accessible by design.</strong> Lessons teach alt text, contrast and reading order as you go, and videos are published only with checked captions.</li>
-          </ul>
+        <p class="eyebrow">Standards and outcomes</p>
+        <h2 id="std-title">Built to the standards your program reports on</h2>
+        <p class="lead">Every course is mapped skill by skill: the college's own course outcomes, the Microsoft Office Specialist exam, Northstar Digital Literacy, career readiness and accessibility. Pick a course to see what it covers.</p>
+        <div id="std-tabs">
+<!-- STANDARDS:START (made by word/tools/build-index-standards.py from the course maps; don't edit by hand) -->
+<div class="tabs std-tabs" role="tablist" aria-label="Standards by course" hidden><button type="button" role="tab" id="std-tab-word" aria-controls="std-word" aria-selected="true" tabindex="0">Word</button><button type="button" role="tab" id="std-tab-excel" aria-controls="std-excel" aria-selected="false" tabindex="-1">Excel</button><button type="button" role="tab" id="std-tab-powerpoint" aria-controls="std-powerpoint" aria-selected="false" tabindex="-1">PowerPoint</button></div>
+<section class="std-panel" id="std-word" role="tabpanel" aria-labelledby="std-tab-word">
+<h3 class="std-head">Microsoft Word</h3>
+<div class="table-wrap"><table class="std-table"><caption>What the Word course covers</caption>
+<thead><tr><th scope="col">Standard</th><th scope="col">Coverage</th><th scope="col">How</th></tr></thead><tbody>
+<tr><th scope="row">Course learning outcomes</th><td class="cov">8 of 8 assessed</td><td>FLCC&#x27;s official outcomes for the course, each assessed in a project, skill check or the capstone</td></tr>
+<tr><th scope="row">Microsoft Office Specialist: MO-110 Word Associate (Microsoft 365 Apps)</th><td class="cov">71 of 71 exam skills practiced</td><td>Every skill on Microsoft&#x27;s outline has a drill; weekly skill checks and a timed practice exam cover every domain</td></tr>
+<tr><th scope="row">Northstar Digital Literacy: Microsoft Word</th><td class="cov">14 of 14 standards</td><td>Each standard is practiced in a named drill</td></tr>
+<tr><th scope="row">NACE Career Readiness Competencies</th><td class="cov">8 competencies</td><td>Communication, technology, teamwork and more, built into the projects</td></tr>
+<tr><th scope="row">DigComp 3.0 (European Digital Competence Framework)</th><td class="cov">5 competence areas</td><td>Content creation, collaboration, safety and problem solving</td></tr>
+<tr><th scope="row">WCAG 2.1 AA (ADA Title II)</th><td class="cov">9 success criteria practiced</td><td>Learners make accessible files as they go: alt text, headings, contrast, reading order</td></tr>
+</tbody></table></div>
+<div class="std-details">
+<details class="std-list"><summary>The 8 course learning outcomes</summary><ul><li><b>CLO1</b> Create, save, format and print documents</li><li><b>CLO2</b> Demonstrate features offered by the application</li><li><b>CLO3</b> Insert and modify graphics</li><li><b>CLO4</b> Create and format tables</li><li><b>CLO5</b> Apply desktop publishing features to a document</li><li><b>CLO6</b> Create and preview the document as a Web page</li><li><b>CLO7</b> use mail merge to create form letters, directories, and envelopes</li><li><b>CLO8</b> Collaborate on documents, Compare and Combine documents, Manage comments, Track document changes</li></ul></details>
+<details class="std-list"><summary>All 71 MO-110 exam skills</summary><h4>Domain 1: Manage documents</h4><ul><li><b>1.1 Navigate within documents</b><ul><li>1.1.1 Search for text</li><li>1.1.2 Link to locations within documents</li><li>1.1.3 Move to specific locations and objects in documents</li><li>1.1.4 Show and hide formatting symbols and hidden text</li></ul></li><li><b>1.2 Format documents</b><ul><li>1.2.1 Set up document pages</li><li>1.2.2 Apply style sets</li><li>1.2.3 Insert and modify headers and footers</li><li>1.2.4 Configure page background elements</li></ul></li><li><b>1.3 Save and share documents</b><ul><li>1.3.1 Save documents in alternative file formats</li><li>1.3.2 Modify basic document properties</li><li>1.3.3 Modify print settings</li><li>1.3.4 Share documents electronically</li></ul></li><li><b>1.4 Inspect documents for issues</b><ul><li>1.4.1 Locate and remove hidden properties and personal information</li><li>1.4.2 Locate and correct accessibility issues</li><li>1.4.3 Locate and correct compatibility issues</li></ul></li></ul><h4>Domain 2: Insert and format text, paragraphs, and sections</h4><ul><li><b>2.1 Insert text and paragraphs</b><ul><li>2.1.1 Find and replace text</li><li>2.1.2 Insert symbols and special characters</li></ul></li><li><b>2.2 Format text and paragraphs</b><ul><li>2.2.1 Apply text effects</li><li>2.2.2 Apply formatting by using Format Painter</li><li>2.2.3 Set line and paragraph spacing and indentation</li><li>2.2.4 Apply built-in styles to text</li><li>2.2.5 Clear formatting</li></ul></li><li><b>2.3 Create and configure document sections</b><ul><li>2.3.1 Format text in multiple columns</li><li>2.3.2 Insert page, section, and column breaks</li><li>2.3.3 Change page setup options for a section</li></ul></li></ul><h4>Domain 3: Manage tables and lists</h4><ul><li><b>3.1 Create tables</b><ul><li>3.1.1 Convert text to tables</li><li>3.1.2 Convert tables to text</li><li>3.1.3 Create tables by specifying rows and columns</li></ul></li><li><b>3.2 Modify tables</b><ul><li>3.2.1 Sort table data</li><li>3.2.2 Configure cell margins and spacing</li><li>3.2.3 Merge and split cells</li><li>3.2.4 Resize tables, rows, and columns</li><li>3.2.5 Split tables</li><li>3.2.6 Configure a repeating row header</li></ul></li><li><b>3.3 Create and modify lists</b><ul><li>3.3.1 Format paragraphs as numbered and bulleted lists</li><li>3.3.2 Change bullet characters and number formats</li><li>3.3.3 Define custom bullet characters and number formats</li><li>3.3.4 Increase and decrease list levels</li><li>3.3.5 Restart and continue list numbering</li><li>3.3.6 Set starting number values</li></ul></li></ul><h4>Domain 4: Create and manage references</h4><ul><li><b>4.1 Create and manage reference elements</b><ul><li>4.1.1 Insert footnotes and endnotes</li><li>4.1.2 Modify footnote and endnote properties</li></ul></li><li><b>4.2 Create and manage reference tables</b><ul><li>4.2.1 Insert tables of contents</li><li>4.2.2 Customize tables of contents</li></ul></li></ul><h4>Domain 5: Insert and format graphic elements</h4><ul><li><b>5.1 Insert illustrations and text boxes</b><ul><li>5.1.1 Insert shapes</li><li>5.1.2 Insert pictures</li><li>5.1.3 Insert 3D models</li><li>5.1.4 Insert SmartArt graphics</li><li>5.1.5 Insert screenshots and screen clippings</li><li>5.1.6 Insert text boxes</li><li>5.1.7 Insert icons</li></ul></li><li><b>5.2 Format illustrations and text boxes</b><ul><li>5.2.1 Apply artistic effects</li><li>5.2.2 Apply picture effects and picture styles</li><li>5.2.3 Remove picture backgrounds</li><li>5.2.4 Format graphic elements</li><li>5.2.5 Format SmartArt graphics</li><li>5.2.6 Format 3D models</li></ul></li><li><b>5.3 Add text to graphic elements</b><ul><li>5.3.1 Add and modify text in text boxes</li><li>5.3.2 Add and modify text in shapes</li><li>5.3.3 Add and modify SmartArt graphic content</li></ul></li><li><b>5.4 Modify graphic elements</b><ul><li>5.4.1 Position objects</li><li>5.4.2 Wrap text around objects</li><li>5.4.3 Add alternative text to objects for accessibility</li></ul></li></ul><h4>Domain 6: Manage document collaboration</h4><ul><li><b>6.1 Add and manage comments</b><ul><li>6.1.1 Add comments</li><li>6.1.2 Review and reply to comments</li><li>6.1.3 Resolve comments</li><li>6.1.4 Delete comments</li></ul></li><li><b>6.2 Manage change tracking</b><ul><li>6.2.1 Track changes</li><li>6.2.2 Review tracked changes</li><li>6.2.3 Accept and reject tracked changes</li><li>6.2.4 Lock and unlock change tracking</li></ul></li></ul></details>
+<details class="std-list"><summary>The 14 Northstar standards</summary><ul><li><b>N1</b> Open a new or existing document.</li><li><b>N2</b> Identify the parts of the Word window, including the Ribbon, Status Bar and Quick Access Toolbar.</li><li><b>N3</b> Save a document, being intentional about name and location.</li><li><b>N4</b> Identify file extensions that can be opened by Microsoft Word.</li><li><b>N5</b> Use Spelling and Grammar check.</li><li><b>N6</b> Format text: size, color and font type.</li><li><b>N7</b> Set text spacing and alignment.</li><li><b>N8</b> Apply bullets and automatic numbering.</li><li><b>N9</b> Undo the previous action.</li><li><b>N10</b> Cut, copy and paste.</li><li><b>N11</b> Modify page layout, including margins and orientation.</li><li><b>N12</b> Print.</li><li><b>N13</b> Close a document.</li><li><b>N14</b> Insert objects into a document, including images, shapes, hyperlinks, and tables.</li></ul></details>
+<details class="std-list"><summary>NACE competencies and DigComp areas</summary><h4>NACE</h4><ul><li>Career &amp; Self-Development</li><li>Communication</li><li>Critical Thinking</li><li>Equity &amp; Inclusion</li><li>Leadership</li><li>Professionalism</li><li>Teamwork</li><li>Technology</li></ul><h4>DigComp 3.0</h4><ul><li>Information search, evaluation and management</li><li>Communication and collaboration</li><li>Content creation</li><li>Safety, wellbeing and responsible use</li><li>Problem identification and solving</li></ul></details>
+<details class="std-list"><summary>The 9 WCAG criteria</summary><ul><li><b>1.1.1</b> Non-text Content (Level A)</li><li><b>1.3.1</b> Info and Relationships (Level A)</li><li><b>1.3.2</b> Meaningful Sequence (Level A)</li><li><b>1.4.1</b> Use of Color (Level A)</li><li><b>1.4.3</b> Contrast (Minimum) (Level AA)</li><li><b>2.4.2</b> Page Titled (Level A)</li><li><b>2.4.4</b> Link Purpose (In Context) (Level A)</li><li><b>2.4.6</b> Headings and Labels (Level AA)</li><li><b>3.1.1</b> Language of Page (Level A)</li></ul></details>
+</div>
+<p class="std-more"><a href="word/word-course-map.html">See the full Word course map</a>: every week, drill, skill and rubric.</p>
+</section>
+<section class="std-panel" id="std-excel" role="tabpanel" aria-labelledby="std-tab-excel">
+<h3 class="std-head">Microsoft Excel</h3>
+<div class="table-wrap"><table class="std-table"><caption>What the Excel course covers</caption>
+<thead><tr><th scope="col">Standard</th><th scope="col">Coverage</th><th scope="col">How</th></tr></thead><tbody>
+<tr><th scope="row">Course learning outcomes</th><td class="cov">7 of 7 assessed</td><td>FLCC&#x27;s official outcomes for the course, each assessed in a project, skill check or the capstone</td></tr>
+<tr><th scope="row">Microsoft Office Specialist: MO-210 Excel Associate (Microsoft 365 Apps)</th><td class="cov">64 of 64 exam skills practiced</td><td>Every skill on Microsoft&#x27;s outline has a drill; weekly skill checks and a timed practice exam cover every domain</td></tr>
+<tr><th scope="row">Northstar Digital Literacy: Microsoft Excel</th><td class="cov">17 of 17 standards</td><td>Each standard is practiced in a named drill</td></tr>
+<tr><th scope="row">NACE Career Readiness Competencies</th><td class="cov">6 competencies</td><td>Communication, technology, teamwork and more, built into the projects</td></tr>
+<tr><th scope="row">DigComp 3.0 (European Digital Competence Framework)</th><td class="cov">5 competence areas</td><td>Content creation, collaboration, safety and problem solving</td></tr>
+<tr><th scope="row">WCAG 2.1 AA (ADA Title II)</th><td class="cov">7 success criteria practiced</td><td>Learners make accessible files as they go: alt text, headings, contrast, reading order</td></tr>
+</tbody></table></div>
+<div class="std-details">
+<details class="std-list"><summary>The 7 course learning outcomes</summary><ul><li><b>CLO1</b> Create, save, format and print worksheets and workbooks</li><li><b>CLO2</b> Demonstrate features offered by the application</li><li><b>CLO3</b> Create a &quot;what-if&quot; scenario</li><li><b>CLO4</b> Insert and modify graphics</li><li><b>CLO5</b> Create and format charts</li><li><b>CLO6</b> Create and preview the worksheet as a Web page</li><li><b>CLO7</b> Collaborate on workbooks: Compare and Combine workbooks</li></ul></details>
+<details class="std-list"><summary>All 64 MO-210 exam skills</summary><h4>Domain 1: Manage worksheets and workbooks</h4><ul><li><b>1.1 Import data into workbooks</b><ul><li>1.1.1 Import data from text files</li><li>1.1.2 Import data from online sources</li></ul></li><li><b>1.2 Navigate within workbooks</b><ul><li>1.2.1 Search for data within a workbook</li><li>1.2.2 Navigate to named cells, ranges, or workbook elements</li><li>1.2.3 Insert and remove hyperlinks</li></ul></li><li><b>1.3 Format worksheets and workbooks</b><ul><li>1.3.1 Modify page setup</li><li>1.3.2 Adjust row height and column width</li><li>1.3.3 Customize headers and footers</li></ul></li><li><b>1.4 Customize options and views</b><ul><li>1.4.1 Manage the Quick Access toolbar</li><li>1.4.2 Display and modify worksheets in different views</li><li>1.4.3 Freeze worksheet rows and columns</li><li>1.4.4 Change window views</li><li>1.4.5 Modify built-in workbook properties</li><li>1.4.6 Display formulas</li></ul></li><li><b>1.5 Prepare workbooks for collaboration and distribution</b><ul><li>1.5.1 Set a print area</li><li>1.5.2 Save and export workbooks in alternative file formats</li><li>1.5.3 Configure print settings</li><li>1.5.4 Inspect workbooks and correct issues</li><li>1.5.5 Manage comments and notes</li></ul></li></ul><h4>Domain 2: Manage data cells and ranges</h4><ul><li><b>2.1 Manipulate data in worksheets</b><ul><li>2.1.1 Paste data by using special paste options</li><li>2.1.2 Fill cells by using Auto Fill</li><li>2.1.3 Insert and delete multiple columns or rows</li><li>2.1.4 Insert and delete cells</li><li>2.1.5 Generate numeric data by using RANDBETWEEN() and SEQUENCE()</li></ul></li><li><b>2.2 Format cells and ranges</b><ul><li>2.2.1 Merge and unmerge cells</li><li>2.2.2 Modify cell alignment, orientation, and indentation</li><li>2.2.3 Format cells by using Format Painter</li><li>2.2.4 Wrap text within cells</li><li>2.2.5 Apply number formats</li><li>2.2.6 Apply cell formats from the Format Cells dialog box</li><li>2.2.7 Apply cell styles</li><li>2.2.8 Clear cell formatting</li><li>2.2.9 Format multiple worksheets by grouping</li></ul></li><li><b>2.3 Define and reference named ranges</b><ul><li>2.3.1 Define a named range</li><li>2.3.2 Reference a named range</li></ul></li><li><b>2.4 Summarize data visually</b><ul><li>2.4.1 Insert Sparklines</li><li>2.4.2 Apply built-in conditional formatting</li><li>2.4.3 Remove conditional formatting</li></ul></li></ul><h4>Domain 3: Manage tables and table data</h4><ul><li><b>3.1 Create and format tables</b><ul><li>3.1.1 Create Excel tables from cell ranges</li><li>3.1.2 Apply table styles</li><li>3.1.3 Convert tables to cell ranges</li></ul></li><li><b>3.2 Modify tables</b><ul><li>3.2.1 Add or remove table rows and columns</li><li>3.2.2 Configure table style options</li><li>3.2.3 Insert and configure total rows</li></ul></li><li><b>3.3 Filter and sort table data</b><ul><li>3.3.1 Filter records</li><li>3.3.2 Sort data by multiple columns</li></ul></li></ul><h4>Domain 4: Perform operations by using formulas and functions</h4><ul><li><b>4.1 Insert references</b><ul><li>4.1.1 Insert relative, absolute, and mixed references</li><li>4.1.2 Use structured references in formulas</li></ul></li><li><b>4.2 Calculate and transform data</b><ul><li>4.2.1 Perform calculations by using the AVERAGE(), MAX(), MIN(), and SUM() functions</li><li>4.2.2 Count cells by using the COUNT(), COUNTA(), and COUNTBLANK() functions</li><li>4.2.3 Perform conditional operations by using the IF() function</li><li>4.2.4 Sort data by using the SORT() function</li><li>4.2.5 Get unique values by using the UNIQUE() function</li></ul></li><li><b>4.3 Format and modify text</b><ul><li>4.3.1 Format text by using RIGHT(), LEFT(), and MID() functions</li><li>4.3.2 Format text by using UPPER(), LOWER(), and LEN() functions</li><li>4.3.3 Format text by using the CONCAT() and TEXTJOIN() functions</li></ul></li></ul><h4>Domain 5: Manage charts</h4><ul><li><b>5.1 Create charts</b><ul><li>5.1.1 Create charts</li><li>5.1.2 Create chart sheets</li></ul></li><li><b>5.2 Modify charts</b><ul><li>5.2.1 Add data series to charts</li><li>5.2.2 Switch between rows and columns in source data</li><li>5.2.3 Add and modify chart elements</li></ul></li><li><b>5.3 Format charts</b><ul><li>5.3.1 Apply chart layouts</li><li>5.3.2 Apply chart styles</li><li>5.3.3 Add alternative text to charts for accessibility</li></ul></li></ul></details>
+<details class="std-list"><summary>The 17 Northstar standards</summary><ul><li><b>N1</b> Open and close a workbook.</li><li><b>N2</b> Save a workbook, being intentional about name and location.</li><li><b>N3</b> Identify parts of Excel Screen: ribbon, formula bar, active cell, name box, column letter, row number, Quick Access Toolbar.</li><li><b>N4</b> Locate a specific cell.</li><li><b>N5</b> Enter data in a cell.</li><li><b>N6</b> Copy and move cell entries.</li><li><b>N7</b> Format cells and text: bold, underline, size, merge and center, wrap text, number (currency, time, percentages, etc.)</li><li><b>N8</b> Create headings and freeze them.</li><li><b>N9</b> Insert and delete rows and columns.</li><li><b>N10</b> Adjust row and column size.</li><li><b>N11</b> Identify worksheet tabs, create a new tab, rename tabs, and rearrange tabs.</li><li><b>N12</b> Write a formula in the formula bar (-, +, *, /).</li><li><b>N13</b> Select a range.</li><li><b>N14</b> Use Auto Fill and AutoSum (Sum, Average, etc.) and understand the differences between them.</li><li><b>N15</b> Sort (least to greatest, alphabetically, etc.) and filter data.</li><li><b>N16</b> Insert a chart to display data.</li><li><b>N17</b> Select a print area, choose page orientation, and print.</li></ul></details>
+<details class="std-list"><summary>NACE competencies and DigComp areas</summary><h4>NACE</h4><ul><li>Career &amp; Self-Development</li><li>Communication</li><li>Critical Thinking</li><li>Professionalism</li><li>Teamwork</li><li>Technology</li></ul><h4>DigComp 3.0</h4><ul><li>Information search, evaluation and management</li><li>Communication and collaboration</li><li>Content creation</li><li>Safety, wellbeing and responsible use</li><li>Problem identification and solving</li></ul></details>
+<details class="std-list"><summary>The 7 WCAG criteria</summary><ul><li><b>1.1.1</b> Non-text Content (Level A)</li><li><b>1.3.1</b> Info and Relationships (Level A)</li><li><b>1.4.1</b> Use of Color (Level A)</li><li><b>1.4.3</b> Contrast (Minimum) (Level AA)</li><li><b>2.4.2</b> Page Titled (Level A)</li><li><b>2.4.4</b> Link Purpose (In Context) (Level A)</li><li><b>2.4.6</b> Headings and Labels (Level AA)</li></ul></details>
+</div>
+<p class="std-more"><a href="excel/excel-course-map.html">See the full Excel course map</a>: every week, drill, skill and rubric.</p>
+</section>
+<section class="std-panel" id="std-powerpoint" role="tabpanel" aria-labelledby="std-tab-powerpoint">
+<h3 class="std-head">Microsoft PowerPoint</h3>
+<div class="table-wrap"><table class="std-table"><caption>What the PowerPoint course covers</caption>
+<thead><tr><th scope="col">Standard</th><th scope="col">Coverage</th><th scope="col">How</th></tr></thead><tbody>
+<tr><th scope="row">Course learning outcomes</th><td class="cov">7 of 7 assessed</td><td>FLCC&#x27;s official outcomes for the course, each assessed in a project, skill check or the capstone</td></tr>
+<tr><th scope="row">Microsoft Office Specialist: MO-310 PowerPoint Associate (Microsoft 365 Apps)</th><td class="cov">73 of 73 exam skills practiced</td><td>Every skill on Microsoft&#x27;s outline has a drill; weekly skill checks and a timed practice exam cover every domain</td></tr>
+<tr><th scope="row">Northstar Digital Literacy: Microsoft PowerPoint</th><td class="cov">17 of 17 standards</td><td>Each standard is practiced in a named drill</td></tr>
+<tr><th scope="row">NACE Career Readiness Competencies</th><td class="cov">6 competencies</td><td>Communication, technology, teamwork and more, built into the projects</td></tr>
+<tr><th scope="row">DigComp 3.0 (European Digital Competence Framework)</th><td class="cov">5 competence areas</td><td>Content creation, collaboration, safety and problem solving</td></tr>
+<tr><th scope="row">WCAG 2.1 AA (ADA Title II)</th><td class="cov">11 success criteria practiced</td><td>Learners make accessible files as they go: alt text, headings, contrast, reading order</td></tr>
+</tbody></table></div>
+<div class="std-details">
+<details class="std-list"><summary>The 7 course learning outcomes</summary><ul><li><b>CLO1</b> Create, save, format and print presentations</li><li><b>CLO2</b> Demonstrate features offered by the application</li><li><b>CLO3</b> Create a professional presentation slide show</li><li><b>CLO4</b> Insert and modify graphics and video clips</li><li><b>CLO5</b> Create and format tables</li><li><b>CLO6</b> Animate a slide show</li><li><b>CLO7</b> Collaborate on presentations: Compare and Combine presentations</li></ul></details>
+<details class="std-list"><summary>All 73 MO-310 exam skills</summary><h4>Domain 1: Manage presentations</h4><ul><li><b>1.1 Modify slide masters, handout masters, and note masters</b><ul><li>1.1.1 Change slide master theme or background elements</li><li>1.1.2 Modify slide master content</li><li>1.1.3 Create slide layouts</li><li>1.1.4 Modify slide layouts</li><li>1.1.5 Modify the handout master</li><li>1.1.6 Modify the notes master</li></ul></li><li><b>1.2 Change presentation options and views</b><ul><li>1.2.1 Change slide size</li><li>1.2.2 Display presentations in different views</li><li>1.2.3 Modify built-in presentation properties</li></ul></li><li><b>1.3 Configure print settings for presentations</b><ul><li>1.3.1 Print slides</li><li>1.3.2 Print notes pages</li><li>1.3.3 Print handouts</li></ul></li><li><b>1.4 Configure and present slide shows</b><ul><li>1.4.1 Create custom slide shows</li><li>1.4.2 Configure slide show options</li><li>1.4.3 Rehearse slide show timing</li><li>1.4.4 Set up slide show recording options</li><li>1.4.5 Present slide shows by using Presenter View</li></ul></li><li><b>1.5 Prepare presentations for collaboration and distribution</b><ul><li>1.5.1 Restrict editing</li><li>1.5.2 Protect presentations by using passwords</li><li>1.5.3 Inspect presentations and correct issues</li><li>1.5.4 Manage comments</li><li>1.5.5 Preserve presentation content</li><li>1.5.6 Export presentations to other formats</li></ul></li></ul><h4>Domain 2: Manage slides</h4><ul><li><b>2.1 Insert slides</b><ul><li>2.1.1 Import Word document outlines</li><li>2.1.2 Insert slides from another presentation</li><li>2.1.3 Insert slides and select slide layouts</li><li>2.1.4 Insert Summary Zoom slides</li><li>2.1.5 Duplicate slides</li></ul></li><li><b>2.2 Modify slides</b><ul><li>2.2.1 Hide and unhide slides</li><li>2.2.2 Modify individual slide backgrounds</li><li>2.2.3 Insert slide headers, footers, and page numbers</li></ul></li><li><b>2.3 Order and group slides</b><ul><li>2.3.1 Create sections</li><li>2.3.2 Reorder slides and sections</li><li>2.3.3 Rename sections</li></ul></li></ul><h4>Domain 3: Insert and format text, shapes, and images</h4><ul><li><b>3.1 Format text</b><ul><li>3.1.1 Apply formatting and styles to text</li><li>3.1.2 Format text in multiple columns</li><li>3.1.3 Create bulleted and numbered lists</li></ul></li><li><b>3.2 Insert links</b><ul><li>3.2.1 Insert hyperlinks</li><li>3.2.2 Insert Section Zoom links and Slide Zoom links</li></ul></li><li><b>3.3 Insert and format images</b><ul><li>3.3.1 Resize and crop images</li><li>3.3.2 Apply built-in styles and effects to images</li><li>3.3.3 Insert screenshots and screen clippings</li></ul></li><li><b>3.4 Insert and format graphic elements</b><ul><li>3.4.1 Insert graphic elements</li><li>3.4.2 Draw by using digital ink</li><li>3.4.3 Add text to graphic elements</li><li>3.4.4 Resize graphic elements</li><li>3.4.5 Format graphic elements</li><li>3.4.6 Apply built-in styles to graphic elements</li><li>3.4.7 Add alt text to graphic elements for accessibility</li></ul></li><li><b>3.5 Order, align, and group slide content</b><ul><li>3.5.1 Order slide content</li><li>3.5.2 Align slide content</li><li>3.5.3 Group slide content</li><li>3.5.4 Display alignment tools</li></ul></li></ul><h4>Domain 4: Insert tables, charts, SmartArt, 3D models, and media</h4><ul><li><b>4.1 Insert and format tables</b><ul><li>4.1.1 Create and insert tables</li><li>4.1.2 Insert and delete table rows and columns</li><li>4.1.3 Apply built-in table styles</li></ul></li><li><b>4.2 Insert and modify charts</b><ul><li>4.2.1 Create and insert charts</li><li>4.2.2 Modify charts</li></ul></li><li><b>4.3 Insert and format SmartArt graphics</b><ul><li>4.3.1 Insert SmartArt graphics</li><li>4.3.2 Convert between SmartArt graphics and lists</li><li>4.3.3 Add and modify SmartArt graphic content</li></ul></li><li><b>4.4 Insert and modify 3D models</b><ul><li>4.4.1 Insert 3D models</li><li>4.4.2 Modify 3D model appearance</li></ul></li><li><b>4.5 Insert and manage media</b><ul><li>4.5.1 Insert audio and video clips</li><li>4.5.2 Create and insert screen recordings</li><li>4.5.3 Configure media playback options</li></ul></li></ul><h4>Domain 5: Apply transitions and animations</h4><ul><li><b>5.1 Apply and configure slide transitions</b><ul><li>5.1.1 Apply basic and 3D slide transitions</li><li>5.1.2 Configure transition effects and timing</li></ul></li><li><b>5.2 Animate slide content</b><ul><li>5.2.1 Animate text and graphic elements</li><li>5.2.2 Animate 3D models</li><li>5.2.3 Configure animation effects and timing</li><li>5.2.4 Configure animation paths</li><li>5.2.5 Reorder animations on a slide</li></ul></li></ul></details>
+<details class="std-list"><summary>The 17 Northstar standards</summary><ul><li><b>N1</b> Open a new or existing PowerPoint presentation.</li><li><b>N2</b> Identify parts of the PowerPoint screen (slide navigation pane, slide pane, notes, the ribbon, quick access toolbar, and scroll bars).</li><li><b>N3</b> Insert new slides, duplicate, or reuse slides.</li><li><b>N4</b> Manage text (insert, delete, copy, cut and paste, drag and drop, format, and use spellcheck).</li><li><b>N5</b> Apply or change a theme.</li><li><b>N6</b> Use zoom control.</li><li><b>N7</b> Insert items into a presentation, resize, and adjust them (video, chart, pictures, clip art, screenshots).</li><li><b>N8</b> Add a textbox, adjust it, resize it, or delete it.</li><li><b>N9</b> Change the view (normal view, slide sorter, reading view, slideshow view).</li><li><b>N10</b> Insert, delete, and move slides using slide navigation pane.</li><li><b>N11</b> Use the quick access toolbar.</li><li><b>N12</b> Apply and customize slide transitions (select, preview, add sound, automatic advance).</li><li><b>N13</b> Understand the basics of PowerPoint etiquette (limited text, text that stands out on background, clear titles).</li><li><b>N14</b> Play a slideshow, advance through the slides, and end slideshow (using screen toolbar features).</li><li><b>N15</b> Save a presentation as a .ppt, .pdf, .png, etc.</li><li><b>N16</b> Create handouts.</li><li><b>N17</b> Print a presentation.</li></ul></details>
+<details class="std-list"><summary>NACE competencies and DigComp areas</summary><h4>NACE</h4><ul><li>Career &amp; Self-Development</li><li>Communication</li><li>Critical Thinking</li><li>Professionalism</li><li>Teamwork</li><li>Technology</li></ul><h4>DigComp 3.0</h4><ul><li>Information search, evaluation and management</li><li>Communication and collaboration</li><li>Content creation</li><li>Safety, wellbeing and responsible use</li><li>Problem identification and solving</li></ul></details>
+<details class="std-list"><summary>The 11 WCAG criteria</summary><ul><li><b>1.1.1</b> Non-text Content (Level A)</li><li><b>1.2.2</b> Captions (Prerecorded) (Level A)</li><li><b>1.3.1</b> Info and Relationships (Level A)</li><li><b>1.3.2</b> Meaningful Sequence (Level A)</li><li><b>1.4.1</b> Use of Color (Level A)</li><li><b>1.4.3</b> Contrast (Minimum) (Level AA)</li><li><b>2.2.2</b> Pause, Stop, Hide (Level A)</li><li><b>2.3.1</b> Three Flashes or Below Threshold (Level A)</li><li><b>2.4.2</b> Page Titled (Level A)</li><li><b>2.4.4</b> Link Purpose (In Context) (Level A)</li><li><b>2.4.6</b> Headings and Labels (Level AA)</li></ul></details>
+</div>
+<p class="std-more"><a href="powerpoint/powerpoint-course-map.html">See the full PowerPoint course map</a>: every week, drill, skill and rubric.</p>
+</section>
+<!-- STANDARDS:END -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ INSTRUCTORS ============================ -->
+    <section id="instructors" aria-labelledby="inst-title">
+      <div class="wrap">
+        <p class="eyebrow">For instructors</p>
+        <h2 id="inst-title">Run your section your way, with nothing to install</h2>
+        <p class="lead">Choose the lessons, add your own videos and grade a whole class's files in minutes. These tools run in your browser too: no accounts, and students' files and names never leave your computer.</p>
+
+        <div class="features">
+          <div class="feature">
+            <div>
+              <h3>Set up a section in five minutes</h3>
+              <p>Tick the lessons your class uses, swap in your own videos or add new ones, and get a <strong>section key</strong>. Students paste it into the panel once. Lessons you leave out are marked "Not in your section" and don't count toward the course certificate.</p>
+              <p><a class="btn small" href="instructor/sections.html">Open the section builder</a></p>
+            </div>
+            <figure class="shot"><img src="assets/screens/sections.webp" width="1400" height="887" loading="lazy" alt="The section builder: step 3, Lessons, with a checkbox for every lesson in week 1 of the Word course and a count of 29 of 31 stops included."></figure>
+          </div>
+          <div class="feature flip">
+            <div>
+              <h3>Grade a whole class in one drop</h3>
+              <p>Download an assignment's submissions from Brightspace and drop the zip on the grader. It runs the same checks students see, on their actual files, and gives you a score and step-by-step notes for each student.</p>
+              <ul class="ticks">
+                <li>A grade file to import into Brightspace</li>
+                <li>Feedback files Brightspace attaches to each submission</li>
+                <li>A results spreadsheet, and how the class did on each step</li>
+              </ul>
+              <p><a class="btn small" href="instructor/grader.html">Open the grader</a></p>
+            </div>
+            <figure class="shot"><img src="assets/screens/grader.webp" width="1400" height="887" loading="lazy" alt="The grader's results for skill check SC3: a table of students with their file, score, points and matching Brightspace student, and one student's steps opened to show which were done and which weren't."></figure>
+          </div>
+        </div>
+
+        <div class="tool-links">
+          <div class="panel">
+            <h3>Plan with the course maps</h3>
+            <p>Outcomes, outline topics, weekly objectives, every drill and its exam skills, and how each outcome is assessed.</p>
+            <p><a href="word/word-course-map.html">Word</a> · <a href="excel/excel-course-map.html">Excel</a> · <a href="powerpoint/powerpoint-course-map.html">PowerPoint</a></p>
+          </div>
+          <div class="panel">
+            <h3>Adapt the lessons</h3>
+            <p>Lessons are plain Markdown. The <a href="word/tools/editor.html">lesson editor</a> checks your changes and previews them as students will see them.</p>
+          </div>
+          <div class="panel">
+            <h3>Trust the checks</h3>
+            <p>Every check is tested against answer keys on each course's test page, for example the <a href="powerpoint/tools/check-tests.html">PowerPoint checker tests</a>.</p>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ============================ INSTALL ============================ -->
-    <section id="install" aria-labelledby="install-title">
+    <section class="band" id="install" aria-labelledby="install-title">
       <div class="wrap">
         <h2 id="install-title">Add it to Word, Excel or PowerPoint</h2>
-        <p class="lead">One add-in works in all three apps. Install it once and it shows the right course in each one.</p>
+        <p class="lead">One add-in works in all three apps. Install it once and it shows the right course in each. Or skip this entirely and use the courses in your browser.</p>
         <div class="two">
           <div class="panel">
             <h3>Install it yourself</h3>
@@ -374,7 +792,6 @@
               <li><strong>Browse</strong> to <code>manifest.xml</code> and select <strong>Upload</strong>. An <strong>Office Trainer</strong> button appears on the Home tab.</li>
             </ol>
             <p class="muted">If you clear your browser data or switch browsers, upload it again. Some schools turn off uploading add-ins; if the option isn't there, ask your IT office.</p>
-            <p class="muted">For the desktop apps, or for a whole class, ask your school's Microsoft 365 administrator to install it for you.</p>
           </div>
           <div class="panel">
             <h3>Install it for a whole school</h3>
@@ -386,7 +803,7 @@
     </section>
 
     <!-- ============================ PRIVACY ============================ -->
-    <section class="band" id="privacy" aria-labelledby="privacy-title">
+    <section id="privacy" aria-labelledby="privacy-title">
       <div class="wrap">
         <h2 id="privacy-title">Your privacy</h2>
         <p class="lead">Office Trainer was built to need nothing from you.</p>
@@ -395,32 +812,9 @@
           <li><strong>No accounts.</strong> There's nothing to sign up for. Your progress, badges and certificates are saved only in your own browser, and you can save a copy of your record as a file.</li>
           <li><strong>No tracking.</strong> No analytics, no ads and no cookies. Fonts are hosted here, so no font service learns you visited.</li>
           <li><strong>Videos in privacy-enhanced mode.</strong> Lesson videos come only from approved hosts, and YouTube videos use its privacy-enhanced mode, which doesn't set tracking cookies until you press play.</li>
+          <li><strong>Sections don't collect anything.</strong> Joining your instructor's section changes which lessons and videos you see. Your progress still stays on your device; your instructor grades the files you hand in.</li>
           <li><strong>Practice files are made up.</strong> The lessons follow a fictional company, and remind you to keep real names, grades and account numbers out of your projects.</li>
         </ul>
-        <p class="note">In a class section (planned), the results your instructor needs will go only to your instructor. Until then, every course runs in practice mode: nothing leaves your device.</p>
-      </div>
-    </section>
-
-    <!-- ============================ INSTRUCTORS ============================ -->
-    <section id="instructors" aria-labelledby="inst-title">
-      <div class="wrap">
-        <h2 id="inst-title">For instructors and staff</h2>
-        <div class="two">
-          <div class="panel">
-            <h3>Plan with the course maps</h3>
-            <p>Each map shows the course outcomes, outline topics, weekly objectives, every drill and its exam skills, the projects with their rubrics, and how each outcome is assessed.</p>
-            <ul>
-              <li><a href="word/word-course-map.html">Word course map</a></li>
-              <li><a href="excel/excel-course-map.html">Excel course map</a></li>
-              <li><a href="powerpoint/powerpoint-course-map.html">PowerPoint course map</a></li>
-            </ul>
-          </div>
-          <div class="panel">
-            <h3>Adapt the lessons</h3>
-            <p>Lessons are plain Markdown files with a few simple blocks for drills, quizzes and checks. Edit them in the <a href="word/tools/editor.html">lesson editor</a>, which checks your changes and previews them as students will see them. Changes go live as soon as the file is uploaded, with nothing for students to reinstall.</p>
-            <p class="muted">Each course also has a checker test page (for example <a href="powerpoint/tools/check-tests.html">PowerPoint checker tests</a>) that runs every check against the answer keys.</p>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -428,57 +822,93 @@
     <section class="band" id="open" aria-labelledby="open-title">
       <div class="wrap">
         <h2 id="open-title">Free and open, for any college</h2>
-        <p class="lead">Office Trainer costs nothing for students or schools. Use it as it is, or copy it and make it your own.</p>
-        <ul class="ticks">
-          <li><strong>Code:</strong> MIT License. Host your own copy, change it, share it.</li>
-          <li><strong>Lessons:</strong> Creative Commons Attribution 4.0 (CC BY 4.0). Reuse and adapt them with credit to Finger Lakes Community College.</li>
-          <li><strong>Fonts:</strong> Comfortaa and Atkinson Hyperlegible, under the SIL Open Font License.</li>
-          <li><strong>Runs anywhere static:</strong> it's plain files, so any web host works (GitHub Pages, a campus web server). There's no database and nothing to maintain on a server.</li>
-        </ul>
-        <div class="btn-row">
-          <a class="btn" href="https://github.com/corydave/office-trainer" rel="noopener noreferrer">Get the source</a>
+        <p class="lead">You don't need to run anything: the hosted site at learnoffice.org is for everyone. And because it's open source, you can see exactly how it works, or make your own copy.</p>
+        <div class="two">
+          <ul class="ticks">
+            <li><strong>Hosted for you:</strong> served from GitHub through a Cloudflare Worker at learnoffice.org. Plain files: no database, no accounts, nothing that stores student data.</li>
+            <li><strong>Code:</strong> MIT License. Host your own copy, change it, share it.</li>
+            <li><strong>Lessons:</strong> Creative Commons Attribution 4.0 (CC BY 4.0). Reuse and adapt them with credit to Finger Lakes Community College.</li>
+          </ul>
+          <ul class="ticks">
+            <li><strong>Fonts:</strong> Comfortaa and Atkinson Hyperlegible, under the SIL Open Font License.</li>
+            <li><strong>Want your own copy?</strong> Fork the repository and turn on GitHub Pages (or any static web host). That's the whole setup.</li>
+            <li><strong>Improve it with us:</strong> report a problem or suggest a fix on GitHub.</li>
+          </ul>
         </div>
+        <div class="btn-row">
+          <a class="btn" href="https://github.com/corydave/office-trainer" rel="noopener noreferrer">See the code on GitHub</a>
+          <a class="btn secondary" href="https://github.com/corydave/office-trainer/issues" rel="noopener noreferrer">Report a problem</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ FAQ ============================ -->
+    <section id="faq" aria-labelledby="faq-title">
+      <div class="wrap faq">
+        <h2 id="faq-title">Questions</h2>
+        <details><summary>Is it really free?</summary><p>Yes. There's no paid version, no access code and nothing to buy, for students or schools. Finger Lakes Community College built it to replace a paid trainer, and shares it with everyone.</p></details>
+        <details><summary>Do students need an account?</summary><p>No. Students open a course and start. Their progress is saved in their own browser, and they can save a copy as a file to move it to another computer.</p></details>
+        <details><summary>Does my school have to install or host anything?</summary><p>No. The courses run from learnoffice.org in any browser. Installing the add-in (yourself, or for everyone through the Microsoft 365 admin center) is optional: it puts the trainer right inside Word, Excel and PowerPoint.</p></details>
+        <details><summary>Does it work on a Chromebook, a Mac, or a phone?</summary><p>Yes. The add-in works in the Office web apps (so on a Chromebook) and in desktop Office on Windows and Mac. In a browser, students can do the work in any version of the app, even on a phone, and upload the saved file to check it.</p></details>
+        <details><summary>How do grades get into Brightspace?</summary><p>Students hand in their files as usual. The grader checks the whole batch in your browser and makes a grade file to import into Brightspace and feedback files to attach to each submission. Nothing is sent to anyone else.</p></details>
+        <details><summary>Will it prepare students for the Microsoft Office Specialist exams?</summary><p>Every skill on the MO-110 (Word), MO-210 (Excel) and MO-310 (PowerPoint) Associate exam outlines is practiced in a drill, and each course ends with a timed practice exam. Office Trainer isn't made or endorsed by Microsoft.</p></details>
       </div>
     </section>
   </main>
 
   <footer>
     <div class="wrap">
-      <p><strong>Office Trainer</strong> · Finger Lakes Community College, Computing Sciences</p>
-      <p>Microsoft, Word, Excel and PowerPoint are trademarks of the Microsoft group of companies. Office Trainer is an independent teaching project and is not made, sponsored or endorsed by Microsoft.</p>
+      <div class="foot-grid">
+        <div>
+          <h2>Courses</h2>
+          <ul><li><a href="taskpane.html?app=word">Word</a></li><li><a href="taskpane.html?app=excel">Excel</a></li><li><a href="taskpane.html?app=powerpoint">PowerPoint</a></li><li><a href="badges.html">My badges</a></li></ul>
+        </div>
+        <div>
+          <h2>Instructors</h2>
+          <ul><li><a href="instructor/sections.html">Section builder</a></li><li><a href="instructor/grader.html">Grader</a></li><li><a href="word/tools/editor.html">Lesson editor</a></li></ul>
+        </div>
+        <div>
+          <h2>Project</h2>
+          <ul><li><a href="https://github.com/corydave/office-trainer" rel="noopener noreferrer">Source code on GitHub</a></li><li><a href="#privacy">Privacy</a></li><li><a href="#install">Install the add-in</a></li></ul>
+        </div>
+      </div>
+      <p><strong>Office Trainer</strong> · Finger Lakes Community College, Computing Sciences · learnoffice.org</p>
+      <p>Microsoft, Word, Excel and PowerPoint are trademarks of the Microsoft group of companies. Office Trainer is an independent teaching project and is not made, sponsored or endorsed by Microsoft. The app window at the top of this page is an illustration.</p>
     </div>
   </footer>
-
   <script>
-    // LIGHT / DARK MODE BUTTON
-    // The page follows the system setting on its own. This button lets a
-    // visitor pick the other one; the choice is remembered in this browser
-    // only (localStorage), and forgetting it is never an error.
+    // =================================================================
+    // THE PAGE'S ONLY SCRIPT: the light/dark button, the tour slider and
+    // the standards tabs. Without it everything still shows (the slides
+    // and the three standards panels one after another).
+    // =================================================================
     (function () {
       "use strict";
-      var KEY = "officeTrainer.siteTheme";
       var root = document.documentElement;
+      root.classList.add("js"); // styles that only make sense once the script runs
+
+      // ---------- LIGHT / DARK MODE BUTTON ----------
+      // The page follows the system setting on its own. This button lets a
+      // visitor pick the other one; the choice is remembered in this browser
+      // only (localStorage), and forgetting it is never an error.
+      var KEY = "officeTrainer.siteTheme";
       var btn = document.getElementById("theme-btn");
       var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
-
-      /** Is the page dark right now? (the visitor's choice, else the system's) */
       function isDark() {
         var chosen = root.getAttribute("data-theme");
         if (chosen) return chosen === "dark";
         return !!(systemDark && systemDark.matches);
       }
-      /** Make the button say what it will switch to, and whether dark is on. */
+      // The button is a switch: it always says "Dark mode", and aria-pressed (and the check mark) says whether it's on.
       function label() {
         var dark = isDark();
-        btn.textContent = dark ? "Light mode" : "Dark mode";
+        btn.textContent = (dark ? "\u2713 " : "") + "Dark mode";
         btn.setAttribute("aria-pressed", String(dark));
       }
-
       try {
         var saved = localStorage.getItem(KEY);
         if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
       } catch (e) { /* storage blocked: follow the system */ }
-
       btn.hidden = false;
       label();
       btn.addEventListener("click", function () {
@@ -487,8 +917,53 @@
         try { localStorage.setItem(KEY, next); } catch (e) { /* not important */ }
         label();
       });
-      // If the system switches while the page is open and the visitor hasn't chosen, update the label.
       if (systemDark && systemDark.addEventListener) systemDark.addEventListener("change", label);
+
+      // ---------- TABS (used by the tour and the standards) ----------
+      // A row of tab buttons, each showing one panel. The usual keyboard
+      // pattern: Left and Right arrows (and Home, End) move between tabs.
+      // onChange(index) runs after a tab is chosen.
+      function makeTabs(list, onChange) {
+        var tabs = Array.prototype.slice.call(list.querySelectorAll('[role="tab"]'));
+        function select(i, focus) {
+          tabs.forEach(function (t, j) {
+            var on = i === j;
+            t.setAttribute("aria-selected", String(on));
+            t.tabIndex = on ? 0 : -1;
+            document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+          });
+          if (focus) tabs[i].focus();
+          if (onChange) onChange(i);
+        }
+        tabs.forEach(function (t, i) {
+          t.addEventListener("click", function () { select(i, false); });
+          t.addEventListener("keydown", function (e) {
+            var n = tabs.length, to = null;
+            if (e.key === "ArrowRight") to = (i + 1) % n;
+            else if (e.key === "ArrowLeft") to = (i - 1 + n) % n;
+            else if (e.key === "Home") to = 0;
+            else if (e.key === "End") to = n - 1;
+            if (to !== null) { e.preventDefault(); select(to, true); }
+          });
+        });
+        list.hidden = false;
+        select(0, false);
+        return { select: select, count: tabs.length, current: function () { return tabs.findIndex(function (t) { return t.getAttribute("aria-selected") === "true"; }); } };
+      }
+
+      // The tour: tabs, plus Previous and Next buttons. It never moves by itself.
+      var tourList = document.querySelector("#tour-slider [role=tablist]");
+      if (tourList) {
+        var tour = makeTabs(tourList);
+        var nav = document.querySelector("#tour-slider .tour-nav");
+        nav.hidden = false;
+        document.getElementById("tour-prev").addEventListener("click", function () { tour.select((tour.current() - 1 + tour.count) % tour.count, false); });
+        document.getElementById("tour-next").addEventListener("click", function () { tour.select((tour.current() + 1) % tour.count, false); });
+      }
+
+      // The standards: one tab per course.
+      var stdList = document.querySelector("#std-tabs [role=tablist]");
+      if (stdList) makeTabs(stdList);
     })();
   </script>
 </body>

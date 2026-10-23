@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    OFFICE TRAINER - My badges (badges.html)
+    =====================================================================
+    DON'T EDIT badges.html DIRECTLY. It's built from this file by
+    word/tools/build-site-pages.py, which copies in the shared styles
+    (src/site.css), the shared helpers (src/site.js) and TrainerMD, and
+    writes the security fingerprints into the policy below.
+
+    WHAT IT DOES
+    Shows every badge and certificate a learner has earned, in all three
+    courses, on a full page they can explore, print and save. The panel
+    can't share its storage with a browser tab, so it opens this page as
+      badges.html#r=<the badges, packed>
+    The part after "#" never leaves the browser (it isn't sent to the web
+    server). Learners can also open a record file they saved.
+    The badge names, lessons and exam skills come from the course files on
+    this site, so the page always matches the courses.
+
+    SECURITY
+    - Content Security Policy: only this page's own script and style (by
+      fingerprint), fonts and images from this site, and fetches from this
+      site (the course files). Nothing the page reads can be sent anywhere.
+    - Everything from the record is checked (ids, numbers and dates must
+      look right; names are cut to 60 characters) and shown as plain text.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="__CSP__">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Every Office Trainer badge and certificate you've earned, on one page.">
+  <title>My badges · Office Trainer</title>
+  <link rel="icon" href="assets/icon-32.png" sizes="32x32">
+  <style>
+/*__SITE_CSS__*/
+
+/* ---------- This page ---------- */
+.summary-row { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; }
+.meter { width: 100%; max-width: 420px; height: 14px; accent-color: var(--brand); }
+.cert-list { list-style: none; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.cert-list li { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface); }
+.cert-list b { display: block; }
+.course-cert li { border: 2px solid var(--good); background: var(--good-soft); }
+details.certs { margin: 0 0 20px; }
+@media print { details.certs > :not(summary) { display: block; } }
+.badge-grid { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); margin: 0 0 24px; }
+.badge-card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; background: var(--bg); }
+.badge-card[data-earned="true"] { border-color: var(--good); }
+.badge-card[data-earned="false"] .tm-badge-art { filter: grayscale(1); opacity: .45; }
+.badge-card .status { font-size: .9rem; }
+.badge-card .status.ok::before { content: "✓ "; }
+.badge-card details { width: 100%; text-align: left; font-size: .9rem; margin: 4px 0 0; }
+.badge-card dl { margin: 6px 0 0; }
+.badge-card dt { font-weight: 700; }
+.badge-card dd { margin: 0 0 6px; }
+.week-head { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.week-swatch { width: 14px; height: 14px; border-radius: 4px; flex: 0 0 auto; }
+.week-1 { background: #0046ad; } .week-2 { background: #305305; } .week-3 { background: #a23108; } .week-4 { background: #6b21a8; } .week-5 { background: #374151; }
+.learner { font-size: 1.15rem; }
+.empty { text-align: center; padding: 32px 16px; }
+.drop-note { margin-top: 10px; }
+@media print {
+  .badge-card details { display: none; }
+  .badge-grid { grid-template-columns: repeat(4, 1fr); }
+  [role="tabpanel"][hidden] { display: block !important; }
+  .tabs { display: none; }
+}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="site-head">
+    <div class="wrap">
+      <a class="brand" href="index.html"><img src="assets/icon-80.png" alt="" width="32" height="32"> Office Trainer</a>
+      <nav class="head-links" aria-label="Site">
+        <a href="index.html">Home</a>
+        <button type="button" class="theme-btn" id="theme-btn" aria-pressed="false" hidden>Dark mode</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <h1>My badges</h1>
+    <p class="lead">Every badge and certificate you've earned in Office Trainer, in one place.</p>
+    <div id="status" role="status" aria-live="polite"></div>
+    <div id="record"></div>
+
+    <section class="card band no-print" aria-labelledby="keep-title">
+      <h2 id="keep-title">Keep or add to this record</h2>
+      <p class="small">This page shows what's in its address or in the files you open here. It doesn't keep anything after you close it, so save a copy if you want one. You can open records from more than one computer to see them together.</p>
+      <div class="btn-row">
+        <button type="button" class="btn slim" id="save-btn" disabled>Save my badges (.json)</button>
+        <button type="button" class="btn slim secondary" id="open-btn">Open a saved record</button>
+        <button type="button" class="btn slim secondary" id="print-btn">Print</button>
+        <input type="file" id="open-file" accept=".json,application/json" multiple class="sr-only" tabindex="-1" aria-label="Open a saved record">
+      </div>
+      <p class="small muted drop-note" id="drop-note">You can also drop a record file onto this page.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><strong>Practice record.</strong> Made on the learner's own device. It isn't kept or checked by the college, so it shows practice, not a grade.</p>
+      <p>Office Trainer · Finger Lakes Community College, Computing Sciences</p>
+    </div>
+  </footer>
+  <div id="announce" class="sr-only" aria-live="polite"></div>
+
+  <script>
+/*__TRAINER_MD__*/
+/*__SITE_JS__*/
+/* =====================================================================
+   THIS PAGE: My badges
+   ===================================================================== */
+(function () {
+  "use strict";
+  const TM = window.TrainerMD;
+  const { APPS, el, add, fill, badgeArt, announce, download, today, longDate, loadCourse } = window.Site;
+  const $ = (id) => document.getElementById(id);
+
+  // ---------------------------------------------------------------
+  // 1. THE RECORD: what this page is showing
+  // ---------------------------------------------------------------
+  // record = { name, courses: { word: { badges: { "D1.03": { id, earnedAt } }, certs: { "w1-...": { id, issuedAt } } } } }
+  let record = { name: "", courses: {} };
+
+  // What a valid piece looks like. Anything else is dropped.
+  const ACTIVITY = /^[A-Za-z0-9][A-Za-z0-9.-]{0,39}$/;   // D1.03, SC2, P3
+  const STOP = /^[a-z0-9][a-z0-9-]{0,59}$/;              // w1-meet-word, course-complete
+  const NUMBER = /^[A-Z0-9][A-Z0-9-]{3,39}$/;            // OTB-D103-2610-K7QM-9X3DP
+  const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+  /** Add one badge or certificate to the record, keeping the earlier date if it's already there. */
+  function put(map, key, id, date, extra) {
+    const old = map[key];
+    if (!old || (date && date < (old.date || "9999"))) map[key] = Object.assign({ id: id, date: date }, extra || {});
+  }
+  /** Is this one of the three courses? (Its own name, not an inherited one such as "constructor".) */
+  const isApp = (id) => typeof id === "string" && Object.prototype.hasOwnProperty.call(APPS, id);
+
+  /**
+   * Merge something read from the address or a file into the record.
+   * Understands three shapes:
+   *   "otb1"                         the panel's packed hand-off (in the address)
+   *   "office-trainer-badges/1"      a file saved from this page
+   *   "office-trainer-progress/1"    a record saved in the panel (Save my record), which names its course
+   * Returns how many badges it added.
+   */
+  function mergeRecord(raw) {
+    if (!raw || typeof raw !== "object") throw new Error("not a record");
+    const lists = {}; // app id -> { b: [[activity, number, date]], k: [[stop, number, date]] }
+    let name = "";
+    if (raw.f === "otb1" && raw.c && typeof raw.c === "object") {
+      name = raw.n;
+      for (const [app, c] of Object.entries(raw.c)) lists[app] = { b: Array.isArray(c.b) ? c.b : [], k: Array.isArray(c.k) ? c.k : [] };
+    } else if (raw.format === "office-trainer-badges/1" && raw.courses && typeof raw.courses === "object") {
+      name = raw.learner && raw.learner.name;
+      for (const [app, c] of Object.entries(raw.courses)) {
+        lists[app] = {
+          b: (Array.isArray(c.badges) ? c.badges : []).map((x) => [x && x.activity, x && x.id, x && x.earnedAt]),
+          k: (Array.isArray(c.certificates) ? c.certificates : []).map((x) => [x && x.stop, x && x.id, x && x.issuedAt, x && x.section && x.section.title, x && x.section && x.section.skip]),
+        };
+      }
+    } else if (raw.format === "office-trainer-progress/1") {
+      if (!isApp(raw.app)) throw new Error("This record was saved by an older version of the panel, which didn't say which course it's from. Open the panel again and use Open my badges page.");
+      name = raw.settings && raw.settings.name;
+      const b = raw.badges && typeof raw.badges === "object" ? Object.values(raw.badges) : [];
+      const k = raw.certificates && typeof raw.certificates === "object" ? Object.entries(raw.certificates) : [];
+      lists[raw.app] = { b: b.map((x) => [x && x.activity, x && x.id, x && x.earnedAt]), k: k.map(([s, c]) => [s, c && c.id, c && c.issuedAt, c && c.section && c.section.title, c && c.section && c.section.skip]) };
+    } else throw new Error("not a record");
+
+    let added = 0;
+    for (const [app, l] of Object.entries(lists)) {
+      if (!isApp(app)) continue;
+      const course = record.courses[app] || (record.courses[app] = { badges: Object.create(null), certs: Object.create(null) });
+      for (const item of l.b.slice(0, 500)) {
+        if (!Array.isArray(item)) continue;
+        const [a, n, d] = item.map((v) => String(v === undefined || v === null ? "" : v));
+        if (!ACTIVITY.test(a) || !NUMBER.test(n)) continue;
+        if (!course.badges[a]) added++;
+        put(course.badges, a, n, DATE.test(d) ? d : "");
+      }
+      for (const item of l.k.slice(0, 200)) {
+        if (!Array.isArray(item)) continue;
+        const [s, n, d] = item.slice(0, 3).map((v) => String(v === undefined || v === null ? "" : v));
+        if (!STOP.test(s) || !NUMBER.test(n)) continue;
+        // A course certificate earned in a section: the section's name and the stops it left out.
+        const skip = Array.isArray(item[4]) ? item[4].slice(0, 200).map(String).filter((x) => TM.STOP_ID.test(x)) : [];
+        const extra = item[3] && skip.length ? { section: TM.cleanText(item[3], 80), skip: skip } : null;
+        put(course.certs, s, n, DATE.test(d) ? d : "", extra);
+      }
+    }
+    const clean = TM.cleanText(name, 60);
+    if (clean && !record.name) record.name = clean;
+    return added;
+  }
+
+  /** base64url to bytes. */
+  function fromBase64Url(b64) {
+    const binary = atob(b64.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64.length + 3) % 4));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  }
+
+  /**
+   * Undo the panel's squeezing (deflate), a piece at a time, and stop as soon
+   * as the result passes max bytes: a made-up address can't make the page
+   * unpack hundreds of megabytes.
+   */
+  async function unsqueeze(bytes, max) {
+    const reader = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw")).getReader();
+    const parts = [];
+    let total = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.length;
+      if (total > max) { reader.cancel(); throw new Error("too big"); }
+      parts.push(value);
+    }
+    const out = new Uint8Array(total);
+    let at = 0;
+    for (const p of parts) { out.set(p, at); at += p.length; }
+    return out;
+  }
+
+  /** Read the record in the address: #r=z.<squeezed> or #r=j.<plain>. */
+  async function readAddress() {
+    const m = /^#r=([zj])\.([A-Za-z0-9_-]{1,200000})$/.exec(location.hash);
+    if (!m) return false;
+    let bytes = fromBase64Url(m[2]);
+    if (m[1] === "z") {
+      if (typeof DecompressionStream !== "function") throw new Error("This browser is too old to open the badges. Try a current Chrome, Edge, Firefox or Safari.");
+      bytes = await unsqueeze(bytes, 2000000);
+    }
+    if (bytes.length > 2000000) throw new Error("too big");
+    mergeRecord(JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)));
+    return true;
+  }
+
+  // ---------------------------------------------------------------
+  // 2. DRAWING THE PAGE
+  // ---------------------------------------------------------------
+  const courses = {}; // app id -> the course, from Site.loadCourse
+  let currentTab = null;
+
+  async function draw() {
+    const box = $("record");
+    const apps = Object.keys(APPS).filter((id) => record.courses[id]);
+    $("save-btn").disabled = !apps.length;
+    if (!apps.length) {
+      fill(box, el("div", { class: "card empty" },
+        el("h2", {}, "No badges to show yet"),
+        el("p", {}, "Open this page from Office Trainer: on the panel's ", el("b", {}, "Badges"), " screen, select ", el("b", {}, "Open my badges page"), "."),
+        el("p", { class: "small muted" }, "Or open a record file you saved before.")));
+      return;
+    }
+    fill($("status"), "Loading the course details…");
+    const failed = [];
+    await Promise.all(apps.map(async (id) => {
+      try { courses[id] = await loadCourse(id, ""); } catch (e) { failed.push(APPS[id].name); }
+    }));
+    fill($("status"), failed.length ? el("p", { class: "notice warn" }, "Couldn't load the " + failed.join(" and ") + " course details, so those badges show only their numbers. Check your connection and reload.") : null);
+
+    const tabs = el("div", { class: "tabs no-print", role: "tablist", "aria-label": "Courses" });
+    const panels = [];
+    if (!currentTab || !apps.includes(currentTab)) currentTab = apps[0];
+    apps.forEach((id) => {
+      const tab = el("button", { type: "button", role: "tab", id: "tab-" + id, "aria-controls": "panel-" + id,
+        "aria-selected": String(id === currentTab), tabindex: id === currentTab ? "0" : "-1" }, APPS[id].name);
+      tab.addEventListener("click", () => selectTab(id));
+      tab.addEventListener("keydown", (e) => {
+        // Arrow keys move between tabs (the usual pattern for a tab list).
+        const i = apps.indexOf(id);
+        const next = e.key === "ArrowRight" ? apps[(i + 1) % apps.length] : e.key === "ArrowLeft" ? apps[(i - 1 + apps.length) % apps.length]
+          : e.key === "Home" ? apps[0] : e.key === "End" ? apps[apps.length - 1] : null;
+        if (next) { e.preventDefault(); selectTab(next); $("tab-" + next).focus(); }
+      });
+      add(tabs, tab);
+      panels.push(drawCourse(id, apps.length > 1));
+    });
+    fill(box,
+      el("p", { class: "learner" }, record.name ? ["Practice record for ", el("b", {}, record.name)] : "Practice record", el("span", { class: "muted small" }, " · shown " + longDate(today()))),
+      apps.length > 1 ? tabs : null, panels);
+  }
+
+  function selectTab(id) {
+    currentTab = id;
+    for (const t of document.querySelectorAll('[role="tab"]')) {
+      const on = t.id === "tab-" + id;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+    }
+    for (const p of document.querySelectorAll('[role="tabpanel"]')) p.hidden = p.id !== "panel-" + id;
+  }
+
+  /** One course: the summary, the certificates, then the badges week by week. */
+  function drawCourse(id, tabbed) {
+    const mine = record.courses[id];
+    const course = courses[id];
+    // With more than one course, each is a tab panel; with one, it's just a section.
+    const panel = tabbed
+      ? el("section", { role: "tabpanel", id: "panel-" + id, "aria-labelledby": "tab-" + id, tabindex: "0", hidden: id !== currentTab })
+      : el("section", { id: "panel-" + id, "aria-label": APPS[id].name + " course" });
+    const heading = el("h2", {}, APPS[id].fullName);
+    if (!course) {
+      // The course files didn't load: list the numbers we have.
+      add(panel, heading, el("ul", {}, Object.entries(mine.badges).map(([a, b]) => el("li", {}, a + ": badge ", el("span", { class: "mono" }, b.id)))));
+      return panel;
+    }
+    const stations = course.stations;
+    const acts = stations.flatMap((s) => s.activities.map((a) => ({ a: a, st: s })));
+    const earnedCount = acts.filter((x) => mine.badges[x.a.id]).length;
+    const certStations = stations.filter((s) => s.certificate && (s.activities.length || s.kind === "course"));
+    const lessonCerts = certStations.filter((s) => s.kind !== "course");
+    const finale = stations.find((s) => s.kind === "course");
+
+    add(panel, heading,
+      el("div", { class: "card band" },
+        el("div", { class: "summary-row" },
+          el("p", {}, el("b", {}, earnedCount + " of " + acts.length), " badges"),
+          el("p", {}, el("b", {}, lessonCerts.filter((s) => mine.certs[s.sid]).length + " of " + lessonCerts.length), " lesson certificates"),
+          finale ? el("p", {}, mine.certs[finale.sid] ? el("span", { class: "ok" }, "✓ Course certificate earned") : el("span", { class: "muted" }, "Course certificate: not yet")) : null),
+        el("label", { for: "meter-" + id, class: "sr-only" }, "Badges earned in " + APPS[id].name),
+        el("progress", { id: "meter-" + id, class: "meter", max: Math.max(acts.length, 1), value: earnedCount })));
+
+    // Certificates: the course certificate stands out; lesson certificates fold away so the badges stay in view.
+    const certItem = (s) => el("li", {},
+      el("b", {}, s.kind === "course" ? "Course certificate: " + APPS[id].fullName : s.title),
+      el("span", { class: "small" }, "No. ", el("span", { class: "mono" }, mine.certs[s.sid].id), mine.certs[s.sid].date ? " · " + longDate(mine.certs[s.sid].date) : ""),
+      el("div", { class: "no-print" }, el("a", { href: certificateLink(id, s), target: "_blank", rel: "noopener" }, "View and print", el("span", { class: "sr-only" }, " the " + s.title + " certificate (opens in a new tab)"))));
+    const earnedLessonCerts = lessonCerts.filter((s) => mine.certs[s.sid]);
+    if (finale && mine.certs[finale.sid]) add(panel, el("ul", { class: "cert-list course-cert" }, certItem(finale)));
+    if (!earnedLessonCerts.length) add(panel, el("p", { class: "small muted" }, "Finish every badge in a lesson to get its certificate."));
+    else add(panel, el("details", { class: "certs" }, el("summary", {}, "Lesson certificates (" + earnedLessonCerts.length + ")"),
+      el("ul", { class: "cert-list" }, earnedLessonCerts.map(certItem))));
+
+    // Which badges to show.
+    const filterName = "show-" + id;
+    const filters = el("fieldset", { class: "no-print" }, el("legend", {}, "Show"),
+      el("div", { class: "choices" }, [["all", "All badges"], ["earned", "Earned"], ["todo", "Still to earn"]].map(([v, label], i) =>
+        el("label", { class: "choice" }, el("input", { type: "radio", name: filterName, value: v, checked: i === 0 }), label))));
+    add(panel, el("h3", {}, "Badges"), filters);
+    const weeksBox = el("div");
+    add(panel, weeksBox);
+    const drawWeeks = function (show) {
+      fill(weeksBox, course.map.weeks.map((w) => {
+        const list = w.stations.flatMap((s) => s.activities.map((a) => ({ a: a, st: s })))
+          .filter((x) => show === "all" || (show === "earned") === !!mine.badges[x.a.id]);
+        if (!list.length) return null;
+        return [el("h4", { class: "week-head" }, el("span", { class: "week-swatch week-" + w.n, "aria-hidden": "true" }), "Week " + w.n + ": " + w.title),
+          el("ul", { class: "badge-grid" }, list.map((x) => drawBadge(id, x.a, x.st, mine.badges[x.a.id], w.n)))];
+      }));
+      // Badges whose activity isn't in the course any more (the course changed after they were earned).
+      const known = new Set(acts.map((x) => x.a.id));
+      const others = Object.entries(mine.badges).filter(([a]) => !known.has(a));
+      if (others.length && show !== "todo") add(weeksBox, el("h4", {}, "Other badges"),
+        el("ul", {}, others.map(([a, b]) => el("li", {}, a + " · ", el("span", { class: "mono" }, b.id), b.date ? " · " + longDate(b.date) : ""))));
+    };
+    filters.addEventListener("change", (e) => { if (e.target.name === filterName) { drawWeeks(e.target.value); announce("Showing " + e.target.parentNode.textContent.toLowerCase() + "."); } });
+    drawWeeks("all");
+    return panel;
+  }
+
+  /** One badge card. Details (number, lesson, how it's assessed, exam skills) open on request. */
+  function drawBadge(appId, a, st, mine, week) {
+    const course = courses[appId];
+    const mos = mosFor(appId, a.id);
+    const assessed = a.assess.map((k) => TM.ASSESS_LABELS[k] ? TM.ASSESS_LABELS[k].practice : k).join(", ");
+    return el("li", { class: "badge-card", "data-earned": String(!!mine) },
+      badgeArt({ week: week, kind: a.badge.kind, code: a.id, label: a.badge.name + " badge" + (mine ? ", earned" : ", not earned yet"), size: 72 }),
+      el("b", {}, a.badge.name),
+      el("span", { class: "status" + (mine ? " ok" : " muted") }, mine ? "Earned" + (mine.date ? " " + longDate(mine.date) : "") : "Not earned yet"),
+      el("details", {}, el("summary", {}, "Details", el("span", { class: "sr-only" }, " for " + a.badge.name)),
+        el("dl", {},
+          mine ? [el("dt", {}, "Badge number"), el("dd", { class: "mono" }, mine.id)] : null,
+          el("dt", {}, "Earned in"), el("dd", {}, st.title + " (" + a.id + ")"),
+          el("dt", {}, "How it's checked"), el("dd", {}, assessed || "Practice"),
+          mos.length ? [el("dt", {}, APPS[appId].exam + " skills"), el("dd", {}, mos.map((m) => m + (course.map.mosNames[m] ? " " + course.map.mosNames[m] : "")).join("; "))] : null)));
+  }
+
+  /** The exam skills an activity practices (from its block in the lesson file). */
+  function mosFor(appId, activityId) {
+    const course = courses[appId];
+    for (const doc of Object.values(course.docs)) {
+      const b = doc.blocks.find((x) => x.kind === "directive" && x.arg === activityId && ["drill", "skillcheck", "rubric"].includes(x.name));
+      if (b) return TM.splitListPublic(b.header.mos);
+    }
+    return [];
+  }
+
+  /**
+   * A link to the course's certificate page with this certificate's record
+   * after "#" (the same format the panel uses: office-trainer-certificate/1).
+   */
+  function certificateLink(appId, st) {
+    const course = courses[appId];
+    const mine = record.courses[appId];
+    const isCourse = st.kind === "course";
+    const cert = mine.certs[st.sid];
+    // Earned in a section that left stops out: only the stops that counted, and the section's name.
+    const skip = isCourse && cert.skip ? cert.skip : [];
+    const counted = course.stations.filter((s) => s.kind !== "course" && !(s.docId && skip.includes(s.docId)));
+    const acts = isCourse ? counted.flatMap((s) => s.activities) : st.activities;
+    const union = (key) => Array.from(new Set(counted.flatMap((s) => s[key] || []))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const badges = acts.filter((a) => mine.badges[a.id]).map((a) => ({
+      id: mine.badges[a.id].id, activity: a.id, name: a.badge.name, kind: a.badge.kind, week: a.badge.week || st.week,
+      assessedBy: a.assess, earnedAt: mine.badges[a.id].date,
+    }));
+    const rec = {
+      format: "office-trainer-certificate/1", id: cert.id, issuedAt: cert.date || today(),
+      issuer: course.config.issuer || course.config.college || "", mode: "practice",
+      learner: { name: record.name || "Learner" }, section: null,
+      achievement: { kind: isCourse ? "course" : "lesson", id: st.sid, title: skip.length ? st.title + ": " + cert.section : st.title, week: isCourse ? null : st.week },
+      badges: badges, outcomes: skip.length ? union("clos") : st.clos, mos: skip.length ? union("mos") : st.mos,
+    };
+    return APPS[appId].folder + "certificate.html#record=" + TM.toBase64Url(JSON.stringify(rec));
+  }
+
+  // ---------------------------------------------------------------
+  // 3. SAVING AND OPENING
+  // ---------------------------------------------------------------
+  function saveRecord() {
+    const out = { format: "office-trainer-badges/1", savedAt: today(), learner: { name: record.name }, courses: {} };
+    for (const [app, c] of Object.entries(record.courses)) {
+      out.courses[app] = {
+        badges: Object.entries(c.badges).map(([a, b]) => ({ activity: a, id: b.id, earnedAt: b.date })),
+        certificates: Object.entries(c.certs).map(([s, k]) => Object.assign({ stop: s, id: k.id, issuedAt: k.date }, k.skip ? { section: { title: k.section, skip: k.skip } } : {})),
+      };
+    }
+    download(JSON.stringify(out, null, 2), "office-trainer-badges-" + today() + ".json", "application/json");
+    announce("Saved to your downloads.");
+  }
+
+  async function openFiles(files) {
+    let added = 0, bad = 0;
+    for (const f of Array.from(files).slice(0, 10)) {
+      try {
+        if (f.size > 2 * 1024 * 1024) throw new Error("too big");
+        added += mergeRecord(JSON.parse(await f.text()));
+      } catch (e) { bad++; }
+    }
+    await draw();
+    const msg = (added ? "Added " + added + " badge" + (added === 1 ? "" : "s") + "." : "No new badges in that file.") +
+      (bad ? " " + bad + " file" + (bad === 1 ? " wasn't" : "s weren't") + " an Office Trainer record." : "");
+    fill($("status"), el("p", { class: bad ? "notice warn" : "notice good" }, msg));
+    announce(msg);
+  }
+
+  $("save-btn").addEventListener("click", saveRecord);
+  $("print-btn").addEventListener("click", () => window.print());
+  $("open-btn").addEventListener("click", () => $("open-file").click());
+  $("open-file").addEventListener("change", (e) => { const files = e.target.files; if (files.length) openFiles(files); e.target.value = ""; });
+  // Drop a file anywhere on the page.
+  document.addEventListener("dragover", (e) => { e.preventDefault(); });
+  document.addEventListener("drop", (e) => { e.preventDefault(); if (e.dataTransfer && e.dataTransfer.files.length) openFiles(e.dataTransfer.files); });
+
+  // ---------------------------------------------------------------
+  // 4. START: read the address, then draw
+  // ---------------------------------------------------------------
+  (async function start() {
+    try { await readAddress(); }
+    catch (e) { fill($("status"), el("p", { class: "notice warn" }, "The badges in this page's address couldn't be read. " + (/browser/.test(e.message) ? e.message : "Open the page again from the panel, or open a saved record."))); }
+    await draw();
+  })();
+})();
+  </script>
+</body>
+</html>

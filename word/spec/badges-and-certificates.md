@@ -1,4 +1,4 @@
-# Badges and certificates (v0.1)
+# Badges and certificates (v0.2)
 
 Learners earn a **badge** for every drill, skill check and project, and a **certificate** at the end of every lesson, plus one for the whole course. This file defines what they look like, the record behind them, and how far that record can be trusted.
 
@@ -45,6 +45,24 @@ Every certificate is drawn from a small JSON record. The add-in creates it when 
 ```
 
 Only the learner's name is personal, and in practice mode the learner types it themselves. The record holds no email address, student ID or scores.
+
+### 3a. The badges page (`badges.html`)
+
+**Open my badges page** (on the panel's Badges screen and the course home) opens `badges.html` in the learner's browser with every course's badges and certificates from this device. The panel's storage can't be read by a browser tab, so the panel packs a short record into the part of the address after `#`:
+
+```
+badges.html#r=z.<deflate-raw, base64url>     (or #r=j.<plain base64url> where the browser can't squeeze)
+{ "f": "otb1", "n": "<name>", "d": "<date>",
+  "c": { "powerpoint": { "b": [["D1.01", "OTB-D101-...", "2026-10-22"], ...],
+                          "k": [["w1-meet-powerpoint", "OT-PP1L1-...", "2026-10-22"],
+                                ["course-complete", "OT-PPT-...", "2026-10-23", "<section title>", ["PP5-L2"]]] } } }
+```
+
+- Only activity ids, numbers and dates travel, plus the name. Badge names, lessons, how each was checked and the exam skills come from the course files on the site, so the page always matches the courses. A full PowerPoint record (54 badges, 21 certificates) is about 2,000 characters.
+- The page checks every piece (id, number and date formats, 60-character names, 2 MB unpacked at most, unpacked a piece at a time) and shows everything as plain text.
+- It shows each course as a tab: the summary, the course certificate, the lesson certificates (folded), and every badge week by week, filtered by All, Earned or Still to earn, each with its number, lesson, how it's checked and its exam skills. **View and print** builds the same certificate record as the panel.
+- **Save my badges (.json)** saves `office-trainer-badges/1`. **Open a saved record** reads that, or a panel record (`office-trainer-progress/1`, which now says which course it's from), and adds them together, so records from two computers can be combined.
+- Like everything in practice mode, it's a practice record: the page says so.
 
 ## 4. Numbers
 

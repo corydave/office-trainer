@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    OFFICE TRAINER - the section builder (instructor/sections.html)
+    =====================================================================
+    DON'T EDIT instructor/sections.html DIRECTLY. It's built from this file
+    by word/tools/build-site-pages.py (which copies in site.css, site.js
+    and TrainerMD, and writes the security fingerprints below).
+
+    WHAT IT DOES
+    An instructor picks a course, ticks the lessons their section uses,
+    adds their own videos, and gets a SECTION KEY: one line of text with
+    all of it inside. Students paste the key into the Office Trainer panel
+    (Settings > Your section). Nothing is uploaded or stored anywhere: the
+    key IS the section. To change the section later, paste the key back
+    in here, edit, and make a new key.
+
+    HOW A KEY IS MADE AND CHECKED
+    TrainerMD.cleanSection checks everything (the same code the panel runs
+    when a student pastes the key), then TrainerMD.encodeSectionKey packs
+    it. Videos must be https links on the course's approved video sites.
+
+    SECURITY
+    - Content Security Policy: only this page's own script and style (by
+      fingerprint), fetches from this site (the course files), and video
+      previews from the approved video sites.
+    - Previews load only when the instructor presses Preview, in a sandboxed frame.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KiYJbHn4jKLWAzGM4pDLhqDm1fLwLShhsCzQlPuv9xc='; style-src 'sha256-J9DoulTvVmZd6qEnzVRjWhclCVakX/ABqUj0tUaQOvk='; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src https://player.vimeo.com https://www.youtube-nocookie.com https://www.youtube.com; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Set up an Office Trainer section: choose the lessons, add your own videos, and get a key for your students.">
+  <title>Section builder · Office Trainer</title>
+  <link rel="icon" href="../assets/icon-32.png" sizes="32x32">
+  <style>
+/* =====================================================================
+   OFFICE TRAINER - shared styles for the site's tool pages
+   ---------------------------------------------------------------------
+   badges.html, instructor/sections.html and instructor/grader.html all
+   copy this file in when word/tools/build-site-pages.py builds them, so
+   the three pages look like one site (and like index.html, which keeps
+   its own copy of the same colors and fonts).
+   ../ becomes "" (a page at the top of the site) or "../" (a page
+   in a folder), so the font files are found either way.
+   ===================================================================== */
+
+/* ---------- Fonts: hosted with the site, so no font service is contacted ---------- */
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-style: normal; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-style: normal; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-style: italic; font-display: swap; src: url("../assets/fonts/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Comfortaa"; font-weight: 700; font-style: normal; font-display: swap; src: url("../assets/fonts/comfortaa-latin-700-normal.woff2") format("woff2"); }
+
+/* ---------- Colors: one set of names, defined for light and for dark ----------
+   Every pair used for text passes WCAG AA (4.5 to 1 or better). */
+:root {
+  --bg: #ffffff; --surface: #f3f6fb; --ink: #14171c; --muted: #4a5260; --line: #cfd6e0;
+  --brand: #0046ad; --brand-ink: #ffffff; --link: #0046ad; --focus: #0046ad;
+  --good: #305305; --good-soft: #eaf3e3; --warn: #a23108; --warn-soft: #fdeee7;
+  --word: #1d4f9c; --excel: #1b6b3c; --ppt: #a83a17;
+  --shadow: 0 1px 2px rgba(20, 23, 28, .06), 0 4px 16px rgba(20, 23, 28, .06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111418; --surface: #1b2027; --ink: #eef1f5; --muted: #b9c1cc; --line: #343c47;
+    --brand: #7fb0ff; --brand-ink: #0b1220; --link: #9cc2ff; --focus: #9cc2ff;
+    --good: #b5e48c; --good-soft: #1f2a18; --warn: #ffb38f; --warn-soft: #34201a;
+    --word: #8fb4f0; --excel: #7fd39d; --ppt: #f4a07f; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111418; --surface: #1b2027; --ink: #eef1f5; --muted: #b9c1cc; --line: #343c47;
+  --brand: #7fb0ff; --brand-ink: #0b1220; --link: #9cc2ff; --focus: #9cc2ff;
+  --good: #b5e48c; --good-soft: #1f2a18; --warn: #ffb38f; --warn-soft: #34201a;
+  --word: #8fb4f0; --excel: #7fd39d; --ppt: #f4a07f; --shadow: none;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 1.0625rem/1.6 "Atkinson Hyperlegible", Arial, Arimo, sans-serif;
+  overflow-wrap: break-word;
+}
+h1, h2, h3 { font-family: Comfortaa, "Atkinson Hyperlegible", Arial, sans-serif; line-height: 1.25; margin: 0 0 .5em; }
+h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); }
+h2 { font-size: clamp(1.3rem, 3vw, 1.6rem); }
+h3 { font-size: 1.15rem; }
+p, ul, ol { margin: 0 0 1em; }
+a { color: var(--link); text-underline-offset: .15em; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+code, .mono { font-family: ui-monospace, Consolas, "Liberation Mono", monospace; font-size: .9em; }
+code { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 .3em; }
+kbd { font-family: inherit; font-size: .9em; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 .35em; background: var(--surface); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+.muted { color: var(--muted); }
+.small { font-size: .92rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 16px; top: -100px; background: var(--brand); color: var(--brand-ink); padding: 8px 14px; border-radius: 6px; z-index: 10; font-weight: 700; }
+.skip:focus { top: 12px; }
+[hidden] { display: none !important; }
+
+/* ---------- Header and footer ---------- */
+/* The top bar stays in view while the page scrolls. */
+.site-head { border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; background: var(--bg); }
+@media print { .site-head { position: static; } }
+:target, h2[id], section[id] { scroll-margin-top: 80px; }
+.site-head .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-top: 12px; padding-bottom: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: Comfortaa, Arial, sans-serif; font-weight: 700; font-size: 1.15rem; }
+.brand img { width: 32px; height: 32px; border-radius: 8px; }
+.head-links { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.head-links a { color: var(--ink); font-weight: 700; text-decoration: none; }
+.head-links a:hover { color: var(--link); text-decoration: underline; }
+main { padding: 32px 0 48px; }
+footer { border-top: 1px solid var(--line); padding: 24px 0 32px; font-size: .92rem; color: var(--muted); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px;
+  padding: 8px 16px; border-radius: 10px; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
+  background: var(--brand); color: var(--brand-ink); border: 2px solid var(--brand);
+}
+.btn:hover { filter: brightness(1.08); text-decoration: underline; }
+.btn.secondary { background: transparent; color: var(--link); border-color: currentColor; }
+.btn.slim { min-height: 36px; padding: 4px 12px; font-size: .95rem; }
+.btn.danger { background: transparent; color: var(--warn); border-color: currentColor; }
+.btn:disabled { opacity: .55; cursor: not-allowed; filter: none; text-decoration: none; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.linkish { background: none; border: 0; padding: 0; font: inherit; color: var(--link); text-decoration: underline; cursor: pointer; }
+.theme-btn { font: inherit; font-size: .95rem; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 40px; }
+.theme-btn:hover { border-color: var(--ink); }
+
+/* ---------- Cards, notices ---------- */
+.card { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin: 0 0 20px; box-shadow: var(--shadow); }
+.card > :last-child { margin-bottom: 0; }
+.card.band { background: var(--surface); box-shadow: none; }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 46em; }
+.notice { border-left: 4px solid var(--brand); background: var(--surface); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 0 0 16px; }
+.notice.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.notice.good { border-left-color: var(--good); background: var(--good-soft); }
+.notice > :last-child { margin-bottom: 0; }
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--brand); color: var(--brand-ink); font-family: Comfortaa, Arial, sans-serif; font-size: .9em; margin-right: .35em; }
+
+/* ---------- Forms ---------- */
+fieldset { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 0 0 16px; min-width: 0; }
+legend { font-weight: 700; padding: 0 6px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin: 0 0 14px; }
+.field > label, .field > .label { font-weight: 700; }
+.field small, .hint { color: var(--muted); font-size: .9rem; }
+input[type="text"], input[type="url"], input[type="number"], select, textarea {
+  font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--muted); border-radius: 8px;
+  padding: 8px 10px; min-height: 44px; max-width: 100%;
+}
+textarea { width: 100%; resize: vertical; }
+textarea.key { font-family: ui-monospace, Consolas, monospace; font-size: .85rem; min-height: 7em; word-break: break-all; }
+input[aria-invalid="true"], select[aria-invalid="true"] { border: 2px solid var(--warn); }
+.error-text { color: var(--warn); font-weight: 700; font-size: .92rem; }
+.check-row { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; }
+.check-row input[type="checkbox"], .choice input { width: 22px; height: 22px; margin: 2px 0 0; flex: 0 0 auto; accent-color: var(--brand); }
+.choices { display: flex; flex-wrap: wrap; gap: 10px; }
+.choice { display: inline-flex; gap: 8px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; cursor: pointer; min-height: 44px; }
+.choice:has(input:checked) { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); }
+.drop {
+  border: 2px dashed var(--muted); border-radius: 12px; padding: 24px 16px; text-align: center; background: var(--surface);
+}
+.drop.over { border-color: var(--brand); background: var(--bg); }
+
+/* ---------- Tables ---------- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; margin: 0 0 16px; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+caption { text-align: left; font-weight: 700; padding: 10px 12px; }
+th, td { text-align: left; padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+thead th { background: var(--surface); }
+td.num, th.num { text-align: right; white-space: nowrap; }
+.ok { color: var(--good); font-weight: 700; }
+.bad { color: var(--warn); font-weight: 700; }
+
+/* ---------- Tabs (a row of buttons; one panel shows) ---------- */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--line); margin: 0 0 18px; }
+.tabs [role="tab"] { font: inherit; font-weight: 700; color: var(--ink); background: transparent; border: 1px solid transparent; border-bottom: 0; border-radius: 10px 10px 0 0; padding: 8px 16px; cursor: pointer; min-height: 44px; }
+.tabs [role="tab"][aria-selected="true"] { border-color: var(--line); background: var(--bg); color: var(--link); box-shadow: 0 2px 0 var(--bg); }
+
+/* ---------- Details ---------- */
+details { margin: 0 0 10px; }
+summary { cursor: pointer; font-weight: 700; padding: 4px 0; }
+
+/* ---------- Printing: no buttons or header, black text ---------- */
+@media print {
+  .site-head, footer, .no-print, .btn, .theme-btn, .skip { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .card { box-shadow: none; break-inside: avoid; }
+  a { color: #000; }
+}
+
+
+/* ---------- This page ---------- */
+.step { margin: 0 0 28px; }
+.step > h2 { display: flex; align-items: center; gap: 8px; }
+.grid2 { display: grid; gap: 0 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.stop-list { list-style: none; padding: 0; margin: 0; }
+.stop-list .kind { color: var(--muted); font-size: .9rem; }
+.week-tools { margin: 0 0 6px; font-size: .92rem; }
+.lesson-videos { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 0 0 10px; }
+.lesson-videos > summary { font-size: 1.02rem; }
+.video-row { border-top: 1px solid var(--line); padding: 12px 0 4px; }
+.video-row:first-of-type { border-top: 0; }
+.video-row h4 { margin: 0 0 6px; font-size: 1rem; }
+.video-fields { display: grid; gap: 0 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.video-fields .wide { grid-column: 1 / -1; }
+.preview { margin: 6px 0 10px; max-width: 560px; }
+.preview .frame { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; }
+.preview iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.counts { font-weight: 700; }
+.key-out { margin: 12px 0; }
+.problems li { margin-bottom: 4px; }
+.share-steps li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="site-head">
+    <div class="wrap">
+      <a class="brand" href="../index.html"><img src="../assets/icon-80.png" alt="" width="32" height="32"> Office Trainer</a>
+      <nav class="head-links" aria-label="Site">
+        <a href="../index.html#instructors">For instructors</a>
+        <a href="grader.html">Grader</a>
+        <button type="button" class="theme-btn" id="theme-btn" aria-pressed="false" hidden>Dark mode</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <h1>Set up your section</h1>
+    <p class="lead">Choose the lessons your class uses and add your own videos. You'll get a <strong>section key</strong> to give your students. There's no account and nothing to upload: everything is inside the key.</p>
+
+    <details class="card band">
+      <summary>Edit a section you made before</summary>
+      <div class="field">
+        <label for="old-key">Paste your section key</label>
+        <textarea id="old-key" class="key" spellcheck="false" autocomplete="off" aria-describedby="old-key-help"></textarea>
+        <small id="old-key-help">It starts with OTK1. The form below fills in so you can change it, then make a new key.</small>
+      </div>
+      <button type="button" class="btn slim" id="load-key">Load it</button>
+      <div id="load-status" class="small" role="status" aria-live="polite"></div>
+    </details>
+
+    <section class="step" aria-labelledby="s1">
+      <h2 id="s1"><span class="step-num" aria-hidden="true">1</span> Course</h2>
+      <fieldset>
+        <legend>Which course is your section?</legend>
+        <div class="choices" id="course-choices"></div>
+      </fieldset>
+      <div id="course-status" role="status" aria-live="polite"></div>
+    </section>
+
+    <div id="after-course" hidden>
+      <section class="step" aria-labelledby="s2">
+        <h2 id="s2"><span class="step-num" aria-hidden="true">2</span> About your section</h2>
+        <div class="grid2">
+          <div class="field">
+            <label for="sec-title">Section name <span class="muted">(required)</span></label>
+            <input type="text" id="sec-title" maxlength="80" autocomplete="off" aria-describedby="sec-title-help">
+            <small id="sec-title-help">Students see this, for example "CSC 136-01, Spring 2027".</small>
+          </div>
+          <div class="field">
+            <label for="sec-instructor">Your name, as students see it <span class="muted">(required)</span></label>
+            <input type="text" id="sec-instructor" maxlength="60" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="sec-term">Term <span class="muted">(optional)</span></label>
+            <input type="text" id="sec-term" maxlength="40" autocomplete="off">
+          </div>
+        </div>
+      </section>
+
+      <section class="step" aria-labelledby="s3">
+        <h2 id="s3"><span class="step-num" aria-hidden="true">3</span> Lessons</h2>
+        <p>Untick anything your section doesn't use. Students still see it, marked <strong>Not in your section</strong>, and it doesn't count toward their course certificate.</p>
+        <p class="counts" id="stop-count" aria-live="polite"></p>
+        <div class="btn-row week-tools"><button type="button" class="btn slim secondary" id="all-on">Include everything</button></div>
+        <div id="weeks"></div>
+      </section>
+
+      <section class="step" aria-labelledby="s4">
+        <h2 id="s4"><span class="step-num" aria-hidden="true">4</span> Your videos <span class="muted small">(optional)</span></h2>
+        <p>Use your own video in place of a course video, or add one after any activity. Leave a lesson alone to keep the course videos.</p>
+        <p class="notice small" id="hosts-note"></p>
+        <div id="videos"></div>
+      </section>
+
+      <section class="step" aria-labelledby="s5">
+        <h2 id="s5"><span class="step-num" aria-hidden="true">5</span> Your section key</h2>
+        <button type="button" class="btn" id="make-key">Make my section key</button>
+        <div id="key-box" tabindex="-1"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>A section key changes what students see: which lessons count, and your videos. It doesn't collect anything: students' progress stays on their own devices. To grade work, use the <a href="grader.html">grader</a>.</p>
+      <p>Office Trainer · Finger Lakes Community College, Computing Sciences</p>
+    </div>
+  </footer>
+  <div id="announce" class="sr-only" aria-live="polite"></div>
+
+  <script>
+/* ===========================================================================
+   trainer-md.js - the Trainer Markdown parser, validator and renderer
+   ---------------------------------------------------------------------------
+   One file, no dependencies. The editor, the Word add-in and the command-line
+   validator all use this same code, so a lesson means the same thing everywhere.
+
+   What it does, in order:
+     1. parse(text)     -> turns a lesson file into a plain JavaScript object
+     2. validate(doc)   -> lists errors and warnings (with line numbers)
+     3. render(doc)     -> turns the object into safe HTML for a preview
+
+   Security rules this file enforces:
+     - Every piece of text is HTML-escaped before anything else happens.
+       Only tags this file writes itself ever reach the page.
+     - Raw HTML in a lesson file is reported as an error and shown as text.
+     - Links must be https:// (or a relative .md file); videos must come from
+       an approved host and render in a sandboxed frame.
+     - A lesson can only affect grading by NAMING a check in CHECKS below.
+       It can never supply code.
+   =========================================================================== */
+(function (root) {
+  "use strict";
+
+  const VERSION = "0.5.0";
+
+  // -------------------------------------------------------------------------
+  // Fonts: each choice expands to a fallback chain (see course.config.md).
+  // Look-alike fonts (Arimo, Tinos, Carlito) cover Chromebooks and Linux.
+  // -------------------------------------------------------------------------
+  const FONT_STACKS = {
+    "Comfortaa": '"Comfortaa", "Atkinson Hyperlegible", Arial, sans-serif',
+    "Atkinson Hyperlegible": '"Atkinson Hyperlegible", Arial, Arimo, sans-serif',
+    "Arial": 'Arial, Arimo, "Liberation Sans", Helvetica, sans-serif',
+    "Helvetica": 'Helvetica, "Helvetica Neue", Arial, Arimo, sans-serif',
+    "Verdana": 'Verdana, "DejaVu Sans", Arial, sans-serif',
+    "Calibri": 'Calibri, Carlito, Arial, sans-serif',
+    "Aptos": 'Aptos, Calibri, Carlito, Arial, sans-serif',
+    "Times New Roman": '"Times New Roman", Tinos, "Liberation Serif", Times, serif',
+    "Georgia": 'Georgia, Gelasio, "Times New Roman", Tinos, serif',
+    "OpenDyslexic": 'OpenDyslexic, "Atkinson Hyperlegible", Arial, sans-serif',
+    "System default": 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  };
+  const DEFAULT_FONTS = { heading: "Comfortaa", body: "Atkinson Hyperlegible" };
+  function fontStack(name, fallbackName) {
+    return FONT_STACKS[name] || FONT_STACKS[fallbackName] || FONT_STACKS["System default"];
+  }
+
+  // Hosts videos may load from unless course.config.md says otherwise.
+  const DEFAULT_VIDEO_HOSTS = ["www.youtube-nocookie.com", "www.youtube.com", "player.vimeo.com"];
+
+  // -------------------------------------------------------------------------
+  // The checker library catalog. Each entry lists the parameters a check
+  // accepts and their type. The real check code lives in the add-in; this
+  // list is what the validator uses to reject typos and unknown checks.
+  // -------------------------------------------------------------------------
+  const SELECTORS = ["in", "para", "paras", "text", "style"];
+  const CHECKS = {
+    "file.name":            { params: { pattern: "string!" } },
+    "text.present":         { params: { value: "string!", min: "int", max: "int", case: "enum:sensitive|insensitive" }, selector: true },
+    "text.absent":          { params: { value: "string!", case: "enum:sensitive|insensitive" }, selector: true },
+    "text.noDoubleSpaces":  { params: {}, selector: true },
+    "para.noEmpty":         { params: { max: "int", after: "string", before: "string" } },
+    "para.order":           { params: { first: "string!", then: "string!" } },
+    "font.is":              { params: { name: "string", size: "number", bold: "bool", italic: "bool", underline: "bool", color: "color" }, selector: true, needsOneOf: ["name", "size", "bold", "italic", "underline", "color"] },
+    "effect.present":       { params: { kind: "enum:shadow|glow|reflection|outline|any" }, selector: true },
+    "format.same":          { params: { a: "string!", b: "string!", props: "string" } },
+    "format.clean":         { params: {}, selector: true },
+    "para.is":              { params: { align: "enum:left|center|right|justify", lineSpacing: "lineSpacing", spaceBefore: "length", spaceAfter: "length", firstLineIndent: "length", leftIndent: "length", keepNext: "bool", dropCap: "bool" }, selector: true, needsOneOf: ["align", "lineSpacing", "spaceBefore", "spaceAfter", "firstLineIndent", "leftIndent", "keepNext", "dropCap"] },
+    "page.is":              { params: { margins: "length", top: "length", bottom: "length", left: "length", right: "length", size: "enum:letter|a4|legal", orientation: "enum:portrait|landscape" }, needsOneOf: ["margins", "top", "bottom", "left", "right", "size", "orientation"] },
+    "props.is":             { params: { title: "string", author: "string", keywords: "string" }, needsOneOf: ["title", "author", "keywords"] },
+    "lang.is":              { params: { value: "lang!" } },
+    "self.attest":          { params: { label: "string!" }, notInSkillCheck: true },
+    // ----- Week 2: styles, navigation, lists, headers, sections, references -----
+    "style.is":             { params: { name: "string!" }, selector: true },
+    "style.def":            { params: { name: "string!", font: "string", size: "number", bold: "bool", italic: "bool", color: "color", spaceBefore: "length", spaceAfter: "length", keepNext: "bool", align: "enum:left|center|right|justify", lineSpacing: "lineSpacing" }, needsOneOf: ["font", "size", "bold", "italic", "color", "spaceBefore", "spaceAfter", "keepNext", "align", "lineSpacing"] },
+    "bookmark.is":          { params: { name: "string!", at: "string" } },
+    "link.present":         { params: { label: "string", anchor: "string", url: "string", descriptive: "bool", min: "int" } },
+    "field.present":        { params: { code: "string!", min: "int", max: "int" }, selector: true },
+    "section.is":           { params: { index: "int", orientation: "enum:portrait|landscape", columns: "int", breakType: "enum:nextPage|continuous|evenPage|oddPage", firstPageDifferent: "bool", border: "bool" }, selector: true, needsOneOf: ["orientation", "columns", "breakType", "firstPageDifferent", "border"] },
+    "break.count":          { params: { kind: "enum:page|column|section!", min: "int", max: "int" } },
+    "list.is":              { params: { kind: "enum:bullet|number", level: "int", format: "enum:decimal|lowerLetter|upperLetter|lowerRoman|upperRoman|bullet", symbol: "string", pattern: "string", number: "int" }, selector: true, needsOneOf: ["kind", "level", "format", "symbol", "pattern", "number"] },
+    "notes.is":             { params: { kind: "enum:footnote|endnote!", min: "int", max: "int", format: "enum:decimal|lowerRoman|upperRoman|lowerLetter|upperLetter|chicago" } },
+    "toc.is":               { params: { levels: "int", includes: "string" } },
+    "citation.is":          { params: { citations: "int", sources: "int", bibliography: "bool", citeStyle: "enum:APA|MLA|Chicago|IEEE" }, needsOneOf: ["citations", "sources", "bibliography", "citeStyle"] },
+    // ----- Week 3: graphics, tables, page design -----
+    "object.count":         { params: { kind: "enum:any|picture|icon|shape|textbox|smartart|chart|model3d!", min: "int", max: "int" } },
+    "object.is":            { params: { kind: "enum:any|picture|icon|shape|textbox|smartart|chart|model3d!", index: "int", name: "string", any: "bool", contains: "string", alt: "bool", decorative: "bool", wrap: "enum:inline|square|tight|through|topAndBottom|behind|inFront", halign: "enum:left|center|right", valign: "enum:top|middle|bottom", pictureStyle: "bool", artistic: "bool", bgRemoved: "bool", fill: "string", outline: "string", says: "string", layout: "string", items: "int", colors: "bool", smartStyle: "bool", chartType: "enum:column|bar|line|pie" } },
+    "table.count":          { params: { contains: "string", min: "int", max: "int" } },
+    "table.is":             { params: { index: "int", contains: "string", lacks: "string", any: "bool", rows: "int", minRows: "int", cols: "int", headerRepeat: "bool", merged: "bool", sortedBy: "int", order: "enum:asc|desc", cellMargin: "length", cellSpacing: "length", col: "int", width: "length" }, needsOneOf: ["rows", "minRows", "cols", "headerRepeat", "merged", "sortedBy", "cellMargin", "cellSpacing", "width"] },
+    "theme.is":             { params: { colors: "string", accent1: "color", accent2: "color", accent3: "color", accent4: "color", accent5: "color", accent6: "color" }, needsOneOf: ["colors", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6"] },
+    "page.background":      { params: { watermark: "string", color: "string" }, needsOneOf: ["watermark", "color"] },
+    // ----- Week 4: templates, tabs, mail merge -----
+    "tabs.is":              { params: { position: "length", align: "enum:left|right|center|decimal", leader: "enum:dot|hyphen|underscore|none" }, selector: true, needsOneOf: ["position", "align", "leader"] },
+    "controls.filled":      { params: {} },
+    "merge.is":             { params: { type: "enum:letters|labels|envelopes|directory|email", source: "bool" }, needsOneOf: ["type", "source"] },
+    // ----- Week 5: collaboration and shipping -----
+    "comment.count":        { params: { min: "int", max: "int" } },
+    "comment.is":           { params: { says: "string", anchor: "string", author: "string", state: "enum:present|absent|replied|resolved|open" }, needsOneOf: ["says", "anchor", "author"] },
+    "revision.count":       { params: { kind: "enum:any|insert|delete|format|move", author: "string", min: "int", max: "int" } },
+    "doc.is":               { params: { tracking: "bool", protection: "enum:none|readOnly|comments|trackedChanges|forms", password: "bool", compatMode: "int", personalInfo: "enum:kept|removed" }, needsOneOf: ["tracking", "protection", "password", "compatMode", "personalInfo"] },
+    "text.hidden":          { params: { max: "int" } },
+    "access.is":            { params: { rules: "string" } },
+  };
+
+  // ----- Excel (excel/tools/excel-checker.js) -----
+  // Excel checks point at cells with cell=B2 or range=B2:B9 (optionally
+  // "June!B2"), plus sheet=June. Those two are the Excel selectors.
+  const EXCEL_SELECTORS = ["cell", "range"];
+  const XS = "string";   // short names to keep the table below readable
+  const EXCEL_CHECKS = {
+    "file.name":        { params: { pattern: "string!" } },
+    "text.present":     { params: { value: "string!", sheet: XS, min: "int", max: "int", case: "enum:sensitive|insensitive" }, selector: true },
+    "text.absent":      { params: { value: "string!", sheet: XS, case: "enum:sensitive|insensitive" }, selector: true },
+    "props.is":         { params: { title: XS, author: XS, keywords: XS }, needsOneOf: ["title", "author", "keywords"] },
+    "self.attest":      { params: { label: "string!" }, notInSkillCheck: true },
+    "sheet.is":         { params: { name: "string!", exists: "bool", index: "int", after: XS, tabColor: XS, hidden: "bool", kind: "enum:worksheet|chart" } },
+    "sheet.count":      { params: { min: "int", max: "int", visible: "bool" } },
+    "cell.is":          { params: { sheet: XS, value: XS, contains: XS, number: "number", tolerance: "number", date: XS,
+                          type: "enum:number|text|date|blank|formula|logical|error", blank: "bool",
+                          numFmt: "enum:general|number|currency|accounting|percent|date|time|datetime|fraction|scientific|text", decimals: "int", strict: "bool",
+                          bold: "bool", italic: "bool", underline: "bool", fontSize: "number", font: XS, fontColor: XS, fill: XS,
+                          align: "enum:left|center|right|general|justify|centerContinuous|fill|distributed", valign: "enum:top|center|bottom|justify|distributed",
+                          wrap: "bool", indent: XS, rotation: XS, border: "enum:any|none|left|right|top|bottom", style: XS, locked: "bool", clean: "bool", sameAs: XS, merged: "bool" },
+                          selector: true, needsSelector: true },
+    "formula.is":       { params: { sheet: XS, uses: XS, contains: XS, lacks: XS, result: XS, filled: "bool", spill: "bool", hasFormula: "bool", refs: "bool", structured: "bool", external: XS, min: "number", max: "number" }, selector: true, needsSelector: true },
+    "col.is":           { params: { sheet: XS, col: "string!", width: "number", minWidth: "number", maxWidth: "number", hidden: "bool" }, needsOneOf: ["width", "minWidth", "maxWidth", "hidden"] },
+    "row.is":           { params: { sheet: XS, row: "string!", height: "number", minHeight: "number", hidden: "bool" }, needsOneOf: ["height", "minHeight", "hidden"] },
+    "view.is":          { params: { sheet: XS, frozen: XS, view: "enum:normal|pageLayout|pageBreakPreview", showFormulas: "bool", split: "bool", gridlines: "bool" }, needsOneOf: ["frozen", "view", "showFormulas", "split", "gridlines"] },
+    "window.count":     { params: { min: "int!" } },
+    "page.is":          { params: { sheet: XS, orientation: "enum:portrait|landscape", size: "enum:letter|legal|a4", fitWide: "int", fitTall: "int", scale: "int",
+                          margins: "length", top: "length", bottom: "length", left: "length", right: "length", centerH: "bool", gridlines: "bool", printArea: XS, printTitles: XS },
+                          needsOneOf: ["orientation", "size", "fitWide", "fitTall", "scale", "margins", "top", "bottom", "left", "right", "centerH", "gridlines", "printArea", "printTitles"] },
+    "header.is":        { params: { sheet: XS, part: "enum:header|footer!", says: XS, field: "enum:page|pages|sheet|file|date|time|path", position: "enum:left|center|right" } },
+    "name.is":          { params: { name: "string!", refersTo: XS, scope: XS, exists: "bool" } },
+    "link.present":     { params: { sheet: XS, url: XS, location: XS, label: XS, min: "int", max: "int", descriptive: "bool" }, selector: true },
+    "table.is":         { params: { sheet: XS, name: XS, contains: XS, exists: "bool", style: XS, bandedRows: "bool", bandedColumns: "bool", firstColumn: "bool", lastColumn: "bool",
+                          headerRow: "bool", totalRow: "bool", total: XS, totalFunction: "enum:sum|average|count|countNums|max|min|stdDev|var|custom",
+                          hasColumn: XS, lacksColumn: XS, rows: "int", minRows: "int", columns: "int", noBlankRows: "bool" } },
+    "table.count":      { params: { sheet: XS, contains: XS, min: "int", max: "int" } },
+    "sort.is":          { params: { sheet: XS, table: XS, by: "string!", order: "enum:asc|desc", then: XS, thenOrder: "enum:asc|desc" }, selector: true },
+    "filter.is":        { params: { sheet: XS, table: XS, column: XS, active: "bool", shows: XS, only: "bool" }, selector: true },
+    "cf.is":            { params: { sheet: XS, type: "enum:dataBar|colorScale|iconSet|cellIs|top10|aboveAverage|duplicateValues|containsText|timePeriod|expression|any",
+                          operator: "enum:greaterThan|lessThan|between|equal|greaterThanOrEqual|lessThanOrEqual|notEqual|notBetween", value: XS, exists: "bool", covers: "bool" }, selector: true },
+    "cf.count":         { params: { sheet: XS, min: "int", max: "int" }, selector: true },
+    "sparkline.is":     { params: { sheet: XS, location: XS, type: "enum:line|column|winloss", source: XS, high: "bool", markers: "bool", min: "int" } },
+    "chart.is":         { params: { sheet: XS, index: "int", chartSheet: "bool", type: "enum:column|bar|line|pie|doughnut|area|scatter|combo|any",
+                          grouping: "enum:clustered|stacked|percentStacked|standard", series: "int", minSeries: "int", seriesName: XS, plotBy: "enum:rows|columns",
+                          hasTitle: "bool", title: XS, axisTitles: "bool", dataLabels: "bool", legend: "enum:bottom|top|left|right|topRight|none", dataTable: "bool",
+                          styleChanged: "bool", alt: "bool", altSays: XS, values: XS, covers: XS } },
+    "chart.count":      { params: { sheet: XS, min: "int", max: "int", chartSheet: "bool" } },
+    "object.is":        { params: { sheet: XS, kind: "enum:picture|icon|shape|textbox|smartart|any!", index: "int", name: XS, says: XS, alt: "bool", decorative: "bool", items: "int" } },
+    "object.count":     { params: { sheet: XS, kind: "enum:picture|icon|shape|textbox|smartart|any!", min: "int", max: "int" } },
+    "scenario.is":      { params: { sheet: XS, names: XS, min: "int", changing: XS } },
+    "datatable.is":     { params: { sheet: XS, input: XS }, selector: true },
+    "consolidate.is":   { params: { sheet: XS, function: "enum:sum|average|count|countNums|max|min|product|stdDev|stdDevp|var|varp", sources: "int", labels: "bool", links: "bool" } },
+    "comment.is":       { params: { sheet: XS, kind: "enum:comment|note!", says: XS, author: XS, state: "enum:present|absent|replied|resolved|open" }, selector: true },
+    "comment.count":    { params: { sheet: XS, kind: "enum:comment|note|any", min: "int", max: "int" }, selector: true },
+    "protect.is":       { params: { sheet: XS, sheetProtected: "bool", password: "bool", structure: "bool", structurePassword: "bool", unlocked: XS }, needsOneOf: ["sheetProtected", "structure", "unlocked"] },
+    "validation.is":    { params: { sheet: XS, type: "enum:list|whole|decimal|date|time|textLength|custom|any", list: XS, exists: "bool" }, selector: true },
+    "doc.is":           { params: { personalInfo: "enum:kept|removed", hiddenSheets: "int" }, needsOneOf: ["personalInfo", "hiddenSheets"] },
+    "access.is":        { params: { rules: XS } },
+    "data.is":          { params: { sheet: XS, table: XS, headers: XS, rows: "int", minRows: "int", maxRows: "int", noDuplicates: "bool" }, selector: true },
+    "connection.count": { params: { min: "int", max: "int" } },
+    "theme.is":         { params: { name: XS, changed: "bool", colors: XS }, needsOneOf: ["name", "changed", "colors"] },
+    "cellstyle.is":     { params: { name: "string!", exists: "bool", custom: "bool" } },
+  };
+
+  // ----- PowerPoint (powerpoint/tools/ppt-checker.js) -----
+  // PowerPoint checks point at a slide with slide=3 (or first, last, all), or at
+  // slides whose title contains some text with title="Our prices". slide= is the
+  // selector; title= is an ordinary parameter (props.is uses title= for the Title property).
+  const PPT_SELECTORS = ["slide"];
+  const PS = "string";
+  const PPT_KINDS = "enum:picture|icon|shape|textbox|placeholder|actionButton|line|video|audio|media|image|table|chart|smartart|model3d|zoom|ink|group|text|graphic|any";
+  const POWERPOINT_CHECKS = {
+    "file.name":      { params: { pattern: "string!" } },
+    "props.is":       { params: { title: PS, author: PS, keywords: PS, subject: PS }, needsOneOf: ["title", "author", "keywords", "subject"] },
+    "self.attest":    { params: { label: "string!" }, notInSkillCheck: true },
+    "text.present":   { params: { value: "string!", title: PS, in: "enum:slides|notes", min: "int" }, selector: true },
+    "text.absent":    { params: { value: "string!", title: PS, in: "enum:slides|notes" }, selector: true },
+    "slide.count":    { params: { is: "int", min: "int", max: "int", title: PS, visible: "bool" }, needsOneOf: ["is", "min", "max"] },
+    "slide.is":       { params: { title: PS, exists: "bool", number: "int", after: PS, layout: PS, hidden: "bool", section: PS, background: "enum:any|none|picture|gradient|solid|pattern",
+                        notes: PS, hasNotes: "bool", titleIs: PS }, selector: true },
+    "notes.count":    { params: { min: "int", max: "int" }, needsOneOf: ["min", "max"] },
+    "section.is":     { params: { name: "string!", exists: "bool", index: "int", slides: "int", minSlides: "int", starts: PS, contains: PS } },
+    "section.count":  { params: { min: "int", max: "int" }, needsOneOf: ["min", "max"] },
+    "size.is":        { params: { ratio: "enum:16:9|4:3|widescreen|standard!" } },
+    "view.is":        { params: { view: "enum:normal|outline|sorter|notes|master|notesMaster|handoutMaster", guides: "bool" }, needsOneOf: ["view", "guides"] },
+    "text.is":        { params: { title: PS, says: PS, kind: PPT_KINDS, phType: "enum:title|ctrTitle|subTitle|body|obj", bold: "bool", italic: "bool", underline: "bool",
+                        size: "number", minSize: "number", font: PS, notFont: PS, wordart: "bool", color: PS, colorChanged: "bool", columns: "int", align: "enum:left|center|right|justify", minContrast: "number" }, selector: true },
+    "list.is":        { params: { title: PS, says: PS, items: PS, kind: "enum:bullet|number", level: "int", levels: "int", maxItems: "int" }, selector: true },
+    "footer.is":      { params: { slideNumbers: "bool", footer: PS, skipTitle: "bool", date: "bool" }, needsOneOf: ["slideNumbers", "footer", "skipTitle", "date"] },
+    "theme.is":       { params: { name: PS, changed: "bool", fonts: PS, fontsChanged: "bool", colors: PS, variant: "bool" }, needsOneOf: ["name", "changed", "fonts", "fontsChanged", "colors", "variant"] },
+    "master.is":      { params: { kind: "enum:slide|notes|handout", background: "enum:any|picture|gradient|solid", titleFont: PS, picture: "bool", says: PS, phSays: PS, lacks: "enum:hdr|ftr|dt|sldNum" } },
+    "layout.is":      { params: { name: "string!", exists: "bool", custom: "bool", placeholder: PS, lacks: "enum:ftr|dt|sldNum|title|body|pic", used: "bool" } },
+    "object.count":   { params: { kind: PPT_KINDS + "!", title: PS, says: PS, name: PS, min: "int", max: "int" }, selector: true },
+    "object.is":      { params: { kind: PPT_KINDS, title: PS, says: PS, name: PS, index: "int", alt: "bool", decorative: "bool", width: "length", height: "length", minWidth: "length",
+                        cropped: "bool", square: "bool", stretched: "bool", styled: "bool", effects: "bool", styleChanged: "bool", geom: PS, front: "bool", grouped: "bool", rotated: "bool",
+                        items: "int", layout: PS, notLayout: PS, colorsChanged: "bool" }, selector: true },
+    "align.is":       { params: { kind: PPT_KINDS, title: PS, says: PS, name: PS, edge: "enum:top|bottom|middle|left|right|center", distributed: "enum:horizontal|vertical" }, selector: true, needsOneOf: ["edge", "distributed"] },
+    "table.is":       { params: { title: PS, says: PS, rows: "int", cols: "int", styleChanged: "bool", headerRow: "bool", lacks: PS, has: PS }, selector: true },
+    "chart.is":       { params: { title: PS, chartTitle: PS, type: "enum:column|bar|line|pie|doughnut|area|scatter|combo", notType: "enum:column|bar|line|pie|doughnut|area|scatter|combo", grouping: "enum:clustered|stacked|percentStacked|standard",
+                        minSeries: "int", dataLabels: "bool", alt: "bool" }, selector: true },
+    "media.is":       { params: { kind: "enum:video|audio|media", title: PS, name: PS, trimmed: "bool", fadeIn: "bool", start: "enum:auto|click", loop: "bool", acrossSlides: "bool", alt: "bool" }, selector: true },
+    "transition.is":  { params: { title: PS, exists: "bool", type: PS, kind: "enum:3d|basic", optionChanged: "bool", duration: "number", advanceAfter: "number", onClick: "bool", sound: "bool" }, selector: true },
+    "anim.is":        { params: { title: PS, says: PS, kind: PPT_KINDS, name: PS, class: "enum:entrance|emphasis|exit|path", effect: PS, byParagraph: "bool", start: "enum:onClick|with|after",
+                        minDelay: "number", duration: "number", first: "bool", pathDir: "enum:left|right|up|down" }, selector: true },
+    "anim.count":     { params: { title: PS, says: PS, kind: PPT_KINDS, name: PS, class: "enum:entrance|emphasis|exit|path", min: "int", max: "int" }, selector: true, needsOneOf: ["min", "max"] },
+    "link.present":   { params: { title: PS, url: PS, toSlide: PS, says: PS, button: "bool" }, selector: true },
+    "zoom.is":        { params: { title: PS, kind: "enum:summary|section|slide", returnToZoom: "bool" }, selector: true },
+    "show.is":        { params: { loop: "bool", kiosk: "bool", narration: "bool", useTimings: "bool", customShow: PS, slides: "int", includes: PS, excludes: PS, timings: "bool" } },
+    "comment.is":     { params: { title: PS, says: PS, author: PS, state: "enum:present|absent|replied|resolved" }, selector: true },
+    "comment.count":  { params: { title: PS, says: PS, author: PS, min: "int", max: "int" }, selector: true, needsOneOf: ["min", "max"] },
+    "doc.is":         { params: { personalInfo: "enum:removed", fontsEmbedded: "bool", final: "bool", modifyPassword: "bool", notes: "enum:none", offSlide: "enum:none" },
+                        needsOneOf: ["personalInfo", "fontsEmbedded", "final", "modifyPassword", "notes", "offSlide"] },
+    "access.is":      { params: { rules: PS } },
+  };
+
+  // Which catalog a course uses. course.config.md says "app: excel"; Word is the default.
+  const CHECK_SETS = {
+    word: { checks: CHECKS, selectors: SELECTORS, starter: /^starters\/[\w\-./]+\.(docx|dotx)$/i, starterExample: "starters/week-01/W1-L2-letter.docx", appName: "Word" },
+    excel: { checks: EXCEL_CHECKS, selectors: EXCEL_SELECTORS, starter: /^starters\/[\w\-./]+\.(xlsx|xltx|xlsm|csv|txt)$/i, starterExample: "starters/week-01/E1-L1-rentals.xlsx", appName: "Excel" },
+    powerpoint: { checks: POWERPOINT_CHECKS, selectors: PPT_SELECTORS, starter: /^starters\/[\w\-./]+\.(pptx|potx)$/i, starterExample: "starters/week-01/P1-L1-welcome.pptx", appName: "PowerPoint" },
+  };
+  /** The catalog for an app name ("excel"), falling back to Word. */
+  function checkSet(app) { return CHECK_SETS[String(app || "word").toLowerCase()] || CHECK_SETS.word; }
+
+  const DIRECTIVES = ["video", "callout", "platform", "quiz", "drill", "skillcheck", "preflight", "rubric",
+    // used only in content/outline.md:
+    "week", "outcomes", "certification",
+    // used only in section files (sections/<CODE>.md):
+    "replace-video", "add-video"];
+  const CALLOUT_KINDS = ["tip", "note", "warning", "why", "ai", "privacy"];
+  const PLATFORMS = ["web", "desktop", "windows", "mac"];
+  const FILE_TYPES = ["lesson", "skillcheck", "project", "capstone", "config", "info", "outline", "section"];
+
+  // Video ids are permanent names for a video slot, such as "w1-l2-show-hide".
+  // Section files point at them, so never rename one once a section uses it.
+  const VIDEO_ID = /^[a-z0-9][a-z0-9-]{2,48}$/;
+  // Section codes, such as "WRD-7K3Q". The section file is sections/<CODE>.md
+  const SECTION_CODE = /^[A-Z0-9]{2,6}-[A-Z0-9]{3,8}$/;
+
+  // How an activity is assessed. Shown to learners BEFORE they start it.
+  //   auto       - the trainer checks the document
+  //   screenshot - the learner shows their screen; an instructor marks it (or, in
+  //                practice mode, the learner compares it with an example)
+  //   instructor - an instructor grades it with a rubric (self-check in practice mode)
+  //   practice   - never graded, in any mode
+  const ASSESS_KINDS = ["auto", "screenshot", "instructor", "practice"];
+  const ASSESS_LABELS = {
+    auto: { section: "Auto-checked", practice: "Auto-checked" },
+    screenshot: { section: "Screenshot for your instructor", practice: "Screenshot: compare with the example" },
+    instructor: { section: "Graded by your instructor", practice: "Self-check with the rubric" },
+    practice: { section: "Practice only", practice: "Practice only" },
+  };
+  const COURSE_MODES = ["practice", "section"];
+
+  // Step keys allowed inside drills, skill checks and preflights, and inside outline weeks.
+  const STEP_KEYS = ["check", "hint", "web", "desktop", "video", "points", "answer", "platform", "screenshot", "example", "describe"];
+  const ITEM_KEYS = ["file", "kind", "minutes", "goals", "drills"];
+  const ITEM_KINDS = ["start", "lesson", "skillcheck", "project", "capstone"];
+
+  // One color per week, used by the roadmap lines and the badges.
+  // Each clears 4.5:1 against white for the white text drawn on it.
+  const WEEK_COLORS = { 1: "#0046ad", 2: "#305305", 3: "#a23108", 4: "#6b21a8", 5: "#374151" };
+
+  // -------------------------------------------------------------------------
+  // Small helpers
+  // -------------------------------------------------------------------------
+
+  /** Make text safe to put inside HTML (the most important function here). */
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  /** Convert "1in", "36pt", "2.54cm" to points. Returns null if it isn't a length. */
+  function toPoints(v) {
+    const m = /^(\d+(?:\.\d+)?)(in|pt|cm|mm)$/.exec(String(v).trim());
+    if (!m) return null;
+    const n = parseFloat(m[1]);
+    return { in: n * 72, pt: n, cm: n * 72 / 2.54, mm: n * 72 / 25.4 }[m[2]];
+  }
+
+  /** "[a, b, c]" -> ["a","b","c"]; "a, b" -> ["a","b"]; anything else -> the string. */
+  function parseValue(raw) {
+    const v = raw.trim();
+    if (/^\[.*\]$/.test(v)) return v.slice(1, -1).split(",").map(x => unquote(x.trim())).filter(Boolean);
+    if (v === "true") return true;
+    if (v === "false") return false;
+    return unquote(v);
+  }
+  function unquote(v) { return /^".*"$/.test(v) ? v.slice(1, -1) : v; }
+  function splitList(v) { return Array.isArray(v) ? v : String(v || "").split(",").map(x => x.trim()).filter(Boolean); }
+
+  // -------------------------------------------------------------------------
+  // 1. PARSE
+  // -------------------------------------------------------------------------
+
+  /**
+   * Parse a whole Trainer Markdown file.
+   * Returns { meta, blocks, issues } where issues are problems found while
+   * reading (validate() adds more).
+   */
+  function parse(text) {
+    const lines = String(text).replace(/\r\n?/g, "\n").split("\n");
+    const issues = [];
+    const meta = {};
+    let i = 0;
+
+    // --- front matter: between the first two "---" lines ---
+    if (lines[0] && lines[0].trim() === "---") {
+      i = 1;
+      while (i < lines.length && lines[i].trim() !== "---") {
+        const line = lines[i];
+        if (line.trim()) {
+          const m = /^([A-Za-z][\w-]*)\s*:\s*(.*)$/.exec(line);
+          if (m) meta[m[1]] = parseValue(m[2]);
+          else issues.push(issue("error", i + 1, `Front matter line is not "key: value": ${line.trim()}`));
+        }
+        i++;
+      }
+      if (i >= lines.length) issues.push(issue("error", 1, "Front matter is not closed with a --- line."));
+      i++; // skip closing ---
+    } else {
+      issues.push(issue("error", 1, "The file must start with front matter between two --- lines."));
+    }
+
+    // --- body: Markdown chunks and ::: directives ---
+    const blocks = [];
+    let mdBuffer = [];
+    let mdStart = i + 1;
+    const flushMd = () => {
+      if (mdBuffer.length) blocks.push({ kind: "md", lines: mdBuffer, line: mdStart });
+      mdBuffer = [];
+    };
+
+    while (i < lines.length) {
+      const line = lines[i];
+      const open = /^:::\s*([a-z][a-z-]*)\s*(.*)$/.exec(line.trim());
+      if (open && line.trim() !== ":::") {
+        flushMd();
+        const start = i + 1;
+        const inner = [];
+        i++;
+        while (i < lines.length && lines[i].trim() !== ":::") { inner.push(lines[i]); i++; }
+        if (i >= lines.length) issues.push(issue("error", start, `The ::: ${open[1]} block that starts here is never closed with :::`));
+        blocks.push(parseDirective(open[1], open[2].trim(), inner, start, issues));
+        i++;
+        mdStart = i + 1;
+        continue;
+      }
+      if (!mdBuffer.length) mdStart = i + 1;
+      mdBuffer.push(line);
+      i++;
+    }
+    flushMd();
+    return { meta, blocks, issues };
+  }
+
+  function issue(level, line, message) { return { level, line, message }; }
+
+  /** Parse what is inside a ::: block. `start` is the line number of the ::: line. */
+  function parseDirective(name, arg, inner, start, issues) {
+    const block = { kind: "directive", name, arg, line: start, header: {}, headerLines: {}, intro: [], steps: [], body: inner, items: [] };
+    if (!DIRECTIVES.includes(name)) {
+      issues.push(issue("error", start, `Unknown directive "::: ${name}". Use one of: ${DIRECTIVES.join(", ")}.`));
+      return block;
+    }
+
+    // Free-text directives: their inside is Markdown.
+    if (name === "callout" || name === "platform") { block.md = inner; return block; }
+
+    // Outcomes and certification lists (outline file only): "- id | text"
+    if (name === "outcomes" || name === "certification") {
+      inner.forEach((l, k) => {
+        if (!l.trim()) return;
+        const m = /^-\s*([^|]+)\|\s*(.+)$/.exec(l.trim());
+        if (!m) { issues.push(issue("error", start + k + 1, 'List lines look like "- CLO1 | Create, save, format and print documents".')); return; }
+        block.items.push({ id: m[1].trim(), text: m[2].trim(), line: start + k + 1 });
+      });
+      return block;
+    }
+
+    // Rubric: "- id | points | CLOs | description"
+    if (name === "rubric") {
+      inner.forEach((l, k) => {
+        if (!l.trim()) return;
+        const m = /^-\s*(.+)$/.exec(l.trim());
+        const parts = m ? m[1].split("|").map(s => s.trim()) : [];
+        if (parts.length !== 4) { issues.push(issue("error", start + k + 1, 'Rubric lines look like "- P1-a | 25 | CLO1 | Description".')); return; }
+        block.items.push({ id: parts[0], points: Number(parts[1]), clos: splitList(parts[2]), text: parts[3], line: start + k + 1 });
+      });
+      return block;
+    }
+
+    // Everything else: header keys, then (for drills) intro Markdown and steps.
+    let k = 0;
+    // header: contiguous "key: value" lines at the top
+    while (k < inner.length) {
+      const l = inner[k];
+      if (!l.trim()) { k++; if (Object.keys(block.header).length) break; continue; }
+      const m = /^([A-Za-z][\w-]*)\s*:\s*(.*)$/.exec(l);
+      if (!m || /^-\s/.test(l)) break;
+      block.header[m[1]] = m[2].trim();
+      block.headerLines[m[1]] = start + k + 1;
+      k++;
+    }
+
+    if (name === "quiz") {
+      for (; k < inner.length; k++) {
+        const l = inner[k].trim();
+        const lineNo = start + k + 1;
+        if (!l) continue;
+        const opt = /^-\s*\[( |x|X)\]\s*(.+)$/.exec(l);
+        const kv = /^([A-Za-z]+)\s*:\s*(.*)$/.exec(l);
+        if (opt) block.items.push({ correct: opt[1].toLowerCase() === "x", text: opt[2], line: lineNo });
+        else if (kv) { block.header[kv[1]] = kv[2].trim(); block.headerLines[kv[1]] = lineNo; }
+        else issues.push(issue("error", lineNo, 'Quiz lines are "key: value" or options like "- [x] Right answer".'));
+      }
+      return block;
+    }
+
+    if (name === "video" || name === "replace-video" || name === "add-video") return block;
+
+    // drill / skillcheck / preflight: intro Markdown, then "- step:" or "- task:" items
+    // week (outline only): "- item:" entries, one per station on the roadmap
+    const stepWord = name === "skillcheck" ? "task" : name === "week" ? "item" : "step";
+    const allowedKeys = name === "week" ? ITEM_KEYS : STEP_KEYS;
+    let current = null;
+    for (; k < inner.length; k++) {
+      const raw = inner[k];
+      const lineNo = start + k + 1;
+      const stepStart = new RegExp("^-\\s*(step|task|item)\\s*:\\s*(.*)$").exec(raw.trim());
+      if (stepStart && !/^\s/.test(raw)) {
+        if (stepStart[1] !== stepWord) issues.push(issue("error", lineNo, `Use "- ${stepWord}:" inside a ${name} block.`));
+        current = { text: stepStart[2], checks: [], hints: [], line: lineNo, extra: {} };
+        block.steps.push(current);
+        continue;
+      }
+      if (current && /^\s+\S/.test(raw)) {
+        const m = /^\s+([A-Za-z]+)\s*:\s*(.*)$/.exec(raw);
+        if (!m) { issues.push(issue("error", lineNo, 'Step details are indented "key: value" lines, such as "  check: text.absent value=\\"Acme\\"".')); continue; }
+        const key = m[1], val = m[2].trim();
+        if (key === "check" && name !== "week") current.checks.push(Object.assign(parseCheck(val, lineNo, issues), { line: lineNo }));
+        else if (key === "hint" && name !== "week") current.hints.push(val);
+        else if (allowedKeys.includes(key) && key !== "check" && key !== "hint") current.extra[key] = val;
+        else issues.push(issue("error", lineNo, `Unknown key "${key}" here. Use ${allowedKeys.join(", ")}.`));
+        continue;
+      }
+      if (current && raw.trim()) {
+        issues.push(issue("error", lineNo, "Text after a step must be indented under it, or start a new \"- " + stepWord + ":\"."));
+        continue;
+      }
+      if (!current) block.intro.push(raw);
+    }
+    return block;
+  }
+
+  /**
+   * Parse the part after "check:".
+   * Example: text.present value="Lakeshore Paddle Company" min=4 in=body
+   */
+  function parseCheck(src, lineNo, issues) {
+    const out = { name: "", params: {}, raw: src };
+    const nameMatch = /^([a-z]+\.[A-Za-z]+)(.*)$/.exec(src);
+    if (!nameMatch) { issues.push(issue("error", lineNo, `"${src}" is not a check. It should start with a name like text.absent.`)); return out; }
+    out.name = nameMatch[1];
+    let rest = nameMatch[2];
+    // Tokens: key=value or key="value with spaces" (\" for a quote inside)
+    const re = /\s*([A-Za-z][A-Za-z0-9]*)=("((?:[^"\\]|\\.)*)"|[^\s"]+)/y;
+    let pos = 0;
+    while (pos < rest.length) {
+      if (!rest.slice(pos).trim()) break;
+      re.lastIndex = pos;
+      const m = re.exec(rest);
+      if (!m) { issues.push(issue("error", lineNo, `Could not read "${rest.slice(pos).trim()}". Parameters look like key=value or key="two words".`)); break; }
+      out.params[m[1]] = m[3] !== undefined ? m[3].replace(/\\"/g, '"') : m[2];
+      pos = re.lastIndex;
+    }
+    return out;
+  }
+
+  // -------------------------------------------------------------------------
+  // 2. VALIDATE
+  // -------------------------------------------------------------------------
+
+  /**
+   * Validate a parsed document.
+   * ctx (all optional):
+   *   videoHosts: approved host list
+   *   starterExists(path) -> true | false | null (null = can't tell)
+   */
+  function validate(doc, ctx) {
+    ctx = ctx || {};
+    const set = checkSet(ctx.app);   // which checks this course's lessons may use
+    const issues = doc.issues.slice();
+    const add = (level, line, message) => issues.push(issue(level, line, message));
+    const meta = doc.meta;
+    const hosts = ctx.videoHosts || DEFAULT_VIDEO_HOSTS;
+    const ready = meta.status === "ready";
+
+    // --- front matter ---
+    const type = meta.type;
+    if (!FILE_TYPES.includes(type)) add("error", 1, `type must be one of ${FILE_TYPES.join(", ")}.`);
+    const isActivityFile = ["lesson", "skillcheck", "project", "capstone"].includes(type);
+    if (type === "section") {
+      if (!SECTION_CODE.test(String(meta.id || ""))) add("error", 1, 'A section id is its code, such as "WRD-7K3Q" (capitals, numbers, one hyphen).');
+      ["title", "instructor"].forEach(k => { if (!meta[k]) add("error", 1, `Front matter is missing "${k}".`); });
+      if (ctx.fileName && meta.id && ctx.fileName.replace(/\.md$/, "") !== meta.id) add("error", 1, `Name this file ${meta.id}.md so the trainer can find it by its code.`);
+      // skip: [PP1-L3, PP2-SC2] leaves those stops out of the section
+      splitList(meta.skip).forEach((id) => {
+        if (!STOP_ID.test(id)) add("error", 1, `skip: "${id}" isn't a lesson id (such as PP1-L3).`);
+        else if (ctx.stopIds && !ctx.stopIds.has(id)) add("error", 1, `skip: there's no stop "${id}" in this course.`);
+      });
+    }
+    if (type === "info" || type === "outline") {
+      ["id", "title"].forEach(k => { if (!meta[k]) add("error", 1, `Front matter is missing "${k}".`); });
+    }
+    if (type === "config") {
+      if (meta.mode && !COURSE_MODES.includes(meta.mode)) add("error", 1, `mode is "practice" or "section".`);
+      if (meta.certificateEach && !["lesson", "week", "course", "none"].includes(meta.certificateEach)) add("error", 1, 'certificateEach is "lesson", "week", "course" or "none".');
+    }
+    if (isActivityFile) {
+      ["id", "week", "order", "title", "objectives"].forEach(k => { if (meta[k] === undefined || meta[k] === "") add("error", 1, `Front matter is missing "${k}".`); });
+      splitList(meta.objectives).forEach(o => { if (!/^W[1-5]\.[1-9]$/.test(o)) add("warning", 1, `Objective "${o}" is not in the course map (expected W1.1 to W5.6).`); });
+      splitList(meta.clos).forEach(c => { if (!/^CLO[1-8]$/.test(c)) add("warning", 1, `"${c}" is not a course learning outcome (CLO1 to CLO8).`); });
+      if (meta.status && !["draft", "ready"].includes(meta.status)) add("error", 1, 'status is "draft" or "ready".');
+    }
+
+    const ids = new Set();
+    let drillCount = 0;
+    for (const b of doc.blocks) {
+      if (b.kind === "md") { validateMarkdown(b, add); continue; }
+      if (!DIRECTIVES.includes(b.name)) continue;
+      const h = b.header;
+      const need = (key, why) => { if (!h[key]) add("error", b.line, `::: ${b.name} needs "${key}:"${why ? " (" + why + ")" : ""}.`); };
+
+      // Outline-only blocks
+      if (["week", "outcomes", "certification"].includes(b.name) && type !== "outline") {
+        add("error", b.line, `::: ${b.name} belongs in content/outline.md only.`); continue;
+      }
+      if (["quiz", "drill", "skillcheck", "preflight", "rubric", "week"].includes(b.name)) {
+        if (!b.arg) add("error", b.line, `::: ${b.name} needs an id, for example "::: ${b.name} ${b.name === "quiz" ? "Q1.1" : "D1.01"}".`);
+        else if (ids.has(b.arg)) add("error", b.line, `The id "${b.arg}" is used twice in this file.`);
+        else ids.add(b.arg);
+      }
+
+      switch (b.name) {
+        case "video": {
+          videoChecks(b, need, add, hosts, ready);
+          if (!h.id) add("error", b.line, 'Give this video a permanent id, such as "id: w1-l2-show-hide". Section files use it to swap in an instructor\'s video.');
+          else if (!VIDEO_ID.test(h.id)) add("error", b.headerLines.id, "A video id uses lowercase letters, numbers and hyphens (3 to 49 characters).");
+          else if (ids.has("video:" + h.id)) add("error", b.headerLines.id, `The video id "${h.id}" is used twice in this file.`);
+          else ids.add("video:" + h.id);
+          break;
+        }
+        case "replace-video": case "add-video": {
+          if (type !== "section") { add("error", b.line, `::: ${b.name} belongs in a section file (sections/<CODE>.md).`); break; }
+          videoChecks(b, need, add, hosts, ready);
+          if (!b.arg) add("error", b.line, b.name === "replace-video" ? "Name the video to replace: ::: replace-video w1-l2-show-hide" : "Name where the video goes: ::: add-video after D1.03 (a video id or an activity id).");
+          const target = b.name === "add-video" ? b.arg.replace(/^after\s+/, "") : b.arg;
+          if (b.name === "replace-video") {
+            if (ctx.videoIds && target && !ctx.videoIds.has(target)) add("error", b.line, `There's no course video with the id "${target}".`);
+            if (ids.has("replace:" + target)) add("error", b.line, `"${target}" is replaced twice in this file.`);
+            ids.add("replace:" + target);
+          } else if (ctx.anchorIds && target && !ctx.anchorIds.has(target)) add("error", b.line, `There's no course video or activity with the id "${target}" to place this after.`);
+          if (h.note && h.note.length > 280) add("warning", b.headerLines.note, "Keep the note under 280 characters; it sits above the video.");
+          break;
+        }
+        case "callout":
+          if (!CALLOUT_KINDS.includes(b.arg)) add("error", b.line, `Callout kind must be one of: ${CALLOUT_KINDS.join(", ")}.`);
+          validateMarkdown({ lines: b.md, line: b.line + 1 }, add);
+          break;
+        case "platform":
+          if (!PLATFORMS.includes(b.arg)) add("error", b.line, `Platform must be one of: ${PLATFORMS.join(", ")}.`);
+          validateMarkdown({ lines: b.md, line: b.line + 1 }, add);
+          break;
+        case "quiz": {
+          need("question");
+          const qtype = h.type || "single";
+          if (!["single", "multi", "number"].includes(qtype)) add("error", b.headerLines.type, 'Quiz type is "single", "multi" or "number".');
+          if (qtype === "number") {
+            if (h.answer === undefined || isNaN(Number(h.answer))) add("error", b.line, 'A number quiz needs "answer:" with a number.');
+          } else {
+            const right = b.items.filter(o => o.correct).length;
+            if (b.items.length < 2) add("error", b.line, "A quiz needs at least two options.");
+            if (qtype === "single" && right !== 1) add("error", b.line, "A single-answer quiz needs exactly one [x] option.");
+            if (qtype === "multi" && right < 1) add("error", b.line, "A multi-answer quiz needs at least one [x] option.");
+          }
+          if (!h.explain) add("warning", b.line, 'Add "explain:" so learners learn from a wrong answer.');
+          break;
+        }
+        case "drill": case "skillcheck": case "preflight": {
+          if (b.name === "drill") drillCount++;
+          need("title");
+          if (b.name !== "preflight") need("starter", "checks are written against it");
+          need("platform");
+          if (h.platform && !["web", "desktop"].includes(h.platform)) add("error", b.headerLines.platform, 'platform is "web" (works in both) or "desktop" (needs desktop ' + set.appName + ').');
+          if (h.starter && h.starter !== "none") {
+            if (!set.starter.test(h.starter) || h.starter.includes("..")) add("error", b.headerLines.starter, 'starter should be a path like "' + set.starterExample + '".');
+            else if (ctx.starterExists) {
+              const found = ctx.starterExists(h.starter);
+              if (found === false) add(ready ? "error" : "warning", b.headerLines.starter, `Starter file not found: ${h.starter}`);
+            }
+          }
+          // files: other downloads a drill needs (a photo to insert, a recipient list, a second version to compare)
+          splitList(h.files).forEach((f) => {
+            if (!/^starters\/[\w\-./]+\.(docx|dotx|xlsx|xltx|pptx|potx|csv|txt|png|jpg|jpeg|svg|glb|mp4|m4a|mp3|wav)$/i.test(f) || f.includes("..")) add("error", b.headerLines.files, `files: "${f}" should be a path like "starters/week-03/kayak.jpg".`);
+            else if (ctx.starterExists && ctx.starterExists(f) === false) add(ready ? "error" : "warning", b.headerLines.files, `File not found: ${f}`);
+          });
+          if (b.name === "skillcheck") {
+            ["timeLimit", "attempts", "passing"].forEach(key => { if (h[key] && isNaN(Number(h[key]))) add("error", b.headerLines[key], `${key} must be a number.`); });
+            need("timeLimit");
+          }
+          if (h.assess) splitList(h.assess).forEach(a => { if (!ASSESS_KINDS.includes(a)) add("error", b.headerLines.assess, `assess is one or more of ${ASSESS_KINDS.join(", ")}.`); });
+          if (h.badge !== undefined && !h.badge.trim()) add("error", b.headerLines.badge, "badge needs a short name, or leave the line out to use the drill title.");
+          if (h.badge && h.badge.length > 40) add("warning", b.headerLines.badge, "Badge names longer than 40 characters get cut off on the certificate.");
+          if (!b.steps.length) add("error", b.line, `::: ${b.name} ${b.arg} has no steps.`);
+          let checked = 0, shots = 0;
+          b.steps.forEach(s => {
+            if (!s.text) add("error", s.line, "This step has no text.");
+            if (s.checks.length || s.extra.answer !== undefined) checked++;
+            if (b.name === "skillcheck") {
+              if (s.hints.length) add("error", s.line, "Skill check tasks can't have hints.");
+              if (!s.checks.length && s.extra.answer === undefined) add("error", s.line, "Every skill check task needs a check or an answer.");
+            }
+            if (s.extra.platform && !["web", "desktop"].includes(s.extra.platform)) add("error", s.line, 'A step platform is "web" or "desktop".');
+            if (s.extra.points && isNaN(Number(s.extra.points))) add("error", s.line, "points must be a number.");
+            if (s.extra.screenshot !== undefined) {
+              shots++;
+              if (b.name === "skillcheck") add("error", s.line, "Skill checks are auto-checked only; move screenshot steps to a drill.");
+              if (!s.extra.screenshot.trim()) add("error", s.line, "screenshot: says what the screenshot must show.");
+              if (s.checks.length) add("warning", s.line, "This step has both a check and a screenshot; the check alone is usually enough.");
+              const ex = s.extra.example;
+              if (!ex) add("warning", s.line, "Add example: with an image of a correct screenshot, so practice-mode learners can compare.");
+              else if (ex === "TODO") add(ready ? "error" : "warning", s.line, "The example screenshot hasn't been captured yet.");
+              else if (!/^images\/[\w\-./]+\.(png|jpg|jpeg|webp)$/i.test(ex) || ex.includes("..")) add("error", s.line, 'example should be a path like "images/week-01/qat.png".');
+            } else if (s.extra.example || s.extra.describe) add("error", s.line, "example: and describe: go with a screenshot: step.");
+            if (s.extra.video) checkUrl(s.extra.video, s.line, add, hosts, true);
+            s.checks.forEach(c => validateCheck(c, b.name, add, set));
+            [s.text].concat(s.hints, s.extra.web || [], s.extra.desktop || []).forEach(t => checkInline(t, s.line, add));
+          });
+          if (b.name === "drill" && !checked && !shots && !splitList(h.assess).includes("practice")) add("warning", b.line, `Drill ${b.arg} has no checked or screenshot steps. Add "assess: practice" if that's on purpose.`);
+          validateMarkdown({ lines: b.intro, line: b.line + 1 }, add);
+          break;
+        }
+        case "week": {
+          if (!/^W[1-9]$/.test(b.arg || "")) add("error", b.line, 'A week id looks like "::: week W1".');
+          need("title");
+          if (h.color && !/^#[0-9A-Fa-f]{6}$/.test(h.color)) add("error", b.headerLines.color, "color is a hex value like #0046ad.");
+          b.steps.forEach(it => {
+            const e = it.extra;
+            if (!it.text) add("error", it.line, "Each item needs a title.");
+            if (!e.kind || !ITEM_KINDS.includes(e.kind)) add("error", it.line, `kind is one of ${ITEM_KINDS.join(", ")}.`);
+            if (e.minutes && isNaN(Number(e.minutes))) add("error", it.line, "minutes must be a number.");
+            if (e.file) {
+              if (!/^content\/[\w\-./]+\.md$/.test(e.file) || e.file.includes("..")) add("error", it.line, 'file is a path like "content/week-01/01-meet-word.md".');
+              else if (ctx.fileExists && ctx.fileExists(e.file) === false) add("error", it.line, `File not found: ${e.file}`);
+            }
+            if (!e.goals) add("warning", it.line, 'Add "goals:" - one sentence on what learners will be able to do.');
+          });
+          break;
+        }
+        case "outcomes": case "certification":
+          if (!b.items.length) add("error", b.line, `::: ${b.name} is empty.`);
+          break;
+        case "rubric": {
+          const total = b.items.reduce((sum, it) => sum + (isNaN(it.points) ? 0 : it.points), 0);
+          b.items.forEach(it => { if (isNaN(it.points)) add("error", it.line, "Rubric points must be a number."); });
+          if (total !== 100) add("error", b.line, `Rubric points total ${total}; they must total 100.`);
+          break;
+        }
+      }
+    }
+    if (type === "lesson" && !drillCount) add("warning", 1, "This lesson has no drills.");
+    if (type === "outline" && !doc.blocks.some(b => b.name === "week")) add("error", 1, "The outline needs at least one ::: week block.");
+    return issues.sort((a, b) => a.line - b.line);
+  }
+
+  /** Checks every kind of video block shares: url, approved host, title, captions. */
+  function videoChecks(b, need, add, hosts, ready) {
+    const h = b.header;
+    need("url"); need("title", "it names the player for screen readers"); need("captions");
+    const url = h.url || "";
+    if (url === "TODO") add(ready ? "error" : "warning", b.headerLines.url || b.line, `Video "${h.title || ""}" has no URL yet.`);
+    else if (url) {
+      const host = hostOf(url);
+      if (!host) add("error", b.headerLines.url, "Video url must be a full https:// address.");
+      else if (!hosts.includes(host) && !(host === "youtu.be" && hosts.includes("www.youtube.com"))) add("error", b.headerLines.url, `Video host "${host}" is not on the approved list (${hosts.join(", ")}).`);
+    }
+    if (h.captions && !["verified", "auto", "none"].includes(h.captions)) add("error", b.headerLines.captions, 'captions is "verified", "auto" or "none".');
+    if (h.captions && h.captions !== "verified") add(ready ? "error" : "warning", b.headerLines.captions || b.line, `Video "${h.title || ""}" needs human-verified captions before this file is ready (ADA Title II, WCAG 1.2.2).`);
+  }
+
+  /**
+   * Course index for section files: every video id and every activity id
+   * (drills, quizzes, skill checks), and every stop's id (lessons, skill checks,
+   * projects, the capstone: what a section can skip), from a list of parsed lesson files.
+   */
+  function courseIndex(docs) {
+    const videos = [], videoIds = new Set(), anchorIds = new Set(), stopIds = new Set();
+    for (const d of docs) if (["lesson", "skillcheck", "project", "capstone"].includes(d.meta.type) && d.meta.id) stopIds.add(String(d.meta.id));
+    for (const d of docs) for (const b of d.blocks) {
+      if (b.name === "video" && b.header.id) {
+        videoIds.add(b.header.id); anchorIds.add(b.header.id);
+        videos.push({ id: b.header.id, title: b.header.title || "", lesson: d.meta.title || "", lessonId: d.meta.id || "", url: b.header.url || "" });
+      }
+      if (["drill", "quiz", "skillcheck", "preflight", "rubric"].includes(b.name) && b.arg) anchorIds.add(b.arg);
+    }
+    return { videos, videoIds, anchorIds, stopIds };
+  }
+
+  /**
+   * Apply one section file to one lesson: swap replaced videos and insert
+   * added ones. Returns a NEW document; the lesson itself is never changed.
+   * Each instructor video remembers the stock one (stockUrl) so learners can
+   * still choose the standard video.
+   */
+  function applyOverrides(doc, section) {
+    if (!section) return doc;
+    const replace = Object.create(null), after = Object.create(null); // no inherited names such as "constructor"
+    for (const b of section.blocks) {
+      if (b.name === "replace-video" && b.arg) replace[b.arg] = b;
+      if (b.name === "add-video" && b.arg) (after[b.arg.replace(/^after\s+/, "")] = after[b.arg.replace(/^after\s+/, "")] || []).push(b);
+    }
+    const who = section.meta.instructor || "your instructor";
+    const asVideo = (o, stock) => ({ kind: "directive", name: "video", arg: "", line: o.line, header: Object.assign({}, o.header, { id: stock ? stock.header.id : "" }),
+      headerLines: {}, intro: [], steps: [], body: [], items: [],
+      source: "instructor", instructor: who, stockUrl: stock ? stock.header.url : null, stockTitle: stock ? stock.header.title : null });
+    const blocks = [];
+    for (const b of doc.blocks) {
+      const vid = b.name === "video" ? b.header.id : null;
+      blocks.push(vid && replace[vid] ? asVideo(replace[vid], b) : b);
+      const anchor = vid || (b.kind === "directive" ? b.arg : null);
+      if (anchor && after[anchor]) after[anchor].forEach(o => blocks.push(asVideo(o, null)));
+    }
+    return Object.assign({}, doc, { blocks });
+  }
+
+  // -------------------------------------------------------------------------
+  // SECTIONS: section keys and section files, in one shape
+  // -------------------------------------------------------------------------
+  // An instructor can set up a section two ways:
+  //   1. A SECTION KEY: the whole section packed into one line of text, made
+  //      on instructor/sections.html. Students paste it into the panel. It
+  //      needs no server and no upload: the settings live inside the key.
+  //   2. A SECTION FILE: sections/<CODE>.md in the course folder (5.13 in
+  //      trainer-markdown.md). Students type the short code. Someone with
+  //      access to the website has to add the file.
+  // Both turn into the same plain object (a "section"):
+  //   { app, title, instructor, term,
+  //     skip:   ["PP1-L3", ...]   lesson ids the section leaves out,
+  //     videos: [{ replace: "w1-l2-show-hide" } or { after: "D1.05" },
+  //              plus url, title, captions, note, duration] }
+  // A key is NOT secret and NOT trusted: anyone can make one. So everything
+  // in it is checked here, the same way for keys and files, before the panel
+  // uses it: lengths are capped, ids must look like ids, and videos must come
+  // from the course's approved hosts. A key can't add a host or run code.
+  // -------------------------------------------------------------------------
+  const SECTION_KEY_PREFIX = "OTK1.";           // "Office Trainer key, version 1"
+  const SECTION_KEY_MAX = 20000;                 // characters; a key with 60 videos is about 15,000
+  const STOP_ID = /^[A-Za-z0-9][A-Za-z0-9-]{1,31}$/;          // lesson ids such as PP1-L3, W2-SC2
+  const ANCHOR_ID = /^[A-Za-z0-9][A-Za-z0-9.-]{1,48}$/;        // video ids (w1-l2-show-hide) or activity ids (D1.05)
+  const SECTION_APPS = ["word", "excel", "powerpoint"];
+  const CAPTION_CHOICES = ["verified", "auto", "none"];
+
+  /** Plain one-line text: no control, invisible or text-direction characters (which can disguise a name), trimmed, at most max characters. */
+  function cleanText(value, max) {
+    return String(value === undefined || value === null ? "" : value)
+      .replace(/[\u0000-\u001f\u007f-\u009f\u061c\u200b-\u200f\u2028-\u202e\u2060-\u206f\ufeff]/g, " ")
+      .replace(/\s+/g, " ").trim().slice(0, max);
+  }
+
+  /**
+   * Will this link play in a lesson? It must be https, and after embedUrl
+   * turns it into a player link (YouTube watch links become privacy-enhanced
+   * youtube-nocookie links, Vimeo pages become player links), its host must
+   * be on the approved list. This is the same test videoFigure uses, so a
+   * video that passes here is a video learners can play.
+   */
+  function videoUrlAllowed(url, hosts) {
+    if (typeof url !== "string" || url.length > 500 || !/^https:\/\//i.test(url)) return false;
+    const player = embedUrl(url);
+    const host = hostOf(player);
+    const list = (hosts || DEFAULT_VIDEO_HOSTS).concat(["www.youtube-nocookie.com"]);
+    if (!host || !list.includes(host)) return false;
+    // YouTube and Vimeo links must point at one video (not a channel, a search or the home page).
+    if (/(^|\.)youtube(-nocookie)?\.com$/.test(host)) return /^https:\/\/www\.youtube-nocookie\.com\/embed\/[\w-]{6,}([?#]|$)/.test(player);
+    if (/(^|\.)vimeo\.com$/.test(host)) return /^https:\/\/player\.vimeo\.com\/video\/\d+([?#/]|$)/.test(player);
+    return true;
+  }
+
+  /**
+   * Check a section (from a key, a file or the builder) and return a clean copy.
+   *   ctx = { app, videoHosts, stopIds, videoIds, anchorIds }  (the id sets are optional)
+   * Returns { section, problems }. Bad parts are dropped and described in
+   * problems (plain sentences), so one typo never breaks the whole section.
+   * Returns section: null when the key can't be used at all.
+   */
+  function cleanSection(raw, ctx) {
+    const c = ctx || {};
+    const problems = [];
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { section: null, problems: ["That isn't a section."] };
+    const app = cleanText(raw.app, 12).toLowerCase();
+    if (!SECTION_APPS.includes(app)) return { section: null, problems: ["The section doesn't say which course it's for."] };
+    if (c.app && app !== c.app) {
+      const names = { word: "Word", excel: "Excel", powerpoint: "PowerPoint" };
+      return { section: null, problems: [`This section is for the ${names[app]} course. Open Office Trainer in ${names[app]} to join it.`] };
+    }
+    const section = {
+      app,
+      title: cleanText(raw.title, 80),
+      instructor: cleanText(raw.instructor, 60),
+      term: cleanText(raw.term, 40),
+      skip: [],
+      videos: [],
+    };
+    if (!section.title) return { section: null, problems: ["The section has no name."] };
+    if (!section.instructor) section.instructor = "your instructor";
+
+    // Lessons left out. Unknown ids are dropped (a lesson may have been renamed).
+    const skips = Array.isArray(raw.skip) ? raw.skip.slice(0, 200) : [];
+    for (const s of skips) {
+      const id = cleanText(s, 32);
+      if (!STOP_ID.test(id)) { problems.push(`"${id}" isn't a lesson id, so it was ignored.`); continue; }
+      if (c.stopIds && !c.stopIds.has(id)) { problems.push(`There's no stop "${id}" in this course any more, so it was ignored.`); continue; }
+      if (!section.skip.includes(id)) section.skip.push(id);
+    }
+
+    // Videos: each replaces a course video or goes after a video or activity.
+    const vids = Array.isArray(raw.videos) ? raw.videos.slice(0, 80) : [];
+    const replaced = new Set();
+    vids.forEach((v, i) => {
+      if (!v || typeof v !== "object") return;
+      const n = `Video ${i + 1}`;
+      const replace = v.replace !== undefined ? cleanText(v.replace, 49) : "";
+      const after = v.after !== undefined ? cleanText(v.after, 49) : "";
+      const url = cleanText(v.url, 500);
+      const video = {
+        url, title: cleanText(v.title, 100) || "Video from " + section.instructor,
+        captions: CAPTION_CHOICES.includes(v.captions) ? v.captions : "none",
+        note: cleanText(v.note, 240), duration: cleanText(v.duration, 10),
+      };
+      if (replace) {
+        if (!VIDEO_ID.test(replace)) { problems.push(`${n}: "${replace}" isn't a video id, so it was ignored.`); return; }
+        if (c.videoIds && !c.videoIds.has(replace)) { problems.push(`${n}: the course has no video "${replace}" any more, so it was ignored.`); return; }
+        if (replaced.has(replace)) { problems.push(`${n}: "${replace}" is replaced twice; the first one is used.`); return; }
+        replaced.add(replace);
+        video.replace = replace;
+      } else if (after) {
+        if (!ANCHOR_ID.test(after)) { problems.push(`${n}: "${after}" isn't a video or activity id, so it was ignored.`); return; }
+        if (c.anchorIds && !c.anchorIds.has(after)) { problems.push(`${n}: the course has no video or activity "${after}" any more, so it was ignored.`); return; }
+        video.after = after;
+      } else { problems.push(`${n} doesn't say where it goes, so it was ignored.`); return; }
+      if (!videoUrlAllowed(url, c.videoHosts)) { problems.push(`${n} ("${video.title}") isn't an https link on an approved video site, so it was left out.`); return; }
+      video.url = embedUrl(url); // store the player link (YouTube watch links become privacy-enhanced youtube-nocookie links)
+      section.videos.push(video);
+    });
+    return { section, problems };
+  }
+
+  /** UTF-8 text to base64url (the letters, digits, - and _ that survive copy and paste). */
+  function toBase64Url(text) {
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  /** base64url back to UTF-8 text. Throws on anything that isn't base64url. */
+  function fromBase64Url(b64) {
+    if (!/^[A-Za-z0-9_-]*$/.test(b64)) throw new Error("not base64url");
+    const binary = atob(b64.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64.length + 3) % 4));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  }
+
+  /** Pack a (clean) section into a key: "OTK1." + base64url of its JSON. Empty parts are left out to keep it short. */
+  function encodeSectionKey(section) {
+    const s = { app: section.app, title: section.title, instructor: section.instructor };
+    if (section.term) s.term = section.term;
+    if (section.skip && section.skip.length) s.skip = section.skip;
+    if (section.videos && section.videos.length) s.videos = section.videos.map((v) => {
+      const o = v.replace ? { replace: v.replace } : { after: v.after };
+      o.url = v.url; o.title = v.title; o.captions = v.captions;
+      if (v.note) o.note = v.note;
+      if (v.duration) o.duration = v.duration;
+      return o;
+    });
+    return SECTION_KEY_PREFIX + toBase64Url(JSON.stringify(s));
+  }
+
+  /** Does this text look like a section key (as opposed to a short section code)? */
+  function isSectionKey(text) { return String(text || "").replace(/\s+/g, "").startsWith(SECTION_KEY_PREFIX); }
+
+  /**
+   * Unpack a key that someone pasted. Spaces and line breaks (from email or
+   * chat wrapping) are ignored. Returns cleanSection's { section, problems }.
+   */
+  function decodeSectionKey(text, ctx) {
+    const key = String(text || "").replace(/\s+/g, "");
+    if (!key.startsWith(SECTION_KEY_PREFIX)) return { section: null, problems: ["A section key starts with OTK1."] };
+    if (key.length > SECTION_KEY_MAX) return { section: null, problems: ["That key is too long to be a section key."] };
+    let raw;
+    try { raw = JSON.parse(fromBase64Url(key.slice(SECTION_KEY_PREFIX.length))); }
+    catch (e) { return { section: null, problems: ["That key is damaged or incomplete. Copy the whole key again (it's one long line)."] }; }
+    return cleanSection(raw, ctx);
+  }
+
+  /** A parsed section file (sections/<CODE>.md) as a section. Its front matter may list skip: [lesson ids]. */
+  function sectionFromFile(doc, ctx) {
+    if (!doc || !doc.meta || doc.meta.type !== "section") return { section: null, problems: ["That isn't a section file."] };
+    const raw = {
+      app: (ctx && ctx.app) || doc.meta.app || "word", title: doc.meta.title, instructor: doc.meta.instructor, term: doc.meta.term,
+      skip: splitList(doc.meta.skip), videos: [],
+    };
+    for (const b of doc.blocks) {
+      if (b.name !== "replace-video" && b.name !== "add-video") continue;
+      const v = Object.assign({}, b.header);
+      if (b.name === "replace-video") v.replace = b.arg; else v.after = String(b.arg || "").replace(/^after\s+/, "");
+      raw.videos.push(v);
+    }
+    return cleanSection(raw, ctx);
+  }
+
+  /** A section as a document applyOverrides understands (made of replace-video and add-video blocks). */
+  function sectionDoc(section) {
+    if (!section) return null;
+    const blocks = section.videos.map((v, i) => ({
+      kind: "directive", name: v.replace ? "replace-video" : "add-video", arg: v.replace ? v.replace : "after " + v.after,
+      line: i + 1, header: { url: v.url, title: v.title, captions: v.captions, note: v.note, duration: v.duration },
+      headerLines: {}, intro: [], steps: [], body: [], items: [],
+    }));
+    return { meta: { type: "section", title: section.title, instructor: section.instructor, term: section.term }, blocks };
+  }
+
+  /** A section written out as a section file (sections/<CODE>.md), for the website's sections folder. */
+  function sectionToFile(section, code) {
+    const one = (s) => cleanText(s, 500); // one line, no control characters
+    const lines = ["---", "type: section", `id: ${one(code)}`, `title: ${one(section.title)}`, `instructor: ${one(section.instructor)}`];
+    if (section.term) lines.push(`term: ${one(section.term)}`);
+    if (section.skip.length) lines.push(`skip: [${section.skip.join(", ")}]`);
+    lines.push("status: draft", "---", "", `Made with the section builder for the ${({ word: "Word", excel: "Excel", powerpoint: "PowerPoint" })[section.app]} course.`, "");
+    for (const v of section.videos) {
+      lines.push(v.replace ? `::: replace-video ${v.replace}` : `::: add-video after ${v.after}`,
+        `url: ${one(v.url)}`, `title: ${one(v.title)}`, `captions: ${v.captions}`);
+      if (v.duration) lines.push(`duration: ${one(v.duration)}`);
+      if (v.note) lines.push(`note: ${one(v.note)}`);
+      lines.push(":::", "");
+    }
+    return lines.join("\n");
+  }
+
+  /**
+   * Inline Markdown as plain text, for places that can't show formatting
+   * (the grader's feedback files and spreadsheets): **bold** and `code`
+   * lose their marks, [[path: Home > Font]] and [[key: Ctrl+B]] keep their
+   * words, and links keep their text.
+   */
+  function plainText(md) {
+    return String(md || "")
+      .replace(/\[\[(?:path|key):\s*([^\]]+)\]\]/g, "$1")
+      .replace(/\[([^\]]+)\]\((?:[^)]+)\)/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1").replace(/\*([^*]+)\*/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\s+/g, " ").trim();
+  }
+
+  /** Check one parsed "check:" against the catalog. */
+  function validateCheck(c, where, add, set) {
+    set = set || checkSet("word");
+    const CATALOG = set.checks, SEL = set.selectors;
+    const def = CATALOG[c.name];
+    if (!c.name) return;
+    if (!def) { add("error", c.line, `Unknown check "${c.name}". Known checks: ${Object.keys(CATALOG).join(", ")}.`); return; }
+    if (def.notInSkillCheck && where === "skillcheck") add("error", c.line, `${c.name} can't be used in a skill check.`);
+    const used = Object.keys(c.params);
+    const sel = used.filter(k => SEL.includes(k));
+    if (sel.length && !def.selector) add("error", c.line, `${c.name} doesn't take a selector (${sel.join(", ")}).`);
+    if (sel.length > 1) add("error", c.line, `Use only one selector; found ${sel.join(" and ")}.`);
+    if (def.needsSelector && !sel.length) add("error", c.line, `${c.name} needs ${SEL.join("= or ")}= to say which cells to check.`);
+    if (SEL.includes("in") && c.params.in && !["body", "header", "footer", "document"].includes(c.params.in)) add("error", c.line, 'in= is body, header, footer or document.');
+    for (const [key, type] of Object.entries(def.params)) {
+      if (type.endsWith("!") && c.params[key] === undefined) add("error", c.line, `${c.name} needs ${key}=...`);
+    }
+    if (def.needsOneOf && !def.needsOneOf.some(k => c.params[k] !== undefined)) add("error", c.line, `${c.name} needs at least one of: ${def.needsOneOf.join(", ")}.`);
+    for (const key of used) {
+      if (SEL.includes(key)) continue;
+      const type = def.params[key];
+      if (!type) { add("error", c.line, `${c.name} has no parameter "${key}". It takes: ${Object.keys(def.params).concat(def.selector ? SEL : []).join(", ") || "no parameters"}.`); continue; }
+      const v = c.params[key];
+      const base = type.replace("!", "");
+      const bad = (msg) => add("error", c.line, `${c.name} ${key}=${v}: ${msg}`);
+      if (base === "int" && !/^\d+$/.test(v)) bad("expected a whole number.");
+      if (base === "number" && isNaN(Number(v))) bad("expected a number.");
+      if (base === "bool" && !["true", "false"].includes(v)) bad("expected true or false.");
+      if (base === "length" && toPoints(v) === null) bad("expected a length with units, like 1in, 36pt or 2.54cm.");
+      if (base === "color" && !/^#[0-9A-Fa-f]{6}$/.test(v)) bad("expected a color like #0046AD.");
+      if (base === "lang" && !/^[a-z]{2}-[A-Z]{2}$/.test(v)) bad("expected a language tag like en-US.");
+      if (base === "lineSpacing" && !(["single", "1.15", "1.5", "double"].includes(v) || toPoints(v) !== null)) bad("expected single, 1.15, 1.5, double or an exact value like 14pt.");
+      if (base.startsWith("enum:") && !base.slice(5).split("|").includes(v)) bad(`expected one of ${base.slice(5).split("|").join(", ")}.`);
+    }
+  }
+
+  /** Markdown-level checks: H1, raw HTML, images, links, inline syntax. */
+  function validateMarkdown(b, add) {
+    let inCode = false;
+    (b.lines || []).forEach((l, k) => {
+      const lineNo = b.line + k;
+      if (/^```/.test(l.trim())) { inCode = !inCode; return; }
+      if (inCode) return;
+      if (/^#\s/.test(l)) add("error", lineNo, "Don't use a # heading; the title is the page's only H1. Start at ##.");
+      if (/^#{4,}\s/.test(l)) add("warning", lineNo, "Headings deeper than ### are hard to scan in the narrow add-in panel.");
+      checkInline(l, lineNo, add);
+    });
+  }
+
+  function checkInline(text, lineNo, add) {
+    const t = String(text || "");
+    const noCode = t.replace(/`[^`]*`/g, "");
+    if (/<\/?[A-Za-z][^>]*>/.test(noCode)) add("error", lineNo, "Raw HTML isn't allowed. It will be shown as text.");
+    let m;
+    const img = /!\[([^\]]*)\]\(([^)\s]+)\)(\{decorative\})?/g;
+    while ((m = img.exec(t))) {
+      if (!m[1].trim() && !m[3]) add("error", lineNo, "This image needs alt text, or {decorative} if it carries no information.");
+      if (/^https?:/i.test(m[2])) add("warning", lineNo, "External images load from another site; prefer a file in images/.");
+      else if (m[2].includes("..") || /^[a-z]+:/i.test(m[2])) add("error", lineNo, "Image paths must be relative, like images/indent.png.");
+    }
+    const link = /(?<!!)\[([^\]]+)\]\(([^)\s]+)\)/g;
+    while ((m = link.exec(t))) {
+      const href = m[2];
+      if (!/^https:\/\//i.test(href) && !/^[\w\-./]+\.md(#[\w-]+)?$/.test(href)) add("error", lineNo, `Link "${href}" must start with https:// or point to a lesson .md file.`);
+    }
+    const ext = /\[\[([a-z]+)\s*:([^\]]*)\]\]/g;
+    while ((m = ext.exec(t))) {
+      if (!["key", "path"].includes(m[1])) add("error", lineNo, `Unknown inline tag [[${m[1]}: ...]]. Use [[key: ...]] or [[path: ...]].`);
+    }
+  }
+
+  /**
+   * The host of an https link, or null. The host must be followed by "/", "?", "#" or the end,
+   * so a link with a user name or a port (https://www.youtube.com:x@evil.example/) is refused
+   * instead of being mistaken for YouTube.
+   */
+  function hostOf(url) { const m = /^https:\/\/([a-z0-9.-]+)(?=[/?#]|$)/i.exec(String(url || "")); return m ? m[1].toLowerCase() : null; }
+  function checkUrl(url, lineNo, add, hosts) {
+    const host = hostOf(url.split("#")[0]);
+    if (!host) add("error", lineNo, "Video links must be full https:// addresses.");
+    else if (!hosts.includes(host) && host !== "youtu.be") add("error", lineNo, `Video host "${host}" is not approved.`);
+  }
+
+  // -------------------------------------------------------------------------
+  // 3. RENDER (safe HTML string for previews)
+  // -------------------------------------------------------------------------
+
+  /** Inline Markdown on ONE line of text. Escapes first, then adds our own tags. */
+  function inline(text) {
+    // Pull out code spans first so nothing inside them is formatted.
+    const codes = [];
+    let s = String(text).replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return "\u0000" + (codes.length - 1) + "\u0000"; });
+    s = esc(s);
+    // [[key: Ctrl+S / Cmd+S]] -> <kbd> groups
+    s = s.replace(/\[\[key:\s*([^\]]+?)\s*\]\]/g, (_, keys) => keys.split(" / ").map((combo, n, all) =>
+      `<span class="tm-keys">${all.length > 1 ? `<span class="tm-keyos">${n === 0 ? "Win" : "Mac"}</span>` : ""}${combo.split("+").map(k => `<kbd>${k}</kbd>`).join("+")}</span>`).join(" "));
+    // [[path: Home &gt; Paragraph]] -> breadcrumb
+    s = s.replace(/\[\[path:\s*([^\]]+?)\s*\]\]/g, (_, p) => `<span class="tm-path">${p.split(" &gt; ").map(x => `<span>${x}</span>`).join('<span class="tm-sep" aria-hidden="true">›</span>')}</span>`);
+    // images, then links
+    s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)(\{decorative\})?/g, (_, alt, src, deco) =>
+      (/^https?:|^[a-z]+:|\.\./i.test(src.replace(/&amp;/g, "&")) && !/^https:/i.test(src)) ? "" :
+      `<img src="${src}" alt="${deco ? "" : alt}"${deco ? ' role="presentation"' : ""} loading="lazy">`);
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (all, label, href) =>
+      /^https:\/\//i.test(href) ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}<span class="tm-vh"> (opens in a new tab)</span></a>`
+        : /^[\w\-./]+\.md(#[\w-]+)?$/.test(href) ? `<a href="${href}" class="tm-lesson-link">${label}</a>` : label);
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
+    // Put code spans back (escaped).
+    s = s.replace(/\u0000(\d+)\u0000/g, (_, n) => `<code>${esc(codes[Number(n)])}</code>`);
+    return s;
+  }
+
+  /** Block Markdown: headings, paragraphs, lists (nested by indent), tables. */
+  function markdown(lines) {
+    const out = [];
+    let i = 0;
+    const L = lines || [];
+    while (i < L.length) {
+      const line = L[i];
+      if (!line.trim()) { i++; continue; }
+      let m;
+      if ((m = /^(#{2,3})\s+(.*)$/.exec(line))) { out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`); i++; continue; }
+      if (/^#\s/.test(line)) { out.push(`<p>${inline(line.replace(/^#\s/, ""))}</p>`); i++; continue; } // demoted: only one H1
+      if (/^```/.test(line.trim())) {
+        const code = []; i++;
+        while (i < L.length && !/^```/.test(L[i].trim())) { code.push(L[i]); i++; }
+        i++; out.push(`<pre><code>${esc(code.join("\n"))}</code></pre>`); continue;
+      }
+      if (/^\|.*\|\s*$/.test(line.trim()) && L[i + 1] && /^\|[\s:|-]+\|\s*$/.test(L[i + 1].trim())) {
+        const cells = r => r.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+        const head = cells(line); i += 2;
+        const rows = [];
+        while (i < L.length && /^\|.*\|\s*$/.test(L[i].trim())) { rows.push(cells(L[i])); i++; }
+        out.push(`<div class="tm-table" tabindex="0" role="region" aria-label="Table (scroll sideways if it is wider than the panel)"><table><thead><tr>${head.map(h => `<th scope="col">${inline(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
+        continue;
+      }
+      if (/^\s*([-*]|\d+\.)\s+/.test(line)) {
+        const items = [];
+        while (i < L.length && (/^\s*([-*]|\d+\.)\s+/.test(L[i]) || (/^\s{2,}\S/.test(L[i]) && items.length))) {
+          const lm = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(L[i]);
+          if (lm) items.push({ indent: lm[1].length, ordered: /\d/.test(lm[2]), text: lm[3] });
+          else items[items.length - 1].text += " " + L[i].trim();
+          i++;
+        }
+        out.push(listHtml(items, 0, items.length ? items[0].indent : 0).html);
+        continue;
+      }
+      const para = [];
+      while (i < L.length && L[i].trim() && !/^(#{1,3}\s|```|\s*([-*]|\d+\.)\s+|\|)/.test(L[i])) { para.push(L[i].trim()); i++; }
+      if (para.length) out.push(`<p>${inline(para.join(" "))}</p>`);
+      else { out.push(`<p>${inline(line)}</p>`); i++; }
+    }
+    return out.join("\n");
+  }
+  function listHtml(items, start, indent) {
+    const ordered = items[start] && items[start].ordered;
+    let html = ordered ? "<ol>" : "<ul>";
+    let i = start;
+    while (i < items.length && items[i].indent >= indent) {
+      if (items[i].indent > indent) {
+        const sub = listHtml(items, i, items[i].indent);
+        html = html.replace(/<\/li>$/, sub.html + "</li>");
+        i = sub.next; continue;
+      }
+      html += `<li>${inline(items[i].text)}</li>`;
+      i++;
+    }
+    return { html: html + (ordered ? "</ol>" : "</ul>"), next: i };
+  }
+
+  /** Turn a YouTube or Vimeo address into a privacy-friendly embed address. */
+  function embedUrl(url) {
+    let m;
+    if ((m = /^https:\/\/(?:www\.)?youtube\.com\/watch\?v=([\w-]{6,})/.exec(url)) || (m = /^https:\/\/youtu\.be\/([\w-]{6,})/.exec(url))
+      || (m = /^https:\/\/(?:www\.)?youtube(?:-nocookie)?\.com\/embed\/([\w-]{6,})/.exec(url))) return "https://www.youtube-nocookie.com/embed/" + m[1];
+    if ((m = /^https:\/\/(?:www\.)?vimeo\.com\/(\d+)/.exec(url))) return "https://player.vimeo.com/video/" + m[1];
+    return url;
+  }
+
+  /** Describe a check in plain words for the author view. */
+  function describeCheck(c) {
+    const p = Object.entries(c.params).map(([k, v]) => `${k}=${/\s/.test(v) ? `"${v}"` : v}`).join(" ");
+    return `${c.name}${p ? " " + p : ""}`;
+  }
+
+  // -------------------------------------------------------------------------
+  // Activity labels, badges and record ids
+  // -------------------------------------------------------------------------
+
+  /**
+   * How an activity is assessed, as a list of ASSESS_KINDS.
+   * An explicit "assess:" header wins; otherwise it is worked out from the steps.
+   */
+  function activityKinds(b) {
+    if (b.header && b.header.assess) return splitList(b.header.assess).filter(k => ASSESS_KINDS.includes(k));
+    if (b.name === "rubric") return ["instructor"];
+    if (b.name === "preflight" || b.name === "quiz") return ["practice"];
+    const kinds = [];
+    // self.attest is the learner's own word, so it does not make an activity auto-checked
+    if ((b.steps || []).some(s => s.checks.some(c => c.name !== "self.attest") || s.extra.answer !== undefined)) kinds.push("auto");
+    if ((b.steps || []).some(s => s.extra.screenshot !== undefined)) kinds.push("screenshot");
+    return kinds.length ? kinds : ["practice"];
+  }
+  /** Learner-facing words for those kinds, in "practice" or "section" mode. */
+  function activityLabels(b, mode) {
+    return activityKinds(b).map(k => ({ kind: k, text: ASSESS_LABELS[k][mode === "section" ? "section" : "practice"] }));
+  }
+  /** The badge a drill, skill check or project awards. Default name = its title. */
+  function badgeFor(b, meta) {
+    const kindOf = { drill: "drill", skillcheck: "skillcheck" }[b.name] || "project";
+    return { id: b.arg, name: (b.header.badge || b.header.title || b.arg || "").trim(), week: Number(meta.week) || null,
+      kind: activityKinds(b).includes("screenshot") && !activityKinds(b).includes("auto") ? "screenshot" : kindOf };
+  }
+
+  /**
+   * Badge artwork as an SVG string: a hexagon in the week's color with a glyph
+   * for the kind of activity and its short code underneath.
+   * o = { week, kind: drill|screenshot|skillcheck|project|lesson|course, code, label, size }
+   */
+  function badgeSVG(o) {
+    const color = WEEK_COLORS[o.week] || "#374151";
+    const size = o.size || 72;
+    const glyphs = {
+      drill: '<path d="M34 50l11 11 21-23" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>',
+      screenshot: '<rect x="30" y="38" width="40" height="28" rx="5" fill="none" stroke="#fff" stroke-width="5"/><circle cx="50" cy="52" r="7" fill="none" stroke="#fff" stroke-width="5"/><path d="M41 38l4-6h10l4 6" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>',
+      skillcheck: '<path d="M50 29l6.5 13.2 14.5 2.1-10.5 10.2 2.5 14.5L50 62.2 37 69l2.5-14.5L29 44.3l14.5-2.1z" fill="#fff"/>',
+      project: '<path d="M36 30h20l10 10v28H36z" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><path d="M42 50h16M42 59h16" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
+      lesson: '<path d="M30 36h16a6 6 0 0 1 4 2 6 6 0 0 1 4-2h16v30H54a6 6 0 0 0-4 2 6 6 0 0 0-4-2H30z" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>',
+      course: '<circle cx="50" cy="46" r="13" fill="none" stroke="#fff" stroke-width="5"/><path d="M42 57l-5 14 8-3 5 6 3-14M58 57l5 14-8-3-5 6" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>',
+    };
+    const label = esc(o.label || o.code || "Badge");
+    return `<svg class="tm-badge-art" viewBox="0 0 100 100" width="${size}" height="${size}" role="img" aria-label="${label}">` +
+      `<polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="${color}"/>` +
+      `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>` +
+      (o.week ? `<text x="50" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="8.5" font-weight="700" letter-spacing="1.2" fill="#fff">WEEK ${esc(o.week)}</text>` : "") +
+      (glyphs[o.kind] || glyphs.drill) +
+      (o.code ? `<text x="50" y="83" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#fff">${esc(o.code)}</text>` : "") +
+      `</svg>`;
+  }
+
+  /**
+   * A record id such as "OT-W1L2-2610-K7QM-9X3DP".
+   * 8 random characters (Crockford base32: no I, L, O or U, so it reads aloud
+   * cleanly) plus one check character that catches most typing mistakes.
+   * In practice mode the id is unique but NOT verifiable: see
+   * spec/badges-and-certificates.md.
+   */
+  const B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  function makeId(prefix, date) {
+    const d = date || new Date();
+    const yymm = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, "0");
+    const bytes = new Uint8Array(8);
+    (root.crypto || globalThis.crypto).getRandomValues(bytes);
+    const body = Array.from(bytes, n => B32[n % 32]).join("");
+    return `${prefix}-${yymm}-${body.slice(0, 4)}-${body.slice(4)}${checkChar(body)}`;
+  }
+  function checkChar(body) {
+    let sum = 0;
+    for (let i = 0; i < body.length; i++) sum += (i + 1) * B32.indexOf(body[i]);
+    return B32[sum % 32];
+  }
+  /** True when an id's check character matches (catches typos, NOT forgeries). */
+  function idLooksValid(id) {
+    const m = /-([0-9A-HJKMNP-TV-Z]{4})-([0-9A-HJKMNP-TV-Z]{4})([0-9A-HJKMNP-TV-Z])$/.exec(String(id || "").toUpperCase());
+    return !!m && checkChar(m[1] + m[2]) === m[3];
+  }
+
+  /**
+   * Render a parsed document to an HTML string.
+   * opts: platform ("all" | "web" | "desktop" | "windows" | "mac"),
+   *       showChecks (true for authors), videoHosts
+   */
+  function render(doc, opts) {
+    // mode: "practice" (no section; nothing recorded) or "section" (graded course)
+    // assetBase: where images/ lives relative to the page showing the preview
+    opts = Object.assign({ platform: "all", showChecks: true, videoHosts: DEFAULT_VIDEO_HOSTS, mode: "practice", assetBase: "", appName: "Word" }, opts || {});
+    const APP = opts.appName;   // "Word" or "Excel": used in platform labels and screenshot tips
+    const labelPills = (b) => `<span class="tm-labels" aria-label="How this is assessed">${activityLabels(b, opts.mode).map(l => `<span class="tm-pill tm-assess tm-assess-${l.kind}">${esc(l.text)}</span>`).join(" ")}</span>`;
+    const meta = doc.meta;
+    const shows = (p) => opts.platform === "all" || p === opts.platform ||
+      (p === "desktop" && (opts.platform === "windows" || opts.platform === "mac"));
+    const parts = [];
+    parts.push(`<header class="tm-head"><p class="tm-eyebrow">${esc(`Week ${meta.week || "?"} · ${labelFor(meta.type)}${meta.minutes ? " · about " + meta.minutes + " min" : ""}`)}</p><h1>${esc(meta.title || "Untitled")}</h1></header>`);
+
+    for (const b of doc.blocks) {
+      if (b.kind === "md") { parts.push(markdown(b.lines)); continue; }
+      const h = b.header;
+      switch (b.name) {
+        case "callout": {
+          const label = { tip: "Tip", note: "Note", warning: "Watch out", why: "Why it matters", ai: "AI moment (optional)", privacy: "Privacy" }[b.arg] || "Note";
+          parts.push(`<aside class="tm-callout tm-${esc(b.arg)}"><p class="tm-callout-label">${label}</p>${markdown(b.md)}</aside>`);
+          break;
+        }
+        case "platform":
+          if (shows(b.arg)) parts.push(`<section class="tm-platform"><p class="tm-callout-label">${esc(platformName(b.arg, APP))}</p>${markdown(b.md)}</section>`);
+          break;
+        case "video": {
+          // Instructor videos: say so, show the instructor's note, and keep the standard video one click away
+          if (b.source === "instructor") {
+            const stock = b.stockUrl && b.stockUrl !== "TODO" && /^https:/.test(b.stockUrl)
+              ? ` <a href="${esc(b.stockUrl)}" target="_blank" rel="noopener noreferrer">Watch the standard video instead<span class="tm-vh"> (opens in a new tab)</span></a>` : "";
+            parts.push(`<p class="tm-from"><span class="tm-pill tm-instructor-pill">From ${esc(b.instructor)}</span>${h.note ? " " + esc(h.note) : ""}${stock}</p>`); // plain text: a section key can come from anyone, so no links or pictures
+          }
+          parts.push(videoFigure(h, opts));
+          break;
+        }
+        case "replace-video": case "add-video": {
+          const what = b.name === "replace-video" ? `Replaces the course video <code>${esc(b.arg)}</code>` : `Added after <code>${esc(b.arg.replace(/^after\s+/, ""))}</code>`;
+          parts.push(`<section class="tm-override"><p class="tm-callout-label">${b.name === "replace-video" ? "Replacement video" : "Added video"}</p><p>${what}</p>${h.note ? `<p class="tm-variant">Note to learners: ${inline(h.note)}</p>` : ""}${videoFigure(h, opts)}</section>`);
+          break;
+        }
+        case "quiz": {
+          const multi = h.type === "multi", num = h.type === "number";
+          const name = "q-" + esc(b.arg);
+          const body = num
+            ? `<label class="tm-answer">Your answer <input type="number" inputmode="numeric" data-answer="${esc(h.answer || "")}"></label>`
+            : `<fieldset><legend class="tm-vh">${inline(h.question || "")}</legend>${b.items.map((o, n) =>
+              `<label class="tm-opt"><input type="${multi ? "checkbox" : "radio"}" name="${name}" value="${n}" data-correct="${o.correct}"> <span>${inline(o.text)}</span></label>`).join("")}</fieldset>`;
+          parts.push(`<section class="tm-quiz" data-quiz="${esc(b.arg)}" data-type="${esc(h.type || "single")}"><p class="tm-callout-label">Quick check${multi ? " · select all that apply" : ""}</p><p class="tm-q">${inline(h.question || "")}</p>${body}<button type="button" class="tm-btn tm-quiz-check">Check answer</button><p class="tm-feedback" role="status" aria-live="polite"></p>${h.explain ? `<p class="tm-explain" hidden>${inline(h.explain)}</p>` : ""}</section>`);
+          break;
+        }
+        case "drill": case "skillcheck": case "preflight": {
+          const label = meta.type === "capstone" && b.name === "skillcheck" ? "Practice exam" // the capstone's timed exam
+            : { drill: "Practice drill", skillcheck: "Skill check", preflight: "Preflight check" }[b.name];
+          const facts = [];
+          if (h.minutes) facts.push(`about ${esc(h.minutes)} min`);
+          if (h.timeLimit) facts.push(`${esc(h.timeLimit)} min limit`);
+          if (h.attempts) facts.push(`${esc(h.attempts)} attempts`);
+          if (h.passing) facts.push(`pass at ${esc(h.passing)}%`);
+          const badge = h.platform === "desktop" ? '<span class="tm-pill tm-desktop">Desktop ' + esc(APP) + '</span>' : '<span class="tm-pill tm-web">Web or desktop</span>';
+          const steps = b.steps.filter(s => !s.extra.platform || shows(s.extra.platform)).map(s => {
+            const checked = s.checks.length || s.extra.answer !== undefined;
+            const variants = [];
+            if (s.extra.web && shows("web")) variants.push(`<p class="tm-variant"><span class="tm-pill tm-web">Web</span> ${inline(s.extra.web)}</p>`);
+            if (s.extra.desktop && shows("desktop")) variants.push(`<p class="tm-variant"><span class="tm-pill tm-desktop">Desktop</span> ${inline(s.extra.desktop)}</p>`);
+            const hint = s.hints.length && b.name !== "skillcheck" ? `<details class="tm-hint"><summary>Hint</summary>${s.hints.map(x => `<p>${inline(x)}</p>`).join("")}</details>` : "";
+            const answer = s.extra.answer !== undefined ? `<label class="tm-answer">Your answer <input type="text" inputmode="numeric"></label>` : "";
+            const checks = opts.showChecks && s.checks.length ? `<ul class="tm-checks" aria-label="Checks (author view)">${s.checks.map(c => `<li><code>${esc(describeCheck(c))}</code></li>`).join("")}${s.extra.answer !== undefined ? `<li><code>answer = ${esc(s.extra.answer)}</code></li>` : ""}</ul>` : (opts.showChecks && s.extra.answer !== undefined ? `<ul class="tm-checks"><li><code>answer = ${esc(s.extra.answer)}</code></li></ul>` : "");
+            const shot = s.extra.screenshot !== undefined ? screenshotStep(s, opts) : "";
+            const only = s.extra.platform ? ` <span class="tm-pill tm-${s.extra.platform === "desktop" ? "desktop" : "web"}">${s.extra.platform === "desktop" ? "Desktop only" : "Web only"}</span>` : "";
+            const status = checked ? '<span class="tm-status-dot" aria-hidden="true"></span> Checked by the trainer'
+              : s.extra.screenshot !== undefined ? (opts.mode === "section" ? "Screenshot for your instructor" : "Compare with the example") : "Instruction only";
+            return `<li class="tm-step${checked ? " tm-checked" : ""}${shot ? " tm-shot" : ""}"><div class="tm-step-text">${inline(s.text)}${only}</div>${variants.join("")}${answer}${shot}${hint}${checks}<p class="tm-step-status">${status}</p></li>`;
+          }).join("");
+          const award = b.name === "preflight" ? "" : (() => { const bd = badgeFor(b, meta); return `<p class="tm-award">${badgeSVG({ week: bd.week, kind: bd.kind, code: bd.id, label: "Badge: " + bd.name, size: 40 })}<span>Finish to earn the <strong>${esc(bd.name)}</strong> badge</span></p>`; })();
+          parts.push(`<section class="tm-drill tm-${b.name}" aria-labelledby="h-${esc(b.arg)}"><div class="tm-drill-head"><p class="tm-callout-label">${label} ${esc(b.arg)}</p><h2 id="h-${esc(b.arg)}">${inline(h.title || "")}</h2><p class="tm-facts">${labelPills(b)} ${badge}${facts.length ? " · " + facts.join(" · ") : ""}</p>${award}</div>${markdown(b.intro)}<ol class="tm-steps">${steps}</ol><div class="tm-actions"><button type="button" class="tm-btn tm-primary">${b.name === "skillcheck" ? "Start" : "Check my work"}</button>${opts.showChecks && h.starter && h.starter !== "none" ? `<span class="tm-starter">Starter: <code>${esc(h.starter)}</code></span>` : ""}</div></section>`);
+          break;
+        }
+        case "week": {
+          const color = /^#[0-9A-Fa-f]{6}$/.test(h.color || "") ? h.color : (WEEK_COLORS[Number((b.arg || "").slice(1))] || "#374151");
+          parts.push(`<section class="tm-week"><h2><span class="tm-line" style="background:${color}"></span>${esc(b.arg)} · ${inline(h.title || "")}</h2><ol class="tm-stations">${b.steps.map(it => `<li><strong>${inline(it.text)}</strong> <span class="tm-pill">${esc(it.extra.kind || "")}</span>${it.extra.minutes ? ` · ${esc(it.extra.minutes)} min` : ""}${it.extra.file ? "" : ' · <em>planned</em>'}${it.extra.goals ? `<br><span class="tm-goals">${inline(it.extra.goals)}</span>` : ""}</li>`).join("")}</ol></section>`);
+          break;
+        }
+        case "outcomes": case "certification":
+          parts.push(`<div class="tm-table" tabindex="0" role="region" aria-label="Table (scroll sideways if it is wider than the panel)"><table><caption>${b.name === "outcomes" ? "Course learning outcomes" : "Certification: " + esc(b.arg)}</caption><tbody>${b.items.map(it => `<tr><th scope="row">${esc(it.id)}</th><td>${inline(it.text)}</td></tr>`).join("")}</tbody></table></div>`);
+          break;
+        case "rubric": {
+          const total = b.items.reduce((s, it) => s + (it.points || 0), 0);
+          parts.push(`<p class="tm-facts">${labelPills(b)}</p><div class="tm-table" tabindex="0" role="region" aria-label="Rubric table"><table class="tm-rubric"><caption>Rubric ${esc(b.arg)}</caption><thead><tr><th scope="col">Criterion</th><th scope="col">Points</th><th scope="col">Outcomes</th></tr></thead><tbody>${b.items.map(it => `<tr><td><strong>${esc(it.id)}</strong> ${inline(it.text)}</td><td>${esc(it.points)}</td><td>${esc(it.clos.join(", "))}</td></tr>`).join("")}<tr><td><strong>Total</strong></td><td><strong>${total}</strong></td><td></td></tr></tbody></table></div>`);
+          break;
+        }
+      }
+    }
+    return parts.join("\n");
+  }
+  function labelFor(t) { return { lesson: "Lesson", skillcheck: "Skill check", project: "Project", capstone: "Capstone", config: "Course settings", info: "Course guide", outline: "Course outline", section: "Section videos" }[t] || "Lesson"; }
+
+  /** The player (or a placeholder) for one video header. */
+  function videoFigure(h, opts) {
+    const url = h.url || "";
+    const host = hostOf(embedUrl(url));
+    const title = esc(h.title || "Video");
+    const capNote = h.captions === "verified" ? "Captions checked" : h.captions === "auto" ? "Automatic captions (not yet checked)" : "No captions yet";
+    if (url === "TODO" || !host || !opts.videoHosts.concat(["www.youtube-nocookie.com"]).includes(host)) {
+      return `<figure class="tm-video tm-video-empty"><div class="tm-video-box"><span>${url === "TODO" ? "Video coming soon" : "Video not shown: host not approved"}</span></div><figcaption><strong>${title}</strong>${h.duration ? " · " + esc(h.duration) : ""} · ${capNote}</figcaption></figure>`;
+    }
+    return `<figure class="tm-video"><div class="tm-video-box"><iframe src="${esc(embedUrl(url))}" title="${title}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><figcaption><strong>${title}</strong>${h.duration ? " · " + esc(h.duration) : ""} · ${capNote}${h.transcript && /^https:/.test(h.transcript) ? ` · <a href="${esc(h.transcript)}" target="_blank" rel="noopener noreferrer">Transcript</a>` : ""}</figcaption></figure>`;
+  }
+
+  /** The screenshot part of a step: what to capture, the example, and a text alternative. */
+  function screenshotStep(s, opts) {
+    const ex = s.extra.example && s.extra.example !== "TODO" ? `<details class="tm-example"><summary>See the example screenshot</summary><img src="${esc(opts.assetBase + s.extra.example)}" alt="${esc("Example: " + s.extra.screenshot)}" loading="lazy"></details>` : "";
+    const how = opts.mode === "section"
+      ? "Capture just the " + (opts.appName || "Word") + " window and add it to this week's evidence document for your instructor."
+      : "Capture just the " + (opts.appName || "Word") + " window, then compare it with the example. Nothing is uploaded.";
+    const alt = s.extra.describe || "Can't take or see a screenshot? Describe in a sentence or two what your screen shows instead.";
+    const keys = inline("[[key: Win+Shift+S / Cmd+Shift+4]]");
+    return `<div class="tm-screenshot"><p class="tm-callout-label">Screenshot</p><p><strong>Show:</strong> ${inline(s.extra.screenshot)}</p><p class="tm-variant">${esc(how)} ${keys}</p>${ex}<p class="tm-variant">${inline(alt)}</p></div>`;
+  }
+  function platformName(p, app) { const a = app || "Word"; return { web: "In " + a + " for the web", desktop: "In desktop " + a, windows: "On Windows", mac: "On a Mac" }[p] || p; }
+
+  /** Quick counts for a status bar. */
+  function summarize(doc) {
+    const s = { drills: 0, steps: 0, checked: 0, screenshots: 0, quizzes: 0, videos: 0, videosTodo: 0 };
+    doc.blocks.forEach(b => {
+      if (b.name === "drill" || b.name === "skillcheck" || b.name === "preflight") {
+        if (b.name === "drill") s.drills++;
+        s.steps += b.steps.length;
+        s.checked += b.steps.filter(x => x.checks.length || x.extra.answer !== undefined).length;
+        s.screenshots += b.steps.filter(x => x.extra.screenshot !== undefined).length;
+      }
+      if (b.name === "quiz") s.quizzes++;
+      if (b.name === "video") { s.videos++; if ((b.header.url || "") === "TODO") s.videosTodo++; }
+    });
+    return s;
+  }
+
+  /**
+   * The course map: weeks, and the stations (lessons, skill checks, projects)
+   * on each, worked out from content/outline.md and the lesson files.
+   * The roadmap, the certificate page and the add-in all use this, so they
+   * always agree about what's in the course and which badges each stop awards.
+   *   outline  parse(content/outline.md)
+   *   config   parse(course.config.md).meta
+   *   docs     { "content/week-01/01-meet-word.md": parse(that file), ... }
+   *            (files not written yet are simply missing)
+   */
+  function courseMap(outline, config, docs) {
+    const cfg = config || {};
+    const outcomes = (outline.blocks.find((b) => b.name === "outcomes") || {}).items || [];
+    const mosList = (outline.blocks.find((b) => b.name === "certification") || {}).items || [];
+    const slug = (x) => x.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
+
+    const weeks = outline.blocks.filter((b) => b.name === "week").map((w) => {
+      const n = Number(w.arg.slice(1));
+      const stations = w.steps.map((it) => {
+        const e = it.extra;
+        const st = {
+          sid: `w${n}-${slug(it.text)}`, title: it.text, kind: e.kind, minutes: Number(e.minutes) || null,
+          goals: e.goals || "", file: e.file || null, status: "planned", activities: [], clos: [], mos: [],
+          plannedDrills: e.drills ? e.drills.split(",").map((x) => x.trim()).filter(Boolean) : [],
+          certificate: e.kind === "lesson" && cfg.certificateEach === "lesson",
+        };
+        const doc = st.file && docs ? docs[st.file] : null;
+        if (doc) {
+          st.plannedDrills = []; // written: its real drills are in st.activities now
+          st.status = doc.meta.status === "ready" ? "ready" : "draft";
+          st.docId = doc.meta.id;
+          st.clos = Array.isArray(doc.meta.clos) ? doc.meta.clos : [];
+          const mos = new Set();
+          for (const b of doc.blocks) {
+            // practice items (quizzes, preflights) are counted, not badged
+            if (!["drill", "skillcheck", "rubric"].includes(b.name)) continue;
+            splitList(b.header.mos).forEach((c) => mos.add(c));
+            const badge = b.name === "rubric"
+              ? { id: b.arg, name: String(doc.meta.rubricBadge || String(doc.meta.title || b.arg).replace(/^Project \d+:\s*/, "")), week: n, kind: "project" }
+              : badgeFor(b, doc.meta);
+            st.activities.push({
+              id: b.arg, kind: b.name === "rubric" ? "project" : b.name,
+              title: b.name === "rubric" ? doc.meta.title : (b.header.title || b.arg),
+              assess: activityKinds(b), platform: b.header.platform || "web",
+              minutes: Number(b.header.minutes || b.header.timeLimit) || null, badge,
+              steps: b.steps.length, screenshots: b.steps.filter((x) => x.extra.screenshot !== undefined).length,
+            });
+          }
+          st.mos = [...mos].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+          st.quizzes = doc.blocks.filter((b) => b.name === "quiz").length;
+        }
+        return st;
+      });
+      return { id: w.arg, n, title: w.header.title, tagline: w.header.tagline || "", color: w.header.color || WEEK_COLORS[n], stations };
+    });
+
+    // The end of the line: the course certificate
+    if (cfg.courseCertificate === true || cfg.courseCertificate === "true") {
+      const last = weeks[weeks.length - 1];
+      if (last) last.stations.push({ sid: "course-complete", title: "Course Complete", kind: "course", minutes: null,
+        goals: "Earn the course certificate, with every badge and outcome from all five weeks on the back.",
+        file: null, status: "ready", activities: [], clos: outcomes.map((o) => o.id), mos: mosList.map((m) => m.id),
+        plannedDrills: [], certificate: true });
+    }
+    return { weeks, outcomes, mosNames: Object.fromEntries(mosList.map((i) => [i.id, i.text])) };
+  }
+
+  const api = { VERSION, parse, validate, render, summarize, inline, markdown, esc, toPoints, fontStack, embedUrl,
+    activityKinds, activityLabels, badgeFor, badgeSVG, makeId, idLooksValid, courseIndex, applyOverrides, courseMap, splitListPublic: splitList, VIDEO_ID, SECTION_CODE,
+    cleanText, cleanSection, encodeSectionKey, decodeSectionKey, isSectionKey, sectionFromFile, sectionDoc, sectionToFile, videoUrlAllowed, plainText,
+    toBase64Url, fromBase64Url, SECTION_KEY_PREFIX, STOP_ID,
+    FONT_STACKS, DEFAULT_FONTS, DEFAULT_VIDEO_HOSTS, CHECKS, EXCEL_CHECKS, POWERPOINT_CHECKS, CHECK_SETS, checkSet, DIRECTIVES, CALLOUT_KINDS,
+    ASSESS_KINDS, ASSESS_LABELS, COURSE_MODES, WEEK_COLORS };
+  if (typeof module === "object" && module.exports) module.exports = api;
+  root.TrainerMD = api;
+})(typeof globalThis !== "undefined" ? globalThis : this);
+
+/* =====================================================================
+   OFFICE TRAINER - shared helpers for the site's tool pages
+   ---------------------------------------------------------------------
+   build-site-pages.py copies this into badges.html, instructor/sections.html
+   and instructor/grader.html, before each page's own code. It makes
+   window.Site with:
+     el, add, fill      make elements safely (text is always plain text)
+     badgeArt           a badge picture from TrainerMD.badgeSVG
+     announce           tell screen reader users something
+     download           save a file the page made (nothing is uploaded)
+     loadCourse         read one course's outline and lessons from this site
+     APPS               the three courses: folder, name, colors
+   It also wires the light/dark button in the page header.
+
+   SECURITY RULES these pages follow:
+     - Text from files (a learner's badges, a student's document, a key)
+       is only ever added as text (textContent), never as HTML.
+     - The only HTML strings used come from TrainerMD (which escapes
+       everything first) or are fixed in the code.
+     - Each page's Content Security Policy only lets it fetch files from
+       this site, so nothing a page opens can be sent anywhere.
+   ===================================================================== */
+(function () {
+  "use strict";
+  const TM = window.TrainerMD;
+
+  /** The three courses. folder is where each course's files are, from the top of the site. */
+  const APPS = {
+    word: { id: "word", name: "Word", fullName: "Microsoft Word", folder: "word/", exam: "MO-110", fileWord: "document", ext: /\.(docx|dotx)$/i },
+    excel: { id: "excel", name: "Excel", fullName: "Microsoft Excel", folder: "excel/", exam: "MO-210", fileWord: "workbook", ext: /\.(xlsx|xltx|xlsm)$/i },
+    powerpoint: { id: "powerpoint", name: "PowerPoint", fullName: "Microsoft PowerPoint", folder: "powerpoint/", exam: "MO-310", fileWord: "presentation", ext: /\.(pptx|potx)$/i },
+  };
+
+  /**
+   * Make an element. Children can be text (added as plain text, always safe),
+   * other elements, or lists of either. "on<event>" attributes take a function.
+   *   el("button", { class: "btn", type: "button", onclick: save }, "Save")
+   */
+  function el(tag, attrs, ...kids) {
+    const node = document.createElement(tag);
+    for (const [key, value] of Object.entries(attrs || {})) {
+      if (value === null || value === undefined || value === false) continue;
+      if (/^on[a-z]+$/.test(key) && typeof value === "function") node.addEventListener(key.slice(2), value);
+      else node.setAttribute(key, value === true ? "" : String(value));
+    }
+    return add(node, ...kids);
+  }
+  /** Add children, skipping null, undefined and false. */
+  function add(node, ...kids) {
+    for (const kid of kids.flat(Infinity)) {
+      if (kid === null || kid === undefined || kid === false) continue;
+      node.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+    }
+    return node;
+  }
+  /** Like add(), but first empties the node. */
+  function fill(node, ...kids) { node.replaceChildren(); return add(node, ...kids); }
+
+  /** A badge picture. TrainerMD.badgeSVG escapes every value it draws, so its SVG text is safe. */
+  function badgeArt(options) {
+    const holder = document.createElement("span");
+    holder.innerHTML = TM.badgeSVG(options);
+    return holder.firstChild;
+  }
+
+  /** Lesson text with its simple formatting (bold, menu paths, keys). TrainerMD.inline escapes everything first. */
+  function richText(tag, md, attrs) {
+    const node = el(tag, attrs || {});
+    node.innerHTML = TM.inline(String(md || ""));
+    return node;
+  }
+
+  /** Tell screen reader users something (uses the page's #announce region). */
+  function announce(text) {
+    const region = document.getElementById("announce");
+    if (!region) return;
+    region.textContent = "";
+    setTimeout(function () { region.textContent = text; }, 50);
+  }
+
+  /** Save a file the page made. It goes straight to the person's Downloads folder; nothing is uploaded. */
+  function download(content, fileName, type) {
+    const blob = content instanceof Blob ? content : new Blob([content], { type: type || "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = el("a", { href: url, download: fileName, class: "sr-only" });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+
+  /** Today's date as "2026-10-18". */
+  function today() { return new Date().toISOString().slice(0, 10); }
+  /** "October 18, 2026" from "2026-10-18" (or the text itself if it isn't a date). */
+  function longDate(iso) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return String(iso || "");
+    return new Date(iso + "T12:00:00").toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  }
+
+  /**
+   * Read one course from this site, the same way the add-in does:
+   * course.config.md, content/outline.md, then every lesson file the outline
+   * names. root is the way back to the top of the site ("" or "../").
+   * Returns { app, config, outline, docs, map } where map is TrainerMD.courseMap.
+   */
+  const courseCache = {};
+  function loadCourse(appId, root) {
+    if (courseCache[appId]) return courseCache[appId];
+    const app = APPS[appId];
+    const base = (root || "") + app.folder;
+    const getText = async function (path) {
+      const r = await fetch(base + path, { cache: "no-cache" });
+      if (!r.ok) throw new Error("Couldn't load " + app.folder + path + " (" + r.status + ").");
+      return r.text();
+    };
+    courseCache[appId] = (async function () {
+      const config = TM.parse(await getText("course.config.md")).meta;
+      const outline = TM.parse(await getText("content/outline.md"));
+      const files = [];
+      outline.blocks.filter((b) => b.name === "week").forEach((w) => w.steps.forEach((it) => {
+        const f = it.extra.file;
+        if (f && /^content\/[A-Za-z0-9_\-/]+\.md$/.test(f) && !f.includes("..")) files.push(f);
+      }));
+      const docs = {};
+      const results = await Promise.allSettled(files.map((f) => getText(f)));
+      results.forEach((r, i) => { if (r.status === "fulfilled") docs[files[i]] = TM.parse(r.value); });
+      const map = TM.courseMap(outline, config, docs);
+      map.weeks.forEach((w) => w.stations.forEach((s) => { s.week = w.n; }));
+      return { app, config, outline, docs, map, stations: map.weeks.flatMap((w) => w.stations) };
+    })();
+    courseCache[appId].catch(function () { delete courseCache[appId]; }); // a failed load can be tried again
+    return courseCache[appId];
+  }
+
+  // ---------- The light/dark button (the same choice as the home page) ----------
+  (function themeButton() {
+    const KEY = "officeTrainer.siteTheme";
+    const root = document.documentElement;
+    const btn = document.getElementById("theme-btn");
+    if (!btn) return;
+    const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+    const isDark = function () {
+      const chosen = root.getAttribute("data-theme");
+      return chosen ? chosen === "dark" : !!(systemDark && systemDark.matches);
+    };
+    // The button is a switch: it always says "Dark mode", and aria-pressed (and the check mark) says whether it's on.
+    const label = function () { btn.textContent = (isDark() ? "✓ " : "") + "Dark mode"; btn.setAttribute("aria-pressed", String(isDark())); };
+    try { const saved = localStorage.getItem(KEY); if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved); } catch (e) { /* storage blocked */ }
+    btn.hidden = false;
+    label();
+    btn.addEventListener("click", function () {
+      const next = isDark() ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem(KEY, next); } catch (e) { /* not important */ }
+      label();
+    });
+    if (systemDark && systemDark.addEventListener) systemDark.addEventListener("change", label);
+  })();
+
+  window.Site = { APPS, el, add, fill, badgeArt, richText, announce, download, today, longDate, loadCourse };
+})();
+
+/* =====================================================================
+   THIS PAGE: the section builder
+   ===================================================================== */
+(function () {
+  "use strict";
+  const TM = window.TrainerMD;
+  const { APPS, el, add, fill, announce, download, loadCourse } = window.Site;
+  const $ = (id) => document.getElementById(id);
+  const KIND_WORDS = { lesson: "Lesson", skillcheck: "Skill check", project: "Project", capstone: "Capstone" };
+  const CAPTIONS = [["verified", "Checked by a person"], ["auto", "Automatic, not checked yet"], ["none", "No captions yet"]];
+
+  // Everything about the form for the course that's open.
+  let state = null; // { app, course, hosts, index, stops: {docId: checkbox}, rows: [video rows] }
+  let rowCount = 0; // gives every video row's fields unique ids
+
+  // ---------------------------------------------------------------
+  // 1. CHOOSING A COURSE
+  // ---------------------------------------------------------------
+  Object.values(APPS).forEach((a) => {
+    add($("course-choices"), el("label", { class: "choice" },
+      el("input", { type: "radio", name: "course", value: a.id, onchange: () => openCourse(a.id) }), a.name));
+  });
+
+  /** Load a course and draw steps 2 to 5 for it. Keeps the section name and instructor if they're filled in. */
+  async function openCourse(appId) {
+    fill($("course-status"), el("p", { class: "small" }, "Loading the " + APPS[appId].name + " course…"));
+    let course;
+    try { course = await loadCourse(appId, "../"); }
+    catch (e) { fill($("course-status"), el("p", { class: "notice warn" }, "Couldn't load the course. Check your connection and try again. (" + e.message + ")")); return; }
+    fill($("course-status"));
+    for (const r of document.querySelectorAll('input[name="course"]')) r.checked = r.value === appId;
+    const hosts = Array.isArray(course.config.videoHosts) ? course.config.videoHosts : TM.DEFAULT_VIDEO_HOSTS;
+    state = { app: appId, course: course, hosts: hosts, index: TM.courseIndex(Object.values(course.docs)), stops: {}, rows: [] };
+    drawStops();
+    drawVideos();
+    fill($("hosts-note"), "Videos can come from: " + hosts.filter((h) => h !== "www.youtube-nocookie.com").join(", ") +
+      ". YouTube links play in privacy-enhanced mode. Mark captions as checked only after a person has reviewed them.");
+    fill($("key-box"));
+    $("after-course").hidden = false;
+  }
+
+  /** The stops a section can leave out: every written lesson, skill check, project and the capstone. */
+  function choosableStops() {
+    return state.course.stations.filter((s) => s.docId && KIND_WORDS[s.kind] && s.file && state.course.docs[s.file]);
+  }
+
+  // ---------------------------------------------------------------
+  // 2. LESSONS: one checkbox per stop, grouped by week
+  // ---------------------------------------------------------------
+  function drawStops() {
+    const box = fill($("weeks"));
+    for (const w of state.course.map.weeks) {
+      const stops = w.stations.filter((s) => choosableStops().includes(s));
+      if (!stops.length) continue;
+      const list = el("ul", { class: "stop-list" }, stops.map((s) => {
+        const id = "stop-" + s.docId;
+        const box = el("input", { type: "checkbox", id: id, checked: true, onchange: countStops });
+        state.stops[s.docId] = box;
+        return el("li", { class: "check-row" }, box,
+          el("label", { for: id }, s.title, " ", el("span", { class: "kind" }, "· " + KIND_WORDS[s.kind] + (s.activities.length ? " · " + s.activities.length + " badge" + (s.activities.length === 1 ? "" : "s") : ""))));
+      }));
+      add(box, el("fieldset", {}, el("legend", {}, "Week " + w.n + ": " + w.title), list));
+    }
+    countStops();
+  }
+  function countStops() {
+    const all = choosableStops();
+    const on = all.filter((s) => state.stops[s.docId].checked);
+    const badges = on.reduce((n, s) => n + s.activities.length, 0);
+    $("stop-count").textContent = on.length + " of " + all.length + " stops included · " + badges + " badges";
+  }
+  $("all-on").addEventListener("click", () => { for (const b of Object.values(state.stops)) b.checked = true; countStops(); announce("Every stop is included."); });
+
+  // ---------------------------------------------------------------
+  // 3. VIDEOS: per lesson, replace a course video or add one after an activity
+  // ---------------------------------------------------------------
+  function drawVideos() {
+    const box = fill($("videos"));
+    state.rows = [];
+    state.lessonBoxes = {};
+    for (const s of choosableStops()) {
+      const doc = state.course.docs[s.file];
+      const videos = doc.blocks.filter((b) => b.name === "video" && b.header.id);
+      const anchors = doc.blocks.filter((b) => (b.name === "video" && b.header.id) || (["drill", "quiz", "skillcheck", "preflight", "rubric"].includes(b.name) && b.arg));
+      if (!anchors.length) continue;
+      const list = el("div");
+      const lesson = el("details", { class: "lesson-videos" },
+        el("summary", {}, "Week " + s.week + ": " + s.title, el("span", { class: "muted small" }, videos.length ? " · " + videos.length + " course video" + (videos.length === 1 ? "" : "s") : "")),
+        list);
+      state.lessonBoxes[s.docId] = { lesson, list, anchors, stop: s };
+      for (const v of videos) add(list, videoRow({ replace: v.header.id, stockTitle: v.header.title, stockUrl: v.header.url }, s.docId));
+      const addBtn = el("button", { type: "button", class: "btn slim secondary" }, "Add a video to this lesson");
+      addBtn.addEventListener("click", () => { const row = videoRow({ after: anchors[anchors.length - 1] ? anchorId(anchors[anchors.length - 1]) : "" }, s.docId); addBtn.parentNode.before(row); row.querySelector("select").focus(); });
+      add(lesson, el("div", { class: "btn-row add-row" }, addBtn));
+      add(box, lesson);
+    }
+  }
+  function anchorId(b) { return b.name === "video" ? b.header.id : b.arg; }
+  function anchorLabel(b) {
+    if (b.name === "video") return "The video \"" + TM.plainText(b.header.title || b.header.id) + "\"";
+    const words = { drill: "Drill", quiz: "Quick check", skillcheck: "Skill check", preflight: "Preflight", rubric: "Rubric" };
+    return words[b.name] + " " + b.arg + (b.header.title ? ": " + TM.plainText(b.header.title) : "");
+  }
+
+  /**
+   * One video's fields. spec is { replace, stockTitle, stockUrl } for a
+   * course video, or { after } for an added one. Values fill in from spec.video.
+   */
+  function videoRow(spec, docId) {
+    const n = ++rowCount;
+    const f = (name) => "v" + n + "-" + name;
+    const v = spec.video || {};
+    const row = el("div", { class: "video-row", "data-row": n });
+    const url = el("input", { type: "url", id: f("url"), inputmode: "url", autocomplete: "off", spellcheck: "false", placeholder: "https://www.youtube.com/watch?v=…", value: v.url || "", "aria-describedby": f("url-err") });
+    const title = el("input", { type: "text", id: f("title"), maxlength: "100", autocomplete: "off", value: v.title || "" });
+    const captions = el("select", { id: f("cap"), "aria-describedby": f("cap-note") }, CAPTIONS.map(([val, label]) => el("option", { value: val, selected: (v.captions || "verified") === val }, label)));
+    const note = el("input", { type: "text", id: f("note"), maxlength: "240", autocomplete: "off", value: v.note || "" });
+    const capNote = el("small", { id: f("cap-note") });
+    const err = el("p", { class: "error-text", id: f("url-err"), hidden: true });
+    const showCapNote = () => { capNote.textContent = captions.value === "verified" ? "" : "Check the captions before you share this. Students are told they aren't checked yet (ADA Title II, WCAG 1.2.2)."; };
+    captions.addEventListener("change", showCapNote);
+    showCapNote();
+    const preview = el("div", { class: "preview" });
+    const previewBtn = el("button", { type: "button", class: "btn slim secondary" }, "Preview");
+    previewBtn.addEventListener("click", () => {
+      if (!TM.videoUrlAllowed(url.value.trim(), state.hosts)) { showError("That isn't an https link on one of the approved video sites."); url.focus(); return; }
+      showError("");
+      const frame = el("iframe", { src: TM.embedUrl(url.value.trim()), title: "Preview: " + (title.value || "your video"), sandbox: "allow-scripts allow-same-origin allow-presentation",
+        referrerpolicy: "strict-origin-when-cross-origin", allow: "encrypted-media; picture-in-picture; fullscreen" });
+      fill(preview, el("div", { class: "frame" }, frame));
+    });
+    function showError(text) { err.textContent = text; err.hidden = !text; url.setAttribute("aria-invalid", text ? "true" : "false"); }
+
+    let where;
+    if (spec.replace) {
+      where = el("h4", {}, "In place of \"" + TM.plainText(spec.stockTitle || spec.replace) + "\"",
+        spec.stockUrl && spec.stockUrl !== "TODO" ? null : el("span", { class: "muted small" }, " (the course video isn't recorded yet)"));
+      row.dataset.replace = spec.replace;
+    } else {
+      const lesson = state.lessonBoxes[docId];
+      const select = el("select", { id: f("after") }, lesson.anchors.map((b) => el("option", { value: anchorId(b), selected: anchorId(b) === spec.after }, anchorLabel(b))));
+      const remove = el("button", { type: "button", class: "btn slim danger" }, "Remove this video");
+      remove.addEventListener("click", () => {
+        const next = row.nextElementSibling;
+        state.rows = state.rows.filter((r) => r.row !== row);
+        row.remove();
+        announce("Video removed.");
+        if (next) (next.querySelector("input, select, button") || next).focus();
+      });
+      where = el("div", { class: "field" }, el("label", { for: f("after") }, "Show it after"), select, el("div", {}, remove));
+      row.afterSelect = select;
+    }
+    add(row, where, el("div", { class: "video-fields" },
+      el("div", { class: "field wide" }, el("label", { for: f("url") }, spec.replace ? "Your video's link (leave empty to keep the course video)" : "Your video's link"), url, err),
+      el("div", { class: "field" }, el("label", { for: f("title") }, "Title"), title),
+      el("div", { class: "field" }, el("label", { for: f("cap") }, "Captions"), captions, capNote),
+      el("div", { class: "field wide" }, el("label", { for: f("note") }, "A note for students (optional)"), note)),
+      el("div", { class: "btn-row" }, previewBtn), preview);
+    state.rows.push({ row, url, title, captions, note, showError, replace: spec.replace || null, docId });
+    return row;
+  }
+
+  // ---------------------------------------------------------------
+  // 4. MAKING THE KEY
+  // ---------------------------------------------------------------
+  /** Read the form into a section (before checking). Also marks fields that have a problem. */
+  function readForm() {
+    const fieldErrors = [];
+    const raw = { app: state.app, title: $("sec-title").value, instructor: $("sec-instructor").value, term: $("sec-term").value, skip: [], videos: [] };
+    for (const [docId, box] of Object.entries(state.stops)) if (!box.checked) raw.skip.push(docId);
+    for (const [name, label] of [["sec-title", "Section name"], ["sec-instructor", "Your name"]]) {
+      const empty = !$(name).value.trim();
+      $(name).setAttribute("aria-invalid", String(empty));
+      if (empty) fieldErrors.push({ field: $(name), text: label + " is required." });
+    }
+    for (const r of state.rows) {
+      const url = r.url.value.trim();
+      if (r.replace && !url) { r.showError(""); continue; } // keep the course video
+      if (!url) { r.showError("Add the video's link, or remove this video."); fieldErrors.push({ field: r.url, text: "An added video has no link." }); continue; }
+      if (!TM.videoUrlAllowed(url, state.hosts)) { r.showError("That isn't an https link on one of the approved video sites."); fieldErrors.push({ field: r.url, text: "A video link isn't on an approved video site: " + url }); continue; }
+      r.showError("");
+      const v = { url: url, title: r.title.value, captions: r.captions.value, note: r.note.value };
+      if (r.replace) v.replace = r.replace; else v.after = r.row.afterSelect.value;
+      raw.videos.push(v);
+    }
+    return { raw, fieldErrors };
+  }
+
+  $("make-key").addEventListener("click", function () {
+    const box = $("key-box");
+    const { raw, fieldErrors } = readForm();
+    if (fieldErrors.length) {
+      fill(box, el("div", { class: "notice warn", role: "alert" },
+        el("p", {}, el("b", {}, "Fix " + (fieldErrors.length === 1 ? "this" : "these " + fieldErrors.length) + " first:")),
+        el("ul", { class: "problems" }, fieldErrors.map((e) => el("li", {}, el("a", { href: "#" + e.field.id, onclick: (ev) => { ev.preventDefault(); openTo(e.field); } }, e.text))))));
+      box.focus();
+      return;
+    }
+    const ctx = { app: state.app, videoHosts: state.hosts, stopIds: state.index.stopIds, videoIds: state.index.videoIds, anchorIds: state.index.anchorIds };
+    const result = TM.cleanSection(raw, ctx);
+    if (!result.section) { fill(box, el("p", { class: "notice warn", role: "alert" }, result.problems[0])); box.focus(); return; }
+    showKey(result.section, result.problems);
+  });
+
+  /** Open the lesson a field is in, then move to it. */
+  function openTo(field) {
+    const d = field.closest("details");
+    if (d) d.open = true;
+    field.focus();
+  }
+
+  function showKey(section, problems) {
+    const box = $("key-box");
+    const key = TM.encodeSectionKey(section);
+    if (key.length > 20000) {
+      fill(box, el("p", { class: "notice warn", role: "alert" }, "This section is too big for one key (" + key.length.toLocaleString() + " characters; the limit is 20,000). Remove some videos or shorten their notes, then try again."));
+      box.focus();
+      return;
+    }
+    // Check it the way the panel will: unpack it again.
+    const again = TM.decodeSectionKey(key, { app: section.app, videoHosts: state.hosts });
+    if (!again.section) { fill(box, el("p", { class: "notice warn" }, "Something went wrong making the key. Please try again.")); return; }
+    const keyArea = el("textarea", { id: "key-out", class: "key", readonly: true, rows: "5", spellcheck: "false", "aria-describedby": "key-help" });
+    keyArea.value = key;
+    const copied = el("span", { class: "small", role: "status" });
+    const copy = el("button", { type: "button", class: "btn" }, "Copy the key");
+    copy.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(key); copied.textContent = " Copied."; }
+      catch (e) { keyArea.focus(); keyArea.select(); copied.textContent = " Selected: press Ctrl+C (Cmd+C on a Mac) to copy."; }
+    });
+    const link = new URL("../taskpane.html?app=" + section.app + "&join=" + encodeURIComponent(key), window.location.href).href;
+    const copyLink = el("button", { type: "button", class: "btn slim secondary" }, "Copy the browser link");
+    const linkNote = el("span", { class: "small", role: "status" });
+    copyLink.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(link); linkNote.textContent = " Copied."; } catch (e) { linkNote.textContent = " Couldn't copy. Use the key instead."; }
+    });
+
+    // A section file, for a section with a short code on the website (sections/<CODE>.md).
+    const prefix = { word: "WRD", excel: "XL", powerpoint: "PP" }[section.app];
+    const codeInput = el("input", { type: "text", id: "file-code", maxlength: "15", value: prefix + "-" + randomCode(), autocomplete: "off", spellcheck: "false" });
+    const codeErr = el("p", { class: "error-text", hidden: true, id: "file-code-err" });
+    const saveFile = el("button", { type: "button", class: "btn slim secondary" }, "Download the section file");
+    saveFile.addEventListener("click", () => {
+      const code = codeInput.value.trim().toUpperCase();
+      if (!TM.SECTION_CODE.test(code)) { codeErr.textContent = "A code is capitals and numbers with one hyphen, such as " + prefix + "-7K3Q."; codeErr.hidden = false; codeInput.setAttribute("aria-invalid", "true"); codeInput.focus(); return; }
+      codeErr.hidden = true; codeInput.setAttribute("aria-invalid", "false");
+      download(TM.sectionToFile(section, code), code + ".md", "text/markdown;charset=utf-8");
+    });
+
+    fill(box,
+      el("div", { class: "notice good key-out" },
+        el("p", {}, el("b", {}, "Your key is ready. "), describe(section)),
+        problems.length ? el("details", {}, el("summary", {}, "Notes (" + problems.length + ")"), el("ul", {}, problems.map((p) => el("li", {}, p)))) : null),
+      el("div", { class: "field" }, el("label", { for: "key-out" }, "Section key (" + key.length.toLocaleString() + " characters)"), keyArea,
+        el("small", { id: "key-help" }, "It's long, and that's fine: students copy and paste it. Keep a copy, so you can edit the section later.")),
+      el("div", { class: "btn-row" }, copy, copied),
+      el("h3", {}, "What to tell your students"),
+      el("ol", { class: "share-steps" },
+        el("li", {}, "Open Office Trainer in ", APPS[section.app].name, " (or in the browser)."),
+        el("li", {}, "Go to ", el("b", {}, "Settings"), ", find ", el("b", {}, "Your section"), ", paste the key and select ", el("b", {}, "Join"), "."),
+        el("li", {}, "The course now shows your lessons and videos. Their progress still stays on their own device.")),
+      el("p", { class: "small" }, "Students working in a browser can use a link instead, which asks them to join: ", copyLink, linkNote),
+      el("details", {}, el("summary", {}, "For the website: a short section code instead of a key"),
+        el("p", { class: "small" }, "A short code (such as " + prefix + "-7K3Q) is easier to type, but someone who can update the website has to add the file to the course's sections folder (" + APPS[section.app].folder + "sections/). Students then type the code instead of pasting the key."),
+        el("div", { class: "field" }, el("label", { for: "file-code" }, "Code"), codeInput, codeErr),
+        saveFile));
+    box.focus();
+    announce("Your section key is ready.");
+  }
+
+  function describe(s) {
+    const bits = [];
+    bits.push(s.skip.length ? "It leaves out " + s.skip.length + (s.skip.length === 1 ? " stop" : " stops") : "It includes every stop");
+    bits.push(s.videos.length ? "has " + s.videos.length + " of your videos" : "uses the course videos");
+    return bits.join(" and ") + ".";
+  }
+
+  /** Four random capitals and digits (no I, L, O or U, which look like 1, 0 and V). */
+  function randomCode() {
+    const letters = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+    const bytes = crypto.getRandomValues(new Uint8Array(4));
+    return Array.from(bytes, (b) => letters[b % 32]).join("");
+  }
+
+  // ---------------------------------------------------------------
+  // 5. EDITING AN OLD KEY
+  // ---------------------------------------------------------------
+  $("load-key").addEventListener("click", async function () {
+    const status = $("load-status");
+    const text = $("old-key").value;
+    // First unpack without a course, to learn which course it's for.
+    const first = TM.decodeSectionKey(text, {});
+    if (!first.section) { status.textContent = first.problems[0]; $("old-key").focus(); return; }
+    await openCourse(first.section.app);
+    if (!state || state.app !== first.section.app) { status.textContent = "Couldn't load the " + APPS[first.section.app].name + " course to edit this key. Check your connection and try again."; return; }
+    const ctx = { app: state.app, videoHosts: state.hosts, stopIds: state.index.stopIds, videoIds: state.index.videoIds, anchorIds: state.index.anchorIds };
+    const { section, problems } = TM.decodeSectionKey(text, ctx);
+    if (!section) { status.textContent = problems[0]; return; }
+    $("sec-title").value = section.title;
+    $("sec-instructor").value = section.instructor === "your instructor" ? "" : section.instructor;
+    $("sec-term").value = section.term;
+    for (const [docId, box] of Object.entries(state.stops)) box.checked = !section.skip.includes(docId);
+    countStops();
+    for (const v of section.videos) {
+      if (v.replace) {
+        const r = state.rows.find((x) => x.replace === v.replace);
+        if (!r) continue;
+        r.url.value = v.url; r.title.value = v.title; r.captions.value = v.captions; r.note.value = v.note;
+        r.captions.dispatchEvent(new Event("change"));
+        r.row.closest("details").open = true;
+      } else {
+        // Find the lesson that has this anchor, and add a row there.
+        const lesson = Object.entries(state.lessonBoxes).find(([, l]) => l.anchors.some((b) => anchorId(b) === v.after));
+        if (!lesson) continue;
+        const row = videoRow({ after: v.after, video: v }, lesson[0]);
+        lesson[1].lesson.querySelector(".add-row").before(row);
+        lesson[1].lesson.open = true;
+      }
+    }
+    status.textContent = "Loaded " + section.title + "." + (problems.length ? " " + problems.length + " part(s) were dropped: " + problems.join(" ") : "");
+    announce(status.textContent);
+    $("sec-title").focus();
+  });
+})();
+  </script>
+</body>
+</html>

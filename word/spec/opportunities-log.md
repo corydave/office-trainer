@@ -92,3 +92,22 @@ The lessons state these; check them against current Microsoft 365 and fix the wo
 - `tools/test-docs/expected.json` is long and hand-edited through scripts. A compact one-line-per-document format would be easier to review.
 - The Playwright tests used for this pass live outside the repo. Moving them into `tools/tests/` (with the Word stand-in) would let anyone rerun them.
 - Badge ids include the drill id, so renumbering a drill changes its badge number. Fine before launch; after launch, never renumber.
+
+## 8. Sections, the badges page and the grader (October 2026, add-in 0.8)
+
+Built and tested with made-up classes (see `sections-and-grading.md`). An independent security review found 12 issues, all fixed: two students with the same name (or a non-Latin name) could share one grade, a key could award a free course certificate, a user name in a video link could get past the approved-site check, key notes could carry links and pictures, and a "zip bomb" could freeze the grader.
+
+**Try with real systems first (High):**
+
+1. **Brightspace Download:** check the zip's folder names against what the grader reads (`<numbers> - <name> - <date>/<file>`).
+2. **Brightspace Grades > Import:** import the grader's file into a test course's grade item.
+3. **Brightspace Add Feedback Files:** upload the feedback zip and check each student got their own file.
+4. **Long addresses in desktop Office:** the badges page (about 2,000 characters for a full course) and the course certificate (about 12,000) open with `Office.context.ui.openBrowserWindow`. Check that Windows and Mac desktop Office open them whole. If not, squeeze the certificate record the way the badges page is squeezed.
+5. **Section keys in each app:** paste a key in Word, Excel and PowerPoint (web, Windows, Mac), and check that instructor videos play. The panel now allows frames only from the approved video sites, so a college that adds a site (Kaltura, Panopto, YuJa) must add it to `frame-src` in `taskpane.src.html` as well as to `videoHosts`.
+
+**Ideas (Medium/Low):**
+
+- Medium: check each grader file in a Worker with a time limit, so one slow file can't hold up the class.
+- Medium: let the grader read a whole folder (not just a zip) in browsers that allow it.
+- Low: let a section set due dates or a welcome note (plain text).
+- Low: a section file's title loses surrounding quotes, and a title like `[a, b]` reads back as a list. Only the website's section files are affected; keys are fine.

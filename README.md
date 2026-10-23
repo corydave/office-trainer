@@ -17,8 +17,11 @@ One add-in serves all three courses: it shows the Word course in Word, the Excel
 | `powerpoint/` | Everything for the PowerPoint course, in the same layout. See `powerpoint/README.md`. |
 | `.htaccess` | HostGator/Apache only: makes updates show up right away while testing. |
 | `commands.html` | Empty page the manifest format requires. Leave it alone. |
-| `index.html` | The product page (the site's home page): pick a course, how it works, installing, privacy, instructors, open license. One file, no outside code. After editing its script or style block, run `python3 word/tools/build-index-csp.py` to update its security fingerprints. |
-| `assets/` | Icons for the ribbon button, and `assets/fonts/` (Comfortaa and Atkinson Hyperlegible, SIL Open Font License), hosted here so no font service is contacted. |
+| `index.html` | The product page (the site's home page): the three promises, the courses, a tour of real screenshots, the standards each course meets (three tabs), instructors, installing, privacy, open source, questions. One file, no outside code. The standards tabs are written from the course maps by `python3 word/tools/build-index-standards.py`; after editing the page's script or style block, run `python3 word/tools/build-index-csp.py` to update its security fingerprints. |
+| `badges.html` | **My badges**: every badge and certificate from all three courses on one page. The panel opens it. **Built** by `word/tools/build-site-pages.py`. |
+| `instructor/sections.html` | The **section builder**: pick lessons, add videos, get a section key for students. **Built.** |
+| `instructor/grader.html` | The **grader**: drop in a class's files (a Brightspace zip), get scores, a Brightspace grade import, feedback files. Runs in the browser. **Built.** |
+| `assets/` | The icon (`icon.svg`, three tiles in the course colors, and PNGs from 16 to 512 px), `assets/screens/` (the home page's screenshots, taken from the real pages), and `assets/fonts/` (Comfortaa and Atkinson Hyperlegible, SIL Open Font License), hosted here so no font service is contacted. |
 | `word/tools/test-docs/`, `excel/tools/test-docs/`, `powerpoint/tools/test-docs/` | Answer keys and test files for the checks. Not needed for students. |
 
 ## 1. Put it on GitHub Pages
@@ -29,6 +32,15 @@ One add-in serves all three courses: it shows the Word course in Word, the Excel
 4. After a minute or two, open https://corydave.github.io/office-trainer/ - you should see the product page, with a button for each course.
 
 If you ever host it somewhere else, find-and-replace `https://corydave.github.io/office-trainer/` in `manifest.xml`.
+
+### Moving to learnoffice.org (GitHub plus a Cloudflare Worker)
+
+Every link inside the site is relative, so the pages work at any address. When learnoffice.org is serving the site:
+
+1. Check that https://learnoffice.org/taskpane.html and https://learnoffice.org/assets/icon-32.png open.
+2. In `manifest.xml`, find-and-replace `https://corydave.github.io/office-trainer/` with `https://learnoffice.org/` (it's in about ten places, including `<AppDomain>` if one is listed), and bump `<Version>`.
+3. Re-upload the manifest (and update it in the Microsoft 365 admin center if it's deployed there). Until then, keep the manifest on the GitHub Pages address: an add-in pointed at an address that isn't live yet won't open.
+4. The Worker should pass pages through unchanged. If it adds headers, keep them compatible with the pages' own security policies (they allow framing only of the approved video sites and fetch only from the same site).
 
 ## 2. Try it in Word on the web (works on a Chromebook)
 
@@ -72,6 +84,10 @@ The add-in reads the lessons fresh each time it opens.
 
 No manifest changes and nothing for students to reinstall.
 
+**Site pages update** - the badges page, the section builder or the grader (`word/tools/src/badges.src.html`, `sections.src.html`, `grader.src.html`, `site.css`, `site.js`), or `trainer-md.js` or a checker (they're copied in): run `python3 word/tools/build-site-pages.py` and upload the three pages. After changing `trainer-md.js`, also rebuild the editor (`python3 word/tools/build-editor.py`) and each course's roadmap and certificate (`node word/tools/build-learner-pages.mjs word`, `... excel`, `... powerpoint`).
+
+**Home page update** - after editing a course map, run `python3 word/tools/build-index-standards.py` (it rewrites the standards tabs and the fingerprints).
+
 **Manifest update** - only when `manifest.xml` itself changes (button text, icons, web addresses):
 
 1. Bump `<Version>` in `manifest.xml`.
@@ -90,13 +106,20 @@ With no `?lesson=`, the course home opens.
 Lessons are Markdown files in `word/content/`, `excel/content/` and `powerpoint/content/`, each listed in that course's `content/outline.md`. Edit them with
 `word/tools/editor.html` (it previews exactly what the add-in shows; open the `word`, `excel` or `powerpoint` folder). See each course's README.
 
+## Sections, badges and grading
+
+- **Students:** the panel's Badges screen has **Open my badges page**. In **Settings > Your section** they paste the key (or type the code) their instructor gives them.
+- **Instructors:** `instructor/sections.html` makes the section key; `instructor/grader.html` grades a Brightspace download and makes the grade import and feedback files.
+- How it all works, the key format, the safety checks, and what a FLCC-only server could add later: `word/spec/sections-and-grading.md`.
+
 ## Privacy and security
 
 - The document is read **inside the student's browser**. No server, no database, no accounts.
 - The page only loads code from Microsoft (office.js) and cdnjs (JSZip, locked with an integrity hash). Fonts are hosted here.
 - Progress (badges, which steps passed, the name typed for certificates) stays in the browser, one record per course. Nothing from the document, workbook or presentation is stored.
 - Text from documents is only ever shown with `textContent`, so it can never run as code. Lesson text is escaped before it's drawn.
-- Video sites are only contacted when a student presses Play (YouTube in privacy-enhanced mode).
+- Video sites are only contacted when a student presses Play (YouTube in privacy-enhanced mode), and only approved video sites can play in the panel.
+- Sections change what the panel shows; they never send anything. The grader checks students' files in the instructor's browser, and its security policy stops it from sending anything anywhere.
 
 ## Note on updates
 

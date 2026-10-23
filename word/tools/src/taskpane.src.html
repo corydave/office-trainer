@@ -24,11 +24,13 @@
     Scripts may only come from this site, Microsoft (office.js) and cdnjs
     (JSZip, pinned with an integrity hash). 'unsafe-inline' is needed because
     the app keeps its code inside this one file; 'unsafe-eval' because some
-    versions of office.js need it. object-src, base-uri and form-action shut off
+    versions of office.js need it. frame-src lets videos play only from the
+    approved video sites (add a site here AND in each course's videoHosts to
+    approve it). object-src, base-uri and form-action shut off
     old tricks this page never uses.
   -->
   <meta http-equiv="Content-Security-Policy"
-        content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://appsforoffice.microsoft.com https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+        content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://appsforoffice.microsoft.com https://cdnjs.cloudflare.com; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Office Trainer</title>
 
@@ -208,7 +210,13 @@
     .station-status { display: inline-block; margin-top: 2px; font-size: .78rem; font-weight: 700; }
     .station-status[data-state="done"] { color: var(--green); }
     .station-status[data-state="partial"] { color: var(--orange); }
-    .station-status[data-state="todo"], .station-status[data-state="planned"] { color: var(--muted); }
+    .station-status[data-state="todo"], .station-status[data-state="planned"], .station-status[data-state="skipped"] { color: var(--muted); }
+    /* A stop the learner's section leaves out: a dashed ring, and the words "Not in your section" */
+    .station[data-state="skipped"] .stop { border-style: dashed; }
+    .station[data-state="skipped"] .station-title { font-weight: 400; }
+    .section-line { margin: 6px 0 0; }
+    .home-head .linkish, .section-line .linkish { min-height: 24px; display: inline-flex; align-items: center; } /* big enough to tap (WCAG 2.5.8) */
+    #section-input { flex: 1 1 12em; min-width: 0; font-family: ui-monospace, Consolas, monospace; font-size: .85rem; }
     .station-planned { padding: 8px; color: var(--muted); }
     .station-planned .station-title { color: var(--muted); }
 

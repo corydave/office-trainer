@@ -268,9 +268,9 @@ color: #0046ad
 
 The outline also holds `::: outcomes` (the official course outcomes) and `::: certification MO-110` (the exam's skills), one `- id | text` line each. Certificates print their outcomes from these lists.
 
-### 5.13 Section video files (`sections/<CODE>.md`)
+### 5.13 Section files (`sections/<CODE>.md`) and section keys
 
-Instructors can swap the course videos for their own, or add videos, for one section, without touching the lesson files. A course update never overwrites their choices, and they never change anyone else's section.
+Instructors can leave stops out of the course, swap the course videos for their own, or add videos, for one section, without touching the lesson files. A course update never overwrites their choices, and they never change anyone else's section.
 
 ```
 ---
@@ -279,6 +279,7 @@ id: WRD-7K3Q
 title: Microsoft Word, Spring 2027, section 01
 instructor: Professor Rivera
 term: Spring 2027
+skip: [W2-L4, W4-L3]
 status: draft
 ---
 
@@ -298,11 +299,13 @@ captions: verified
 ```
 
 - `id` is the section's code (capitals, numbers, one hyphen), and the file is named after it.
+- `skip:` (optional) lists the stops the section leaves out, by their lesson id (lessons, skill checks, projects, the capstone). Learners still see them, marked **Not in your section**; they don't count toward the course certificate. A section that leaves out more than half of the stops with badges can't award a course certificate. A course certificate earned in a section is titled "Course Complete: <section>" and lists only the badges that counted.
 - `::: replace-video <video id>` swaps one course video. `::: add-video after <id>` adds a video after a course video or an activity (`D1.04`, `Q2.1`, `SC1`).
-- Instructor videos follow the same rules as course videos: an approved host, a title, and `captions: verified` before the file is `ready`. `note:` is an optional line shown above the video.
+- Instructor videos follow the same rules as course videos: an approved host, a title, and `captions: verified` before the file is `ready`. `note:` is an optional line shown above the video, as plain text (no links or pictures).
 - Learners see "From Professor Rivera" above the video, with a link to the standard video. Practice-mode learners (no section) always see the standard videos.
 - The validator checks every video id and activity id against the course, so a typo is caught before learners see it.
-- How the add-in will find the file (part of the add-in work still to do): when a learner enters a section code, it loads `sections/<CODE>.md` from the course's web address. No server is needed for this; the file is uploaded with the lessons. Section files hold only video links and an instructor's name, never student data.
+- Learners join in the panel (**Settings > Your section**) by typing the code; the panel loads `sections/<CODE>.md` from the course's web address. No server is needed: the file is uploaded with the lessons. Section files hold only lesson ids, video links and an instructor's name, never student data.
+- **Section keys** do the same job with nothing to upload: the section builder (`instructor/sections.html`) packs the same settings into one line of text starting `OTK1.`, which students paste instead of a code. A key and a file are checked by the same code (`TrainerMD.cleanSection`). See `word/spec/sections-and-grading.md`.
 
 ## 6. The `check:` line
 

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--
+    OFFICE TRAINER - the grader (instructor/grader.html)
+    =====================================================================
+    DON'T EDIT instructor/grader.html DIRECTLY. It's built from this file
+    by word/tools/build-site-pages.py (which copies in site.css, site.js,
+    TrainerMD and the three checkers, and writes the security fingerprints).
+
+    WHAT IT DOES
+    1. The instructor picks a course and an activity (a drill, a skill check
+       or a project's preflight).
+    2. They drop in the students' files: the zip Brightspace makes with
+       "Download all" on an assignment, or the files themselves.
+    3. The page runs the same checks the panel runs, on each file, IN THIS
+       BROWSER TAB, and shows a score for each student.
+    4. It makes three files: a grade file to import into Brightspace (when
+       the instructor adds a grades export, which has the student ids),
+       a results spreadsheet, and a zip of feedback files that Brightspace
+       can attach to each student's submission.
+    Nothing is uploaded. The files go from Brightspace to the instructor's
+    computer, and the grades go back the same way.
+
+    WHY THIS IS HARD TO FAKE
+    The check runs on the student's actual file, not on a score the panel
+    reports. (Steps that aren't in the file, such as screenshots, are
+    graded by hand as always.)
+
+    SECURITY AND PRIVACY
+    - Content Security Policy: only this page's own scripts (by fingerprint)
+      and JSZip (pinned by its integrity hash), and fetches from this site
+      only (the course files). The page can't send students' files or
+      names anywhere, even by mistake.
+    - Everything from a student's file is shown as plain text.
+    - Spreadsheet cells that start with = + - or @ get a ' in front in the
+      results file, so a file name can't turn into a formula in Excel.
+    - Sizes are capped (files, zip entries), and odd zip paths are ignored.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="__CSP__">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Check a whole class's Office Trainer work at once, in your browser, and make grade and feedback files for Brightspace.">
+  <title>Grader · Office Trainer</title>
+  <link rel="icon" href="../assets/icon-32.png" sizes="32x32">
+  <!-- JSZip opens the Brightspace zip and the .docx, .xlsx and .pptx files inside it. Pinned by its fingerprint. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+          integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+/*__SITE_CSS__*/
+
+/* ---------- This page ---------- */
+.step { margin: 0 0 28px; }
+.step > h2 { display: flex; align-items: center; gap: 8px; }
+.steps-table td:first-child { width: 4.5em; }
+.tag { display: inline-block; font-size: .8rem; font-weight: 700; border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; margin-left: 4px; color: var(--muted); }
+.result-steps { margin: 6px 0 0; padding-left: 1.2em; }
+.result-steps li { margin-bottom: 4px; }
+.result-steps .msg { color: var(--muted); display: block; }
+.file-list { max-height: 16em; overflow: auto; }
+progress.run { width: 100%; height: 14px; accent-color: var(--brand); }
+.downloads .btn { margin: 0 0 4px; }
+.match-select { min-height: 36px; padding: 4px 8px; }
+.pass-rate { white-space: nowrap; }
+#points { max-width: 12em; }
+.steps-table input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--brand); }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="site-head">
+    <div class="wrap">
+      <a class="brand" href="../index.html"><img src="../assets/icon-80.png" alt="" width="32" height="32"> Office Trainer</a>
+      <nav class="head-links" aria-label="Site">
+        <a href="../index.html#instructors">For instructors</a>
+        <a href="sections.html">Section builder</a>
+        <button type="button" class="theme-btn" id="theme-btn" aria-pressed="false" hidden>Dark mode</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <h1>Grade a class's work</h1>
+    <p class="lead">Drop in your students' files and get a score for each one, with feedback, using the same checks students see in the panel.</p>
+    <p class="notice good"><b>Private by design.</b> The files are opened and checked here, in this browser tab. They aren't uploaded anywhere, and this page is built so it can't send them anywhere.</p>
+
+    <section class="step" aria-labelledby="s1">
+      <h2 id="s1"><span class="step-num" aria-hidden="true">1</span> Course and activity</h2>
+      <fieldset>
+        <legend>Course</legend>
+        <div class="choices" id="course-choices"></div>
+      </fieldset>
+      <div id="course-status" role="status" aria-live="polite"></div>
+      <div id="activity-box" hidden>
+        <div class="field">
+          <label for="activity">Activity to grade</label>
+          <select id="activity" aria-describedby="activity-help"></select>
+          <small id="activity-help">Drills, skill checks and project preflights: anything the trainer checks in the file.</small>
+        </div>
+        <div class="table-wrap">
+          <table class="steps-table">
+            <caption>Steps in this activity</caption>
+            <thead><tr><th scope="col">Counts</th><th scope="col">Step</th><th scope="col" class="num">Points</th></tr></thead>
+            <tbody id="steps"></tbody>
+          </table>
+        </div>
+        <div class="field">
+          <label for="points">Points possible in your gradebook</label>
+          <input type="number" id="points" min="0" max="10000" step="any" value="100" aria-describedby="points-help">
+          <small id="points-help">Each student's points = the share of counted steps they got right × this number.</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="step" aria-labelledby="s2">
+      <h2 id="s2"><span class="step-num" aria-hidden="true">2</span> Students' files</h2>
+      <p>In Brightspace, open the assignment, select the submissions, and choose <b>Download</b>. Drop the zip it gives you here. You can also drop the files themselves.</p>
+      <div class="drop" id="drop">
+        <p><b>Drop the zip or files here</b></p>
+        <p class="small muted">or</p>
+        <button type="button" class="btn slim" id="pick">Choose files</button>
+        <input type="file" id="files" multiple class="sr-only" tabindex="-1" aria-label="Students' files">
+      </div>
+      <div id="files-status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="step" aria-labelledby="s3">
+      <h2 id="s3"><span class="step-num" aria-hidden="true">3</span> Brightspace grades export <span class="muted small">(optional)</span></h2>
+      <p>To make a file you can import into Brightspace's grades, add an export first: in <b>Grades</b>, choose <b>Export</b>, pick <b>Org Defined ID</b> and <b>Username</b>, add <b>Last Name</b> and <b>First Name</b>, tick the grade item, and export as CSV. The grader matches each submission to a student by name.</p>
+      <div class="btn-row">
+        <button type="button" class="btn slim secondary" id="pick-csv">Choose the grades export (.csv)</button>
+        <input type="file" id="csv" accept=".csv,text/csv" class="sr-only" tabindex="-1" aria-label="Brightspace grades export">
+      </div>
+      <div id="csv-status" role="status" aria-live="polite"></div>
+      <div class="field" id="item-box" hidden>
+        <label for="item">Grade item to fill in</label>
+        <select id="item"></select>
+      </div>
+    </section>
+
+    <section class="step" aria-labelledby="s4">
+      <h2 id="s4"><span class="step-num" aria-hidden="true">4</span> Check and download</h2>
+      <button type="button" class="btn" id="run" disabled>Check every file</button>
+      <p class="small muted" id="run-help">Choose an activity and add files first.</p>
+      <div id="run-status" role="status" aria-live="polite"></div>
+      <div id="results" tabindex="-1"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>Scores here are the share of counted steps a student's file passes. Look over anything that seems off: a student may have done a step in a way the checker doesn't recognize. Steps that aren't in the file (screenshots, typed answers) are yours to grade.</p>
+      <p>Office Trainer · Finger Lakes Community College, Computing Sciences</p>
+    </div>
+  </footer>
+  <div id="announce" class="sr-only" aria-live="polite"></div>
+
+  <script>
+/*__TRAINER_MD__*/
+/*__WORD_CHECKER__*/
+/*__EXCEL_CHECKER__*/
+/*__PPT_CHECKER__*/
+/*__SITE_JS__*/
+/* =====================================================================
+   THIS PAGE: the grader
+   ===================================================================== */
+(function () {
+  "use strict";
+  const TM = window.TrainerMD;
+  const { APPS, el, add, fill, richText, announce, download, today, loadCourse } = window.Site;
+  const $ = (id) => document.getElementById(id);
+
+  // Limits, so one odd file can't freeze the page.
+  const MAX_FILE = 150 * 1024 * 1024;     // one student file (150 MB, what the checkers accept)
+  const MAX_UNZIPPED = 400 * 1024 * 1024; // everything inside one student file, once unzipped
+  const MAX_ZIP = 1024 * 1024 * 1024;     // the Brightspace zip (1 GB)
+  const MAX_FILES = 600;                   // submissions in one go
+
+  // Each course's checker and how it reads a file.
+  const READERS = {
+    word: (bytes, name) => window.WordChecker.readDocx(bytes, { fileName: name }),
+    excel: (bytes, name) => window.ExcelChecker.readXlsx(bytes, { fileName: name }),
+    powerpoint: (bytes, name) => window.PptChecker.readPptx(bytes, { fileName: name }),
+  };
+  const CHECKERS = { word: () => window.WordChecker, excel: () => window.ExcelChecker, powerpoint: () => window.PptChecker };
+
+  const state = {
+    app: null, course: null,
+    activity: null,     // { block, station }
+    counts: {},         // step index -> checkbox ("Counts")
+    files: [],          // every student file found: { student, folder, original, when, size, read() }
+    roster: null,       // the grades export: { headers, rows, idCol, userCol, items: [{ header, name, max }] }
+    results: null,      // after checking
+  };
+
+  // ---------------------------------------------------------------
+  // 1. COURSE AND ACTIVITY
+  // ---------------------------------------------------------------
+  Object.values(APPS).forEach((a) => add($("course-choices"), el("label", { class: "choice" },
+    el("input", { type: "radio", name: "course", value: a.id, onchange: () => openCourse(a.id) }), a.name)));
+
+  async function openCourse(appId) {
+    fill($("course-status"), el("p", { class: "small" }, "Loading the " + APPS[appId].name + " course…"));
+    try { state.course = await loadCourse(appId, "../"); }
+    catch (e) { fill($("course-status"), el("p", { class: "notice warn" }, "Couldn't load the course. Check your connection and try again.")); return; }
+    fill($("course-status"));
+    state.app = appId;
+    // Every activity with at least one step the checker can see in the file, grouped by week.
+    const select = fill($("activity"));
+    state.choices = [];
+    for (const w of state.course.map.weeks) {
+      const group = el("optgroup", { label: "Week " + w.n + ": " + w.title });
+      for (const st of w.stations) {
+        const doc = st.file && state.course.docs[st.file];
+        if (!doc) continue;
+        for (const b of doc.blocks) {
+          if (!["drill", "skillcheck", "preflight"].includes(b.name)) continue;
+          if (!b.steps.some((s) => kindOf(s) === "check")) continue;
+          state.choices.push({ block: b, station: st });
+          const words = { drill: "Drill", skillcheck: "Skill check", preflight: "Project preflight" }[b.name];
+          add(group, el("option", { value: String(state.choices.length - 1) }, b.arg + " · " + words + ": " + TM.plainText(b.header.title || st.title)));
+        }
+      }
+      if (group.children.length) add(select, group);
+    }
+    $("activity-box").hidden = false;
+    // Start on a skill check or preflight if there is one: those are the graded ones.
+    const graded = state.choices.findIndex((c) => c.block.name !== "drill");
+    select.value = String(graded >= 0 ? graded : 0);
+    chooseActivity();
+    state.results = null;
+    fill($("results"));
+    updateRun();
+  }
+  $("activity").addEventListener("change", () => { chooseActivity(); state.results = null; fill($("results")); updateRun(); });
+
+  /** What kind of step: "check" (in the file), "attest", "answer", "shot" (screenshot) or "info". The panel uses the same rule. */
+  function kindOf(step) {
+    if (step.checks.length && step.checks.every((c) => c.name === "self.attest")) return "attest";
+    if (step.checks.length) return "check";
+    if (step.extra.answer !== undefined) return "answer";
+    if (step.extra.screenshot !== undefined) return "shot";
+    return "info";
+  }
+
+  function chooseActivity() {
+    const choice = state.choices[Number($("activity").value)];
+    state.activity = choice;
+    state.counts = {};
+    const body = fill($("steps"));
+    const skill = choice.block.name === "skillcheck";
+    choice.block.steps.forEach((step, i) => {
+      const kind = kindOf(step);
+      const id = "count-" + i;
+      const pts = skill ? (Number(step.extra.points) || 1) : 1;
+      let first;
+      if (kind === "check") {
+        const box = el("input", { type: "checkbox", id: id, checked: true, onchange: () => { state.results = null; fill($("results")); updateRun(); } });
+        state.counts[i] = box;
+        first = el("td", {}, box, el("label", { for: id, class: "sr-only" }, "Count step " + (i + 1)));
+      } else first = el("td", { class: "muted small" }, "By hand");
+      const tags = [];
+      if (step.extra.platform) tags.push(el("span", { class: "tag" }, { desktop: "desktop only", web: "web", windows: "Windows", mac: "Mac" }[step.extra.platform] || step.extra.platform));
+      if (kind === "shot") tags.push(el("span", { class: "tag" }, "screenshot"));
+      if (kind === "answer") tags.push(el("span", { class: "tag" }, "typed answer"));
+      if (kind === "attest") tags.push(el("span", { class: "tag" }, "self-check"));
+      add(body, el("tr", {}, first,
+        el("td", {}, el("span", {}, (i + 1) + ". "), richText("span", step.text), tags),
+        el("td", { class: "num" }, kind === "check" ? String(pts) : "")));
+    });
+    if (skill && Number(choice.block.header.passing)) add(body, el("tr", {}, el("td"), el("td", { class: "small muted" }, "Passing in the panel is " + Number(choice.block.header.passing) + "%."), el("td")));
+  }
+
+  // ---------------------------------------------------------------
+  // 2. STUDENTS' FILES: a Brightspace zip, or the files themselves
+  // ---------------------------------------------------------------
+  // Brightspace's "Download" makes a zip with one folder per submission,
+  // named like "123456-789012 - Jamie Rivera - Oct 20, 2026 512 PM", with
+  // the student's file inside under its own name. (Older versions put the
+  // same details in front of each file name instead.) We read the student's
+  // name and the date from those names, and keep the folder name, because
+  // Brightspace uses it to match feedback files to students.
+  const BS_DATE = /([A-Z][a-z]{2}) (\d{1,2}), (\d{4}) (\d{1,2})(\d{2}) ([AP]M)/;
+  const MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+  function bsDate(text) {
+    const m = BS_DATE.exec(text || "");
+    if (!m || MONTHS[m[1]] === undefined) return null;
+    let h = Number(m[4]) % 12; if (m[6] === "PM") h += 12;
+    return new Date(Number(m[3]), MONTHS[m[1]], Number(m[2]), h, Number(m[5]));
+  }
+  const IDS = /^\d+(-\d+)*$/;
+  function describePath(path) {
+    const parts = path.split("/").filter(Boolean);
+    const base = parts[parts.length - 1];
+    const folder = parts.length > 1 ? parts[parts.length - 2] : "";
+    const fbits = folder.split(" - ");
+    // ids: Brightspace's numbers ("123456-789012"); they tell two students with the same name apart.
+    if (folder && fbits.length >= 2 && IDS.test(fbits[0].trim())) {
+      return { student: TM.cleanText(fbits[1], 80), ids: fbits[0].trim(), folder: parts.slice(0, -1).join("/"), original: base, when: bsDate(fbits.slice(2).join(" - ")) };
+    }
+    const bits = base.split(" - ");
+    if (bits.length >= 4 && IDS.test(bits[0].trim())) {
+      return { student: TM.cleanText(bits[1], 80), ids: bits[0].trim(), folder: parts.slice(0, -1).join("/"), original: bits.slice(3).join(" - "), when: bsDate(bits[2]), flat: base };
+    }
+    return { student: TM.cleanText(folder || base.replace(/\.[^.]+$/, ""), 80), folder: parts.slice(0, -1).join("/"), original: base, when: null };
+  }
+
+  async function addFiles(fileList) {
+    const status = $("files-status");
+    fill(status, el("p", { class: "small" }, "Reading…"));
+    if (!state.app) { fill(status, el("p", { class: "notice warn" }, "Choose the course first, so the grader knows which files to look for.")); return; }
+    const app = APPS[state.app];
+    const found = [], skipped = [];
+    for (const f of Array.from(fileList)) {
+      if (/\.zip$/i.test(f.name)) {
+        if (f.size > MAX_ZIP) { skipped.push(f.name + " (too big)"); continue; }
+        let zip;
+        try { zip = await JSZip.loadAsync(f); } catch (e) { skipped.push(f.name + " (not a zip file JSZip can open)"); continue; }
+        zip.forEach((path, entry) => {
+          if (entry.dir) return;
+          if (/(^|\/)(__MACOSX|\.DS_Store)/.test(path) || path.includes("..") || path.startsWith("/")) return;
+          if (!app.ext.test(path)) { if (!/(^|\/)index\.html$/i.test(path)) skipped.push(path); return; }
+          const d = describePath(path);
+          const size = entry._data && entry._data.uncompressedSize; // the size the zip claims (it can lie; readCapped checks as it goes)
+          found.push(Object.assign(d, { size: size || 0, zipDate: entry.date || null, read: () => readCapped(entry, MAX_FILE) }));
+        });
+      } else if (app.ext.test(f.name)) {
+        const d = describePath(f.webkitRelativePath || f.name);
+        found.push(Object.assign(d, { size: f.size, zipDate: new Date(f.lastModified), read: async () => new Uint8Array(await f.arrayBuffer()) }));
+      } else skipped.push(f.name);
+    }
+    const all = state.files.concat(found);
+    if (all.length > MAX_FILES) skipped.unshift("Only the first " + MAX_FILES + " files are checked in one go. Split the class into smaller batches to check the other " + (all.length - MAX_FILES) + ".");
+    state.files = all.slice(0, MAX_FILES);
+    state.results = null;
+    fill($("results"));
+    drawFileList(skipped);
+    matchRoster();
+    updateRun();
+  }
+
+  /**
+   * Group the files by student; the newest submission is the one that's graded.
+   * Files go together when the names match AND (for Brightspace files) they
+   * share one of Brightspace's id numbers, so two students who happen to
+   * have the same name are never mixed up.
+   */
+  function students() {
+    const groups = [];
+    for (const f of state.files) {
+      const key = nameKey(f.student) || "file:" + (f.folder || f.original);
+      const ids = new Set(String(f.ids || "").split("-").filter(Boolean));
+      let g = groups.find((x) => x.key === key && (!ids.size || !x.ids.size || Array.from(ids).some((i) => x.ids.has(i))));
+      if (!g) { g = { student: f.student, key: key, ids: new Set(), files: [] }; groups.push(g); }
+      ids.forEach((i) => g.ids.add(i));
+      g.files.push(f);
+    }
+    const out = groups;
+    for (const s of out) {
+      s.uid = s.key + "#" + Array.from(s.ids).sort().join(","); // the same student gets the same uid every time
+      s.files.sort((a, b) => ((b.when || b.zipDate || 0) - (a.when || a.zipDate || 0)));
+      s.used = s.files[0];
+    }
+    return out.sort((a, b) => a.student.localeCompare(b.student));
+  }
+
+  function drawFileList(skipped) {
+    const list = students();
+    const status = $("files-status");
+    fill(status,
+      list.length ? el("p", { class: "notice good" }, el("b", {}, state.files.length + " file" + (state.files.length === 1 ? "" : "s")), " from ", el("b", {}, list.length + " student" + (list.length === 1 ? "" : "s")), ".",
+        list.some((s) => s.files.length > 1) ? " Where a student sent more than one, the newest is checked." : "") : el("p", { class: "notice warn" }, "No " + APPS[state.app].name + " files found. Make sure you chose the right course."),
+      skipped.length ? el("details", { class: "small" }, el("summary", {}, skipped.length + " other file" + (skipped.length === 1 ? "" : "s") + " skipped"),
+        el("ul", { class: "file-list" }, skipped.slice(0, 200).map((s) => el("li", {}, s)))) : null,
+      state.files.length ? el("button", { type: "button", class: "btn slim danger", onclick: () => { state.files = []; state.results = null; fill($("results")); fill(status); updateRun(); } }, "Clear the files") : null);
+  }
+
+  $("pick").addEventListener("click", () => {
+    $("files").setAttribute("accept", ".zip" + (state.app ? "," + { word: ".docx,.dotx", excel: ".xlsx,.xltx,.xlsm", powerpoint: ".pptx,.potx" }[state.app] : ""));
+    $("files").click();
+  });
+  $("files").addEventListener("change", (e) => { if (e.target.files.length) addFiles(e.target.files); e.target.value = ""; });
+  const drop = $("drop");
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+  // ---------------------------------------------------------------
+  // 3. THE GRADES EXPORT (for the ids Brightspace needs on import)
+  // ---------------------------------------------------------------
+  /** Read CSV text into rows of cells (quotes, commas and line breaks inside quotes all handled). */
+  function parseCsv(text) {
+    const rows = []; let row = [], cell = "", quoted = false;
+    text = text.replace(/^﻿/, "");
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (quoted) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') quoted = false;
+        else cell += c;
+      } else if (c === '"') quoted = true;
+      else if (c === ",") { row.push(cell); cell = ""; }
+      else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+      else cell += c;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows.filter((r) => r.some((x) => x.trim() !== ""));
+  }
+
+  /** A name as a matching key: no accents, no punctuation, lowercase, single spaces. Letters in every alphabet count. */
+  function nameKey(name) {
+    return String(name || "").normalize("NFD").replace(/\p{M}+/gu, "").toLowerCase().replace(/[^\p{L}\p{N} ]+/gu, " ").replace(/\s+/g, " ").trim();
+  }
+  /** The same name in any order ("Rivera Jamie" matches "Jamie Rivera"). */
+  function tokensKey(name) { return nameKey(name).split(" ").sort().join(" "); }
+
+  $("pick-csv").addEventListener("click", () => $("csv").click());
+  $("csv").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    const status = $("csv-status");
+    try {
+      if (f.size > 20 * 1024 * 1024) throw new Error("That file is too big to be a grades export.");
+      const rows = parseCsv(await f.text());
+      if (rows.length < 2) throw new Error("That file has no students in it.");
+      const headers = rows[0].map((h) => h.trim());
+      const find = (re) => headers.findIndex((h) => re.test(h));
+      const roster = {
+        headers: headers, rows: rows.slice(1),
+        idCol: find(/^orgdefinedid$/i), userCol: find(/^username$/i), lastCol: find(/^last name$/i), firstCol: find(/^first name$/i), eolCol: find(/^end-of-line indicator$/i),
+        items: [],
+      };
+      headers.forEach((h, i) => {
+        const m = /^(.*?) Points Grade\b/.exec(h);
+        if (m) { const max = /MaxPoints:\s*([\d.]+)/i.exec(h); roster.items.push({ col: i, header: h, name: m[1], max: max ? Number(max[1]) : null }); }
+      });
+      if (roster.idCol < 0 && roster.userCol < 0) throw new Error("That export has no Org Defined ID or Username column. Export again with those ticked.");
+      if (roster.lastCol < 0 || roster.firstCol < 0) throw new Error("That export has no First Name and Last Name columns, so students can't be matched. Export again with those ticked.");
+      if (!roster.items.length) throw new Error("That export has no grade item in it. Export again and tick the grade item for this activity.");
+      state.roster = roster;
+      const select = fill($("item"), roster.items.map((it, i) => el("option", { value: String(i) }, it.name + (it.max ? " (out of " + it.max + ")" : ""))));
+      $("item-box").hidden = false;
+      // Guess the item: one whose name mentions the activity id.
+      const guess = state.activity ? roster.items.findIndex((it) => it.name.toLowerCase().includes(state.activity.block.arg.toLowerCase())) : -1;
+      select.value = String(guess >= 0 ? guess : 0);
+      useItemMax();
+      fill(status, el("p", { class: "notice good" }, el("b", {}, roster.rows.length + " students"), " in the export, with " + roster.items.length + " grade item" + (roster.items.length === 1 ? "" : "s") + "."));
+      matchRoster();
+      if (state.results) drawResults();
+    } catch (err) {
+      state.roster = null;
+      $("item-box").hidden = true;
+      fill(status, el("p", { class: "notice warn" }, err.message && /export|file/.test(err.message) ? err.message : "That doesn't look like a Brightspace grades export (.csv)."));
+    }
+  });
+  function useItemMax() {
+    const it = state.roster && state.roster.items[Number($("item").value)];
+    if (it && it.max) $("points").value = String(it.max);
+  }
+  $("item").addEventListener("change", () => { useItemMax(); if (state.results) drawResults(); });
+  $("points").addEventListener("input", () => { if (state.results) drawResults(); });
+
+  /** Match each student to a row in the export, by name. Ambiguous or missing names are left for the instructor. */
+  function matchRoster() {
+    if (!state.roster) return;
+    const r = state.roster;
+    const byName = new Map(), byTokens = new Map();
+    r.rows.forEach((row, i) => {
+      const full = (row[r.firstCol] || "") + " " + (row[r.lastCol] || "");
+      for (const [map, key] of [[byName, nameKey(full)], [byTokens, tokensKey(full)]]) map.set(key, map.has(key) ? -1 : i); // -1 = two students share it
+    });
+    state.match = Object.create(null);
+    const taken = new Map(); // roster row -> how many submissions matched it
+    for (const s of students()) {
+      const key = nameKey(s.student);
+      let i = key ? byName.get(key) : undefined;        // an empty name never matches anyone
+      if (i === undefined && key) i = byTokens.get(tokensKey(s.student));
+      const row = i === undefined || i < 0 ? null : i;
+      state.match[s.uid] = row;
+      if (row !== null) taken.set(row, (taken.get(row) || 0) + 1);
+    }
+    // Two different students matched to one roster row (same name): leave both for the instructor to choose.
+    for (const uid of Object.keys(state.match)) if (state.match[uid] !== null && taken.get(state.match[uid]) > 1) state.match[uid] = null;
+  }
+  function rosterName(i) { const r = state.roster; return (r.rows[i][r.firstCol] || "") + " " + (r.rows[i][r.lastCol] || ""); }
+
+  // ---------------------------------------------------------------
+  // 4. CHECKING
+  // ---------------------------------------------------------------
+  // A zip file says how big its contents are, but it can lie: a tiny file
+  // can unzip to gigabytes (a "zip bomb") and freeze the tab. So we unzip
+  // a piece at a time, count, and stop as soon as it's too big.
+
+  /** One file from the Brightspace zip, unzipped a piece at a time, up to max bytes. */
+  function readCapped(entry, max) {
+    return new Promise(function (resolve, reject) {
+      const parts = [];
+      let total = 0, stopped = false;
+      const stream = entry.internalStream("uint8array");
+      stream.on("data", function (chunk) {
+        if (stopped) return;
+        total += chunk.length;
+        if (total > max) { stopped = true; stream.pause(); reject(new Error("The file is too big to check once it's unzipped.")); return; }
+        parts.push(chunk);
+      }).on("error", function (e) { if (!stopped) { stopped = true; reject(e); } })
+        .on("end", function () {
+          if (stopped) return;
+          const out = new Uint8Array(total);
+          let at = 0;
+          for (const p of parts) { out.set(p, at); at += p.length; }
+          resolve(out);
+        }).resume();
+    });
+  }
+
+  /** A .docx, .xlsx or .pptx is a zip too. Unzip everything inside it once, just counting, before the checker reads it. */
+  async function checkUnzippedSize(bytes) {
+    let zip;
+    try { zip = await JSZip.loadAsync(bytes); } catch (e) { return; } // not a zip: the checker gives the plain-words error
+    const entries = Object.values(zip.files).filter((f) => !f.dir);
+    if (entries.length > 5000) throw new Error("The file has too many parts inside to check.");
+    let total = 0;
+    for (const entry of entries) {
+      await new Promise(function (resolve, reject) {
+        let stopped = false;
+        const stream = entry.internalStream("uint8array");
+        stream.on("data", function (chunk) {
+          if (stopped) return;
+          total += chunk.length;
+          if (total > MAX_UNZIPPED) { stopped = true; stream.pause(); reject(new Error("The file unzips to more than 400 MB, so it wasn't checked.")); }
+        }).on("error", function (e) { if (!stopped) { stopped = true; reject(e); } })
+          .on("end", function () { if (!stopped) resolve(); }).resume();
+      });
+    }
+  }
+  function updateRun() {
+    const ready = !!(state.activity && state.files.length && Object.values(state.counts).some((b) => b.checked));
+    $("run").disabled = !ready;
+    $("run-help").textContent = ready ? "" : !state.activity ? "Choose an activity first." : !state.files.length ? "Add the students' files first." : "Tick at least one step to count.";
+  }
+
+  $("run").addEventListener("click", async function () {
+    const run = $("run");
+    run.disabled = true;
+    const list = students();
+    const block = state.activity.block;
+    const skill = block.name === "skillcheck";
+    const counted = block.steps.map((s, i) => ({ s, i })).filter((x) => state.counts[x.i] && state.counts[x.i].checked);
+    const meter = el("progress", { class: "run", max: list.length, value: 0, "aria-label": "Files checked" });
+    const words = el("p", { class: "small" });
+    fill($("run-status"), meter, words);
+    const results = [];
+    for (let n = 0; n < list.length; n++) {
+      const s = list[n];
+      words.textContent = "Checking " + (n + 1) + " of " + list.length + "…";
+      meter.value = n;
+      await new Promise((r) => setTimeout(r, 0)); // let the page draw between files
+      const res = { student: s.student, uid: s.uid, file: s.used, others: s.files.length - 1, steps: [], earned: 0, possible: 0, error: "" };
+      try {
+        if (s.used.size > MAX_FILE) throw new Error("The file is too big to check (over 150 MB).");
+        const bytes = await s.used.read();
+        if (bytes.length > MAX_FILE) throw new Error("The file is too big to check (over 150 MB).");
+        await checkUnzippedSize(bytes); // before the checker opens it: no zip bombs
+        const model = await READERS[state.app](bytes, s.used.original);
+        for (const x of counted) {
+          const pts = skill ? (Number(x.s.extra.points) || 1) : 1;
+          const r = CHECKERS[state.app]().runStep(model, x.s);
+          res.possible += pts;
+          if (r.pass) res.earned += pts;
+          res.steps.push({ index: x.i, text: x.s.text, pass: r.pass, messages: r.pass ? [] : r.messages, points: pts });
+        }
+      } catch (e) {
+        res.error = String(e && e.message ? e.message : e).slice(0, 300);
+      }
+      results.push(res);
+    }
+    meter.value = list.length;
+    words.textContent = "Checked " + list.length + " file" + (list.length === 1 ? "" : "s") + ".";
+    state.results = { block: block, station: state.activity.station, counted: counted, list: results, date: today() };
+    drawResults();
+    run.disabled = false;
+    $("results").focus();
+    announce(words.textContent);
+  });
+
+  /** The share of counted steps passed, 0 to 1. A file that couldn't be read scores 0. */
+  function share(r) { return r.possible ? r.earned / r.possible : 0; }
+  function pointsFor(r) {
+    const max = Number($("points").value) || 0;
+    return Math.round(share(r) * max * 100) / 100;
+  }
+
+  function drawResults() {
+    const R = state.results;
+    const box = fill($("results"));
+    const max = Number($("points").value) || 0;
+    const haveRoster = !!state.roster;
+    if (haveRoster) matchRoster();
+
+    // How the class did on each step: shows where to reteach.
+    const rates = R.counted.map((x) => {
+      const done = R.list.filter((r) => !r.error && r.steps.find((s) => s.index === x.i && s.pass)).length;
+      return { x, done, of: R.list.filter((r) => !r.error).length };
+    });
+
+    const rows = R.list.map((r) => {
+      const key = r.uid;
+      let matchCell = null;
+      if (haveRoster) {
+        const i = state.match[key];
+        const select = el("select", { class: "match-select", "aria-label": "Brightspace student for " + r.student },
+          el("option", { value: "" }, "Not matched: choose…"),
+          state.roster.rows.map((row, j) => el("option", { value: String(j), selected: i === j }, rosterName(j))));
+        select.addEventListener("change", () => { state.match[key] = select.value === "" ? null : Number(select.value); });
+        matchCell = el("td", {}, select);
+      }
+      const detail = el("details", {}, el("summary", {}, "Steps", el("span", { class: "sr-only" }, " for " + r.student)),
+        r.error ? el("p", { class: "bad small" }, "Couldn't check this file: " + r.error) :
+          el("ol", { class: "result-steps" }, r.steps.map((s) => el("li", { value: String(s.index + 1) },
+            el("span", { class: s.pass ? "ok" : "bad" }, s.pass ? "✓ Done " : "✗ Not yet "), richText("span", s.text),
+            s.messages.map((m) => el("span", { class: "msg" }, m))))));
+      return el("tr", {},
+        el("th", { scope: "row" }, r.student),
+        el("td", { class: "small" }, r.file.original, r.others ? el("span", { class: "muted" }, " (newest of " + (r.others + 1) + ")") : null),
+        el("td", { class: "num" }, r.error ? el("span", { class: "bad" }, "Error") : Math.round(share(r) * 100) + "%"),
+        el("td", { class: "num" }, r.error ? "0" : pointsFor(r) + " / " + max),
+        matchCell, el("td", {}, detail));
+    });
+
+    const unmatched = haveRoster ? R.list.filter((r) => state.match[r.uid] === null || state.match[r.uid] === undefined).length : 0;
+    add(box,
+      el("h3", {}, "Results: " + R.block.arg + " " + TM.plainText(R.block.header.title || "")),
+      el("div", { class: "table-wrap" }, el("table", {},
+        el("caption", { class: "sr-only" }, "Score for each student"),
+        el("thead", {}, el("tr", {}, el("th", { scope: "col" }, "Student"), el("th", { scope: "col" }, "File checked"), el("th", { scope: "col", class: "num" }, "Score"),
+          el("th", { scope: "col", class: "num" }, "Points"), haveRoster ? el("th", { scope: "col" }, "Brightspace student") : null, el("th", { scope: "col" }, "Details"))),
+        el("tbody", {}, rows))),
+      el("details", {}, el("summary", {}, "How the class did on each step"),
+        el("div", { class: "table-wrap" }, el("table", {},
+          el("thead", {}, el("tr", {}, el("th", { scope: "col" }, "Step"), el("th", { scope: "col", class: "num" }, "Done"))),
+          el("tbody", {}, rates.map((q) => el("tr", {}, el("td", {}, (q.x.i + 1) + ". ", richText("span", q.x.s.text)),
+            el("td", { class: "num pass-rate" }, q.done + " of " + q.of))))))),
+      el("h3", {}, "Download"),
+      el("div", { class: "downloads" },
+        el("div", { class: "btn-row" },
+          haveRoster ? el("button", { type: "button", class: "btn", onclick: saveImport }, "Grades for Brightspace import (.csv)") : null,
+          el("button", { type: "button", class: "btn secondary", onclick: saveResults }, "All results (.csv)"),
+          el("button", { type: "button", class: "btn secondary", onclick: saveFeedback }, "Feedback files (.zip)")),
+        haveRoster
+          ? el("p", { class: "small" }, unmatched ? el("b", { class: "bad" }, unmatched + " student" + (unmatched === 1 ? " isn't" : "s aren't") + " matched yet and won't be in the import file. ") : null,
+            "Import it in Brightspace: ", el("b", {}, "Grades > Import"), ". Brightspace shows a preview before anything changes.")
+          : el("p", { class: "small muted" }, "Add a grades export (step 3) to get a file you can import into Brightspace."),
+        el("p", { class: "small muted" }, "Feedback files: in the assignment's submissions, choose ", el("b", {}, "Add Feedback Files"), " and upload the zip. Each student's feedback goes in their submission's folder, so Brightspace knows whose it is. Check one or two before you publish.")));
+  }
+
+  // ---------------------------------------------------------------
+  // 5. THE THREE DOWNLOADS
+  // ---------------------------------------------------------------
+  /** One CSV cell. guard = true for text we don't control (names, file names): a leading = + - @ gets a ' so Excel won't run it. */
+  function cell(v, guard) {
+    let s = String(v === undefined || v === null ? "" : v);
+    if (guard && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  function csv(rows) { return "﻿" + rows.map((r) => r.join(",")).join("\r\n") + "\r\n"; }
+  function baseName() { return (state.results.block.arg + "-" + state.results.date).replace(/[^A-Za-z0-9.-]/g, "_"); }
+
+  /** Brightspace's import format: id columns, the grade item, End-of-Line Indicator, using the export's own headers. */
+  function saveImport() {
+    const r = state.roster;
+    const item = r.items[Number($("item").value)];
+    const header = [];
+    if (r.idCol >= 0) header.push(cell(r.headers[r.idCol]));
+    if (r.userCol >= 0) header.push(cell(r.headers[r.userCol]));
+    header.push(cell(item.header), cell("End-of-Line Indicator"));
+    const rows = [header];
+    for (const res of state.results.list) {
+      const i = state.match[res.uid];
+      if (i === null || i === undefined) continue;
+      const row = r.rows[i];
+      const out = [];
+      if (r.idCol >= 0) out.push(cell(row[r.idCol]));
+      if (r.userCol >= 0) out.push(cell(row[r.userCol]));
+      out.push(cell(res.error ? 0 : pointsFor(res)), cell("#"));
+      rows.push(out);
+    }
+    download(csv(rows), "brightspace-import-" + baseName() + ".csv", "text/csv;charset=utf-8");
+    announce("Saved the import file.");
+  }
+
+  /** Every student, every counted step: for the instructor's own records. */
+  function saveResults() {
+    const R = state.results;
+    const header = ["Student", "File", "Score %", "Points", "Out of", "Problem"].concat(R.counted.map((x) => "Step " + (x.i + 1))).map((h) => cell(h));
+    const rows = [header].concat(R.list.map((r) => [cell(r.student, true), cell(r.file.original, true), cell(r.error ? 0 : Math.round(share(r) * 1000) / 10),
+      cell(r.error ? 0 : pointsFor(r)), cell(Number($("points").value) || 0), cell(r.error, true)]
+      .concat(R.counted.map((x) => { const s = r.steps.find((y) => y.index === x.i); return cell(r.error ? "" : s && s.pass ? "done" : "not yet"); }))));
+    download(csv(rows), "results-" + baseName() + ".csv", "text/csv;charset=utf-8");
+    announce("Saved the results.");
+  }
+
+  /** A plain-text feedback file per student, in their Brightspace folder. */
+  async function saveFeedback() {
+    const R = state.results;
+    const zip = new JSZip();
+    const title = R.block.arg + " " + TM.plainText(R.block.header.title || "");
+    const fileName = ("Office Trainer feedback - " + R.block.arg + ".txt").replace(/[\\/:*?"<>|]/g, "-");
+    const used = new Set();
+    for (const r of R.list) {
+      const lines = ["Office Trainer feedback", "", "Activity: " + title, "File checked: " + r.file.original, "Checked: " + R.date, ""];
+      if (r.error) lines.push("This file couldn't be checked: " + r.error, "Please check that you submitted the right file, then talk to your instructor.");
+      else {
+        lines.push("Score: " + r.earned + " of " + r.possible + (r.possible === 1 ? " point" : " points") + " (" + Math.round(share(r) * 100) + "%)", "");
+        const done = r.steps.filter((s) => s.pass), todo = r.steps.filter((s) => !s.pass);
+        if (done.length) { lines.push("Done:"); done.forEach((s) => lines.push("  [done] " + (s.index + 1) + ". " + TM.plainText(s.text))); lines.push(""); }
+        if (todo.length) {
+          lines.push("Not yet:");
+          todo.forEach((s) => { lines.push("  [not yet] " + (s.index + 1) + ". " + TM.plainText(s.text)); s.messages.forEach((m) => lines.push("      " + String(m))); });
+          lines.push("");
+        }
+      }
+      lines.push("Practice it again in Office Trainer: " + R.station.title + ", activity " + R.block.arg + ".",
+        "Your instructor grades any screenshot or written steps separately.");
+      // In the student's Brightspace folder, so it's matched to them. Loose files get a folder named after the student.
+      let folder = r.file.folder || ("Feedback - " + r.student.replace(/[\\/:*?"<>|]/g, "-"));
+      while (used.has(folder + "/" + fileName)) folder += " (2)";
+      used.add(folder + "/" + fileName);
+      zip.file(folder + "/" + fileName, lines.join("\r\n") + "\r\n");
+    }
+    download(await zip.generateAsync({ type: "blob" }), "feedback-" + baseName() + ".zip", "application/zip");
+    announce("Saved the feedback files.");
+  }
+})();
+  </script>
+</body>
+</html>

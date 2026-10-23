@@ -54,7 +54,7 @@ let errors = 0, warnings = 0;
 for (const f of files) {
   const doc = TM.parse(readFileSync(f, "utf8"));
   const issues = TM.validate(doc, { app, videoHosts, starterExists: p => existsSync(join(courseRoot, p)), fileExists: p => existsSync(join(courseRoot, p)),
-    videoIds: index.videoIds, anchorIds: index.anchorIds, fileName: f.split("/").pop() });
+    videoIds: index.videoIds, anchorIds: index.anchorIds, stopIds: index.stopIds, fileName: f.split("/").pop() });
   const s = TM.summarize(doc);
   console.log(`\n${f}  (${doc.meta.type}, ${s.drills} drills, ${s.checked}/${s.steps} steps checked, ${s.quizzes} quizzes, ${s.videos} videos)`);
   for (const i of issues) {

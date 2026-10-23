@@ -21,6 +21,8 @@ Everything learners see in the Word add-in comes from the Markdown files in this
 | `tools/word-checker.js` | The checker library: opens a .docx and runs every check (one file, no dependencies besides JSZip). The add-in and `check-tests.html` share it |
 | `tools/src/taskpane.src.html`, `tools/src/taskpane.app.js` | The add-in's page and code (shared by the Word and Excel courses). `build-taskpane.py` combines them with `trainer-md.js`, `word-checker.js` and `../excel/tools/excel-checker.js` into `../taskpane.html` |
 | `tools/build-taskpane.py` | Rebuilds the add-in: `python3 tools/build-taskpane.py` |
+| `tools/build-site-pages.py`, `tools/src/badges.src.html`, `sections.src.html`, `grader.src.html`, `site.css`, `site.js` | The badges page (`../badges.html`), the section builder and the grader (`../instructor/`). Rebuild with `python3 tools/build-site-pages.py` |
+| `tools/build-index-standards.py` | Writes the home page's standards tabs from the three course maps (and updates its fingerprints) |
 | `tools/test-docs/`, `tools/make-test-docs.py` | Answer keys and part-done documents for testing the checks, and the script that makes them |
 | `tools/check-tests.html` | Runs every check in all five weeks against the test documents and compares the results with `test-docs/expected.json`. Open it from the website or a local web server |
 | `tools/editor.html` | The editor. Open it in Chrome or Edge, then **Open folder** and pick this folder |
@@ -45,7 +47,9 @@ Everything learners see in the Word add-in comes from the Markdown files in this
 1. In the editor, choose **New > Section video file** (or copy `sections/WRD-SAMPLE.md`) and name it after the section's code.
 2. The preview lists every course video and its id. Use **Replace video** or **Add video** in the Insert bar.
 3. To see a lesson the way that section will, open the lesson and pick the section under **Preview as**.
-4. Upload the section file with the lessons. Once the add-in supports section codes, learners who enter that code get the instructor's videos; everyone else keeps the standard ones.
+4. Upload the section file with the lessons. Learners who enter that code (panel: **Settings > Your section**) get the instructor's videos, and the stops listed in `skip:` are marked "Not in your section"; everyone else keeps the standard course.
+
+Easier for most instructors: the **section builder** (`../instructor/sections.html`) does the same without uploading anything. It makes a **section key** students paste instead of a code. See `spec/sections-and-grading.md`, which also covers the **grader** (`../instructor/grader.html`).
 
 ## How the add-in uses these files
 
